@@ -2,26 +2,27 @@ package main
 
 import (
 	"encoding/json"
-	"net/http"
 	"fmt"
 	"io"
+	"net/http"
+	"os"
 )
 
 // MangaResponse struct represents the API response from Mangadex
 type MangaResponse struct {
-	Result string `json:"message"`
-	Response  string `json:"response"`
-	Data []ChapterData	`json:"data"`
+	Result   string        `json:"message"`
+	Response string        `json:"response"`
+	Data     []ChapterData `json:"data"`
 }
 
 // Chapter struct is the nested data part of the response struct
 type ChapterData struct {
-    Type    string `json:"type"`
-    Chapter string `json:"chapter"`
-	Title string `json:"title"`
-	Id string `json:"id"`
+	Type       string            `json:"type"`
+	Chapter    string            `json:"chapter"`
+	Title      string            `json:"title"`
+	Id         string            `json:"id"`
 	Attributes ChapterAttributes `json:"attributes"`
-    // Add other fields as needed based on the API response
+	// Add other fields as needed based on the API response
 }
 
 // Attributes represents the nested attributes of each chapter
@@ -37,6 +38,24 @@ type ChapterAttributes struct {
 	UpdatedAt          string `json:"updatedAt"`
 	Pages              int    `json:"pages"`
 	Version            int    `json:"version"`
+}
+
+// struct for bookmarks json file
+type MangaList struct {
+	Title Title `json:"title"`
+	Key   Key   `json:"key"`
+}
+
+// struct for Title key in bookmarks file
+type Title struct {
+	Connector string `json:"connector"`
+	Manga     string `json:"manga"`
+}
+
+// struct for key in bookmarks file
+type Key struct {
+	Connector string `json:"connector"`
+	Manga     string `json:"manga"`
 }
 
 func getResponseAsString(manga_id string) (map[string]interface{}, error) {
@@ -62,9 +81,7 @@ func getResponseAsString(manga_id string) (map[string]interface{}, error) {
 	return result, nil
 }
 
-
-
-func getResponseAsStruct(manga_id string) (MangaResponse, error)  {
+func getResponseAsStruct(manga_id string) (MangaResponse, error) {
 
 	// parsed response
 	var structuredResponse MangaResponse
@@ -89,10 +106,33 @@ func getResponseAsStruct(manga_id string) (MangaResponse, error)  {
 	return structuredResponse, nil
 }
 
+func LoadBookmarks() {
+	// Read the JSON file
+	bookmarks, err := os.ReadFile("bookmarks.json")
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+		return
+	}
+	// Unmarshal the JSON data into a slice of Entry structs
+	var mangaList []MangaList
+	err = json.Unmarshal(bookmarks, &mangaList)
+	if err != nil {
+		fmt.Println("Error unmarshalling JSON:", err)
+		return
+	}
 
-func main () {
+	// print out json bookmarks
+	for _, entry := range mangaList {
+		fmt.Printf("Manga Title: %s\n", entry.Title.Manga)
+		fmt.Printf("Manga Id: %s\n", entry.Key.Manga)
+		fmt.Println()
+	}
 
-	manga_id := "a920060c-7e39-4ac1-980c-f0e605a40ae4"
+}
+
+func main() {
+
+	manga_id := "05a56be4-26ab-4f50-8fc0-ab8304570258"
 
 	response, err := getResponseAsStruct(manga_id)
 	if err != nil {
@@ -107,5 +147,7 @@ func main () {
 			fmt.Printf("Updated At: %s\n\n", chapter.Attributes.UpdatedAt)
 		}
 	}
-}
 
+	//fmt.Printf("List of Manga contained in bookmarks.json:\n\n")
+	//LoadBookmarks()
+}

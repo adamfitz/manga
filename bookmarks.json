@@ -1,0 +1,1182 @@
+[
+    {
+      "title": {
+        "connector": "ManhuaTop",
+        "manga": "Absolute Dominion"
+      },
+      "key": {
+        "connector": "topmanhua",
+        "manga": "https://manhuatop.org/manhua/absolute-dominion/"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Akanabe-sensei wa Tereshirazu"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "6f2b317e-17ff-491a-8f61-e6e591ae2df2"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Akuyaku Ouji no Eiyuutan"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "5309245e-f6a8-4004-be99-6c6749a2c564"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Almark"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "d803df2d-9706-41ed-8b45-cc6fe3b10185"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "An Introvert's Hookup Hiccups: This Gyaru Is Head Over Heels for Me!"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "f3d3cf42-a12a-42f5-bd56-70b587eee06a"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Ane no Tomodachi"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "1d330951-583e-423e-9cd7-abcd6f761f53"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Bocchi no Boku ni Kyousei Kanojo ga Yattekita"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "fc7e628c-6c26-497a-b17d-dfea90b44652"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Boku no Nakama wa Isekai Saikyo Undead"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "55973f4c-d211-402f-9cc2-49a60bbaab95"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Cheat Eater Isekai Shoukan Kotogotoku Horobubeshi"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "9957316c-eadb-49c5-bc2d-f6cbfe9034a3"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Chika Idol wo Kage de Sasaeru Ore"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "557615b9-6fec-4ab7-a512-03cbde39815f"
+      }
+    },
+    {
+      "title": {
+        "connector": "ManhuaPlus",
+        "manga": "Childhood Friend of the Zenith"
+      },
+      "key": {
+        "connector": "manhuaplus",
+        "manga": "/manga/childhood-friend-of-the-zenith"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Chounin A wa Akuyaku Reijou wo Doushitemo Sukuitai"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "ffbd1ee1-65e8-45d4-ba03-6441f584b74b"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Class de 2 Banme ni Kawaii Onna no Ko to Tomodachi ni Natta"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "8ef11280-30bc-434b-bf61-c61e092905ac"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Class no Bocchi Gal wo Omochikaeri Shite Seisokei Bijin ni Shite Yatta Hanashi"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "68a946fc-7ff0-434e-a500-34b3207efd6f"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Class no Daikirai na Joshi to Kekkon Suru Koto ni Natta"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "63fb6354-0ace-4f74-b8b8-af1be314f245"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "D-kyuu Boukensha no Ore, Naze ka Yuusha Party ni Kanyuu Sareta Ageku, Oujo ni Tsukimatowareteru"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "a34052d5-0057-4f33-a850-5f145cef5694"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Demon King of Phantom Thief - A Betrayed Thief Reigned Over the World"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "cdfc9e66-e8a3-4f78-ab90-365fe32d4bcc"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaBuddy",
+        "manga": "Devil Son In Law"
+      },
+      "key": {
+        "connector": "mangabuddy",
+        "manga": "/devil-son-in-law"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Dorei kara no Kitai to Hyouka no sei de Sakushu dekinai no daga"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "d5227574-ed83-47fe-89c1-43444c2f6e75"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Doujima-kun wa Doujinai"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "862aa027-38e1-470f-bf9b-c6d228d9168f"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Drawing: Saikyou Mangaka wa Oekaki Skill de Isekai Musou Suru!"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "05a56be4-26ab-4f50-8fc0-ab8304570258"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Dungeon no Osananajimi"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "8572da1b-3b5d-44aa-a40c-8a92b512c336"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Fukushuu o Koinegau Saikyou Yuusha wa, Yami no Chikara de Senmetsu Musou Suru"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "bd38c075-8b12-450a-aeee-125e3ac5da4b"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Fuufu Ijou, Koibito Miman."
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "b4c93297-b32f-4f90-b619-55456a38b0aa"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Gal ni Yasashii Otaku-kun"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "270f205c-e9a6-4b24-b940-59d5c07829d1"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Garbage Brave: Isekai ni Shoukan Sare Suterareta Yuusha no Fukushuu Monogatari"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "737c292b-5b97-41bb-8b04-51bcc945f7a7"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Garuru Girl"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "ab541412-f0d0-4fcf-a7a3-084a835d9d4a"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaKakalot",
+        "manga": "Gotou-san wa Furimukasetai! (Pixiv Serialization)"
+      },
+      "key": {
+        "connector": "mangakakalot",
+        "manga": "https://mangakakalot.com/manga/ae928033"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Grand Dwarf"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "a2e62666-3eac-4ea3-b0a2-1db36026103d"
+      }
+    },
+    {
+      "title": {
+        "connector": "Manganato",
+        "manga": "Hanging Out With A Gamer Girl"
+      },
+      "key": {
+        "connector": "manganel",
+        "manga": "https://manganato.com/manga-gj983444"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Hazure Skill: The Guild Member with a Worthless Skill Is Actually a Legendary Assassin"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "cc121572-858e-4bd2-b5f3-ef505eca0081"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Henkyou no Yakushi, Miyako de S Rank Boukensha to naru"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "2c9ace30-a0c6-4e87-adbb-4fa4f80f975e"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Hero X Demon Queen"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "ee6bfae5-9715-427b-b29e-3bec88595df7"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Hiiragi-san Chi no Kyuuketsu Jijou"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "182f72c5-1949-4b22-8335-a64cafd128cb"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "I Brought Home a Succubus Who Failed to Find a Job."
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "82f18ea7-867d-4041-926b-00fe30c79c58"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaReader.to",
+        "manga": "I Found a Female Knight in a Rice Field, in the Countryside They Think She’s My Wife"
+      },
+      "key": {
+        "connector": "mangareaderto",
+        "manga": "/i-found-a-female-knight-in-a-rice-field-in-the-countryside-they-think-shes-my-wife-64579"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaKakalot",
+        "manga": "I was called incompetent at home, but it seems I’m super-competent Globally"
+      },
+      "key": {
+        "connector": "mangakakalot",
+        "manga": "https://mangakakalot.com/manga/lw931574"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "If I Don’t Die Soon, I’ll Become The Ruler Of The Demon Realm!"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "86c593d1-c1ab-4633-8c5e-bcc74eaa97ea"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Inaka no Home Center Otoko no Jiyuu na Isekai Seikatsu"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "f5b69b9e-c41f-4d12-8f62-fa7eba9d9b6c"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Isekai de Cheat Skill wo Te ni Shita Ore wa, Genjitsu Sekai wo mo Musou Suru ~Level Up wa Jinsei wo Kaeta~"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "37838287-3fe9-443d-9d22-eafc1089140e"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Isekai Ten'i Shita node Cheat o Ikashite Mahou Kenshi Yaru Koto ni Suru"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "9c4f1b25-c224-4346-990a-f18c77f4ab9e"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Isso Anata ga Todome wo Sashite"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "ea4d294d-f026-4bf2-a999-a559084bad1b"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Kabeyaku Nado Fuyou to Tsuihousareta S-kyuu Boukensha, <Dorei Kaihou> Skill wo Kushi shite Shijou Saikyou no Kunizukuri"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "5bb3b15f-3f60-490a-b873-bd7589f4e662"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Kage no Jitsuryokusha ni Naritakute!"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "77bee52c-d2d6-44ad-a33a-1734c1fe696a"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaKakalot",
+        "manga": "Kaoru Hana wa Rin to Saku"
+      },
+      "key": {
+        "connector": "mangakakalot",
+        "manga": "https://chapmanganato.to/manga-nu990877"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Kensei no Osananajimi ga Power Harass de Ore ni Tsuraku Ataru no de, Zetsuen Shite Henkyou de ma Kenshi to Shite Denaosu Koto ni Shita"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "7562156c-3987-4cbd-ad6c-a83cdcca9770"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Kimi wa Meido-sama"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "9422a147-c0c8-400d-9106-57cb8ece3dba"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Kimi wa, Nina Janai"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "3225971b-272f-482f-9f8f-df2a4e466b27"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Koko wa Ore ni Makasete Saki ni Ike to Itte kara 10-nen ga Tattara Densetsu ni Natte Ita."
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "66f42f5f-bcb7-437b-9ae5-752c84bce709"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Kono Oto Tomare!"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "df9be021-ff37-419e-ba6e-dda3e28eb763"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Koori no Hime wa Chiisana Hidamari de Tokasaretai"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "964d8e8a-7bcb-42f1-9651-20b1871eecac"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Kore kara Dandan Shiawase ni Natte Iku Kowai Onna Joushi"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "456415b4-5d90-4262-b549-34a18153039d"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Kore wa Zombie desu ka?"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "e9b4ff59-743c-4b0f-bd41-ff27a2d59ebc"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Kozure Batsuichi, Saigo no Koi wa Numa deshita."
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "1e0e631b-f9b8-476a-b7d6-a0f000027898"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Lilia Pregnant The World End"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "b35163ef-efbf-4cb9-bf97-0acc89200455"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Maou Gun Saikyou no Majutsushi wa Ningen datta"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "7af7cbd5-6c77-4c9e-9163-7f01dd6e1cc6"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Maou Reijou no Shikousha"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "d48703b7-7b7a-4f41-b958-fbb90863ff30"
+      }
+    },
+    {
+      "title": {
+        "connector": "Manganato",
+        "manga": "Marriage Gray"
+      },
+      "key": {
+        "connector": "manganel",
+        "manga": "https://manganato.com/manga-to997197"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Meccha Shoukan Sareta Ken"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "802bf297-b156-4053-8542-f12057c4a7b9"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Mi-chan wa Kawaretai"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "84f93f46-166e-41a2-b34d-59f844a78c9b"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaBuddy",
+        "manga": "Monochrome Days"
+      },
+      "key": {
+        "connector": "mangabuddy",
+        "manga": "/monochrome-days"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Moto Yuusha wa Shizuka ni Kurashitai"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "e0de090b-1bc2-4e2c-afe1-a69a0a2a29d7"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Musume Janakute, Mama ga Suki Nano!?"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "bc24c75e-1c73-43bc-80aa-024ebb041e34"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "My Friend's Little Sister Has It in for Me!"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "61e5da82-16ac-421e-9fcd-2db8995031a3"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "My Wife Is From a Thousand Years Ago"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "17a56d33-9443-433a-9e0d-70459893ed8f"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Nanjou-san wa Boku ni Dakaretai"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "8c701f22-8ef9-4b0d-ae4e-0e17ac3cd074"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Negative Yuusha to Maou-gun Kanbu"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "f77aca92-0b8d-4583-9294-8644f71b1e01"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Netojuu no Susume"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "4ad24956-53ed-417b-970d-be4d60e3cf02"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Nezumi no Hatsukoi"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "ca33a142-58fb-4fee-88b9-36ef87f02c77"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Occhoko Doji Onee-san"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "1d3905b0-f8c2-4c38-8b26-5b2ff0a9516c"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Oh! Dangun"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "d9f7540f-4934-446a-923c-81619b5d3b53"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Oneesan ga Shinryakuchuu!?"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "a93959d7-4a4a-4f80-88f7-921af3ca9ade"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Only I Know the World Is Ending and Getting Killed by Rampaging Beasts Only Makes Me Stronger"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "0aa2520a-a18f-406d-8908-32cec22b88ac"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Ore ni Trauma wo Ataeta Joshi-tachi ga Chirachira Mitekuru kedo, Zannen desu ga Teokure desu"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "e4e2da95-1cd7-49e8-9197-b7419be2077b"
+      }
+    },
+    {
+      "title": {
+        "connector": "Doujins",
+        "manga": "Original Doujins Series - A Week-Long Relation Between a Gyaru and an Introvert by Tamabian"
+      },
+      "key": {
+        "connector": "doujins",
+        "manga": "/doujins-original-series/tamabian-a-week-long-relation-between-a-gyaru-and-an-introvert-51500"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Quest Supremacy"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "bcf927d8-52e3-4d6f-a2da-4eb37abe91c9"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Rebirth of King Zhou: Not Being the Ultimate Villain"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "753e8d16-9977-4422-9ed7-3589492ee371"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Rettoujin no Maken Tsukai: Skill Board wo Kushi Shite Saikyou ni Itaru"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "e0a9e33b-6def-431b-87db-ae2b26a501a0"
+      }
+    },
+    {
+      "title": {
+        "connector": "ManhuaTop",
+        "manga": "Return of the Sword God-Rank Civil Servant"
+      },
+      "key": {
+        "connector": "topmanhua",
+        "manga": "https://manhuatop.org/manhua/return-of-the-sword-god-rank-civil-servant/"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Ryuu to Ayumu Nariagari Boukensha-dou"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "901da7d9-8742-4f1a-9432-b7c1e67a5daf"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Sekai Saikyou no Shitsuji"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "5c151924-f2b6-4d3e-8dba-3a64adc8e205"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaKakalot",
+        "manga": "Shinmai Ossan Bouken-sha, Saikyou paati ni shinu hodo kitae rarete Muteki ni naru"
+      },
+      "key": {
+        "connector": "mangakakalot",
+        "manga": "https://mangakakalot.com/manga/xs925173"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Shinmai Ossan Boukensha, Saikyou Party ni Shinu hodo Kitaerarete Muteki ni Naru."
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "a2320293-f00e-43a0-8d08-1110cf26a894"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Shut Up, Malevolent Dragon! I Don’t Want to Have Any More Children With You"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "d41fe947-2e33-4b26-ac29-abc70fb08edb"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Souzou Renkinjutsushi wa Jiyuu wo Ouka suru: Kokyou wo Tsuihou saretara, Maou no Ohizamoto de Chouzetsu Kouka no Magic Item Tsukuri-houdai ni Narimashita"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "47f8b468-4bf8-4f5f-b24d-8749d0c82ab4"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "SSS-Rank Dungeon de Knife Ippon Tewatasare Tsuihou Sareta Shiro Madoushi: Yggdrasil no Noroi ni yori Jakuten de aru Maryoku Fusoku wo Kokufuku-shi Sekai Saikyou e to Itaru"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "ff95e3ac-9d28-47e2-8a7e-fad9af6aee67"
+      }
+    },
+    {
+      "title": {
+        "connector": "ManhuaPlus",
+        "manga": "The Academy's Genius Swordsman"
+      },
+      "key": {
+        "connector": "manhuaplus",
+        "manga": "/manga/the-academy-s-genius-swordsman"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "The Archmage's Restaurant"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "91b67596-9bc3-48f5-8aad-02ff520fdfa9"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "The Betrayal of Shadow"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "823fe1ad-2932-4cdd-bdbd-3e997acee7c3"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "The Black Pig Prince Recalls His Previous Life and Becomes the Strongest"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "1531650d-fb48-4e9f-bb98-180d3f4f3cfa"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaKakalot",
+        "manga": "The crow I saved that one time, is just too clumsy for me"
+      },
+      "key": {
+        "connector": "mangakakalot",
+        "manga": "https://mangakakalot.com/manga/wy929467"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "The Fairytale-like You Goes on the Assault"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "6cc85df7-e44b-4fa1-97f2-be04430cc570"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "The God-Slaying Demon King: Reincarnated as a Mere Mortal to Become the Strongest in History!"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "8de0f430-d87b-4195-bff0-5f9423f3d84f"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "The Long Summer of August 31st"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "8438feea-6d36-4082-bbd3-50d7273e66ba"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "The Man From Hell"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "b401e4fd-6257-458a-84f2-96f8d0fdbe5f"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "The Secret of the Partner Next to You"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "ad9ac663-2d34-48cf-a458-a03f5370bf47"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "The Strange Adventure of a Broke Mercenary"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "9ef7698f-9a77-4622-bd7c-a73fcbbc03af"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "The Ultimate of All Ages"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "ca3692c0-2abe-4fba-91f4-1c76611539c6"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "The Woman Who Messes With My Emotions (2022)"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "4ddbf0cb-b00e-43fa-a980-21aab630c7ff"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaKakalot",
+        "manga": "There Was a Cute Girl in the Hero’s Party, so I Tried Confessing to Her"
+      },
+      "key": {
+        "connector": "mangakakalot",
+        "manga": "https://mangakakalot.com/manga/mm927612"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "There’s No Way a Side Character Like Me Could Be Popular, Right?"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "eb0d5b07-759d-4f68-b6ec-d5ac9c6bbb9c"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "They Say I Am the King of the Future"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "aae5607d-f353-455a-bec2-9bc3a97c01d5"
+      }
+    },
+    {
+      "title": {
+        "connector": "ManhuaTop",
+        "manga": "They say i'm the future king"
+      },
+      "key": {
+        "connector": "topmanhua",
+        "manga": "https://manhuatop.org/manhua/they-say-im-the-future-king/"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Tora wa Ryuu o Mada Tabenai."
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "a967d6e2-e269-4ab8-9306-04ffc4c2cb52"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaGeko",
+        "manga": "Transmigrating to the Otherworld Once More"
+      },
+      "key": {
+        "connector": "mangaraw",
+        "manga": "/manga/transmigrating-to-the-otherworld-once-more/"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Tsuihousareru Tabi ni Skill o Te ni Ireta Ore ga, 100 no Isekai de 2-shuume Musou"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "5f64d517-c4ea-40c0-a463-fcc069d39d3b"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaKakalot",
+        "manga": "Tsuyokute New Game na Love Come"
+      },
+      "key": {
+        "connector": "mangakakalot",
+        "manga": "https://mangakakalot.com/manga/in929421"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Uchi no Kaisha no Chiisai Senpai no Hanashi (Pre-Serialization)"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "28ed63af-61f8-43af-bac3-762030c72963"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Uketsukejou ni Kokuhaku Shitakute Guild ni Kayoitsumetara Eiyuu ni Natteta"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "136dd3fe-3e21-4fc9-b737-5bf382b9682a"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "XX Shinaide! Tsukimine-san"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "7477bdb7-c146-41f7-a8de-29c7b7b5034c"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Yancha Gal no Anjou-san"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "5e3a710f-0b0d-482b-9e84-d9c91960c625"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Yaoguai Mingdan"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "b0074383-4c49-483e-8d85-f60233c5a4ab"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Yopparai Touzoku, Dorei no Shoujo wo Kau"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "9fc1e72f-ccd2-4674-83a5-7245c121f287"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Yuusha ni Zenbu Ubawareta Ore wa Yuusha no Hahaoya to Party wo Kumimashita!"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "9e107c4a-ad46-4fcf-9ca1-98f21c6ec2a3"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaKakalot",
+        "manga": "Yuusha Party wo Tsuihosareta Ore daga, Ore kara Sudattekureta you de Ureshii. ......nanode Dai Seijo, Omae ni Ottekorarete wa Komaru no daga?"
+      },
+      "key": {
+        "connector": "mangakakalot",
+        "manga": "https://mangakakalot.com/manga/cs931953"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Yuusha Party wo Tsuihousareta Shiro Madoushi, S Rank Boukensha ni Hirowareru ~Kono Shiro Madoushi ga Kikakugai Sugiru~"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "d587a5c2-842a-4fc5-a323-cddb5e41a2cb"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Yuusha Shoukan ni Makikomareta kedo, Isekai wa Heiwa deshita"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "dfdd79ad-eae8-489f-8843-bfae7e08e74b"
+      }
+    },
+    {
+      "title": {
+        "connector": "MangaDex",
+        "manga": "Yuusha to Yobareta Nochi ni - Soshite Musou Otoko wa Kazoku wo Tsukuru"
+      },
+      "key": {
+        "connector": "mangadex",
+        "manga": "a58747fa-3bca-43ff-9187-549b00f43578"
+      }
+    }
+  ]
