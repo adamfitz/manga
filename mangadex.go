@@ -111,15 +111,15 @@ func LoadBookmarks() ([]MangaList, error) {
 	// Read the JSON file
 	bookmarks, err := os.ReadFile("bookmarks.json")
 	if err != nil {
-        return nil, fmt.Errorf("Error reading file: %w", err)
-    }
+		return nil, fmt.Errorf("Error reading file: %w", err)
+	}
 
 	// Unmarshal the JSON data into a slice of MangaList structs
-    var mangaList []MangaList
-    err = json.Unmarshal(bookmarks, &mangaList)
-    if err != nil {
-        return nil, fmt.Errorf("error unmarshalling JSON: %w", err)
-    }
+	var mangaList []MangaList
+	err = json.Unmarshal(bookmarks, &mangaList)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling JSON: %w", err)
+	}
 
 	return mangaList, nil
 
@@ -128,59 +128,59 @@ func LoadBookmarks() ([]MangaList, error) {
 func main() {
 
 	/*
-	manga_id := "05a56be4-26ab-4f50-8fc0-ab8304570258"
+		manga_id := "05a56be4-26ab-4f50-8fc0-ab8304570258"
 
-	response, err := getResponseAsStruct(manga_id)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-
-	for _, chapter := range response.Data {
-		if chapter.Attributes.TranslatedLanguage == "en" {
-			fmt.Printf("ID: %s\n", chapter.Id)
-			fmt.Printf("Chapter: %s\n", chapter.Attributes.Chapter)
-			fmt.Printf("Updated At: %s\n\n", chapter.Attributes.UpdatedAt)
+		response, err := getResponseAsStruct(manga_id)
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
 		}
-	}
-		*/
+
+		for _, chapter := range response.Data {
+			if chapter.Attributes.TranslatedLanguage == "en" {
+				fmt.Printf("ID: %s\n", chapter.Id)
+				fmt.Printf("Chapter: %s\n", chapter.Attributes.Chapter)
+				fmt.Printf("Updated At: %s\n\n", chapter.Attributes.UpdatedAt)
+			}
+		}
+	*/
 
 	// load bookmarks and return struct to iterate
 	mangaList, err := LoadBookmarks()
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-    // Iterate through the returned slice (each managa in the list)
-    for _, entry := range mangaList {
+	// Iterate through the returned slice (each managa in the list)
+	for _, entry := range mangaList {
 
-        // fmt.Printf("Manga Id: %s\n", entry.Key.Manga)
-        // fmt.Println()
+		// fmt.Printf("Manga Id: %s\n", entry.Key.Manga)
+		// fmt.Println()
 
-	// for each entry in mangaList struct
-	// if the id contains https then the mangea is not at mangadex (and has its own URL / URI)
-	if !strings.Contains(entry.Key.Manga, "https") {
-		// if the manga id
-        mangaId := entry.Key.Manga
+		// for each entry in mangaList struct
+		// if the id contains https then the manga is not at mangadex (and has its own URL / URI)
+		if !strings.Contains(entry.Key.Manga, "https") {
+			// get the mangadex id
+			mangaId := entry.Key.Manga
 
-		// make api call for the mangaId
-        response, err := getResponseAsStruct(mangaId)
-        if err != nil {
-            fmt.Println("Error:", err)
-            return
-        }
+			// make api call for the mangaId
+			response, err := getResponseAsStruct(mangaId)
+			if err != nil {
+				fmt.Println("Error:", err)
+				return
+			}
 
-		// print out the manga title
-		fmt.Printf("Manga Title: %s\n", entry.Title.Manga)
-		// print out the mangaId, chapter number and updated date
-        for _, chapter := range response.Data {
-            if chapter.Attributes.TranslatedLanguage == "en" {
-                fmt.Printf("ID: %s\n", chapter.Id)
-                fmt.Printf("Chapter: %s\n", chapter.Attributes.Chapter)
-                fmt.Printf("Updated At: %s\n\n", chapter.Attributes.UpdatedAt)
-            	}
-        	}
+			// print out the manga title
+			fmt.Printf("Manga Title: %s\n", entry.Title.Manga)
+			// print out the mangaId, chapter number and updated date
+			for _, chapter := range response.Data {
+				if chapter.Attributes.TranslatedLanguage == "en" {
+					fmt.Printf("ID: %s\n", chapter.Id)
+					fmt.Printf("Chapter: %s\n", chapter.Attributes.Chapter)
+					fmt.Printf("Updated At: %s\n\n", chapter.Attributes.UpdatedAt)
+				}
+			}
 		}
 	}
 }
