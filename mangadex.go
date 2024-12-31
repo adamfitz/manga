@@ -191,8 +191,9 @@ func main() {
 	// open datbase
 	chaptersDb, _ := sqlitedb.OpenDatabase("./database/mangaList.db")
 	// query for a row
-	mangaRow, _ := sqlitedb.QueryWithCondition(chaptersDb, "chapters", "name", "Absolute Dominion")
+	databaseRow, _ := sqlitedb.QueryWithCondition(chaptersDb, "chapters", "name", "Absolute Dominion")
 	// Print the extracted row (single map)
-	fmt.Println("Extracted Row:", mangaRow)
+	fmt.Println("Extracted Row:", databaseRow)
+	fmt.Printf("Name: %s\n", databaseRow["name"])
 
 }
