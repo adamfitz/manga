@@ -1,0 +1,67 @@
+package sqlitedb
+
+import (
+	"database/sql"
+	"fmt"
+	_ "github.com/mattn/go-sqlite3" // SQLite driver
+)
+
+// OpenDatabase opens a connection to the SQLite database and returns the *sql.DB instance.
+func OpenDatabase(dbPath string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open database: %w", err)
+	}
+	return db, nil
+}
+
+// QueryRow retrieves a single row from the database as a map.
+func QueryRow(db *sql.DB, query string, args ...interface{}) (map[string]interface{}, error) {
+	// Execute the query and get a single row
+	row := db.QueryRow(query, args...)
+
+	// Get column names for the query
+	columns, err := getColumns(db, query)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create a container for the values
+	values := make([]interface{}, len(columns))
+	valuePtrs := make([]interface{}, len(columns))
+	for i := range values {
+		valuePtrs[i] = &values[i]
+	}
+
+	// Scan the row into the values container
+	err = row.Scan(valuePtrs...)
+	if err != nil {
+		return nil, err
+	}
+
+	// Map the column names to their values
+	result := make(map[string]interface{})
+	for i, colName := range columns {
+		result[colName] = values[i]
+	}
+
+	return result, nil
+}
+
+// getColumns retrieves the column names for a given query.
+func getColumns(db *sql.DB, query string) ([]string, error) {
+	// Execute the query with db.Query (not db.Prepare) to get a *sql.Rows
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Get the column names from the rows
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, err
+	}
+
+	return columns, nil
+}
