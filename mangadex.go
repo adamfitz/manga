@@ -188,12 +188,14 @@ func main() {
 		}
 	*/
 
-	// open datbase
-	chaptersDb, _ := sqlitedb.OpenDatabase("./database/mangaList.db")
+	// open database
+	mangaListDb, _ := sqlitedb.OpenDatabase("./database/mangaList.db")
 	// query for a row
-	databaseRow, _ := sqlitedb.QueryWithCondition(chaptersDb, "chapters", "name", "Absolute Dominion")
+	databaseRow, _ := sqlitedb.QueryWithCondition(mangaListDb, "chapters", "name", "Absolute Dominion")
 	// Print the extracted row (single map)
 	fmt.Println("Extracted Row:", databaseRow)
+	// print out selected fields
 	fmt.Printf("Name: %s\n", databaseRow["name"])
+	fmt.Printf("Latest Chapter: %d\n", databaseRow["current_dld_chapter"])
 
 }
