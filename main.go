@@ -1,71 +1,36 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
 	//"mangadex/sqlitedb" // importing custom code from 'sqlitedb' package in subdir
 	"main/httprequests"
+	"main/utils"
 )
-
-// struct for bookmarks json file
-type MangaList struct {
-	Title Title `json:"title"`
-	Key   Key   `json:"key"`
-}
-
-// struct for Title key in bookmarks file
-type Title struct {
-	Connector string `json:"connector"`
-	Manga     string `json:"manga"`
-}
-
-// struct for key in bookmarks file
-type Key struct {
-	Connector string `json:"connector"`
-	Manga     string `json:"manga"`
-}
-
-func LoadBookmarks() ([]MangaList, error) {
-	// Read the JSON file
-	bookmarks, err := os.ReadFile("bookmarks.json")
-	if err != nil {
-		return nil, fmt.Errorf("error reading file: %w", err)
-	}
-
-	// Unmarshal the JSON data into a slice of MangaList structs
-	var mangaList []MangaList
-	err = json.Unmarshal(bookmarks, &mangaList)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling JSON: %w", err)
-	}
-
-	return mangaList, nil
-
-}
 
 func main() {
 
-	manga_id := "05a56be4-26ab-4f50-8fc0-ab8304570258"
+	/*
+		manga_id := "05a56be4-26ab-4f50-8fc0-ab8304570258"
 
-	response, err := httprequests.GetResponseAsStruct(manga_id)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
-
-	for _, chapter := range response.Data {
-		if chapter.Attributes.TranslatedLanguage == "en" {
-			fmt.Printf("ID: %s\n", chapter.Id)
-			fmt.Printf("Chapter: %s\n", chapter.Attributes.Chapter)
-			fmt.Printf("Updated At: %s\n\n", chapter.Attributes.UpdatedAt)
+		response, err := httprequests.GetResponseAsStruct(manga_id)
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
 		}
-	}
+
+		for _, chapter := range response.Data {
+			if chapter.Attributes.TranslatedLanguage == "en" {
+				fmt.Printf("ID: %s\n", chapter.Id)
+				fmt.Printf("Chapter: %s\n", chapter.Attributes.Chapter)
+				fmt.Printf("Updated At: %s\n\n", chapter.Attributes.UpdatedAt)
+			}
+		}
+	*/
 
 	// load bookmarks and return struct to iterate
-	mangaList, err := LoadBookmarks()
+	mangaList, err := utils.LoadBookmarks()
 	if err != nil {
 		fmt.Println(err)
 		return
