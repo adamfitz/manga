@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	//"mangadex/sqlitedb" // importing custom code from 'sqlitedb' package in subdir
-	"mangadex/httprequests"
+	"main/httprequests"
 )
 
 // struct for bookmarks json file
