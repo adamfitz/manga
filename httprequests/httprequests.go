@@ -86,3 +86,34 @@ func GetResponseAsStruct(manga_id string) (MangaResponse, error) {
 	}
 	return structuredResponse, nil
 }
+
+// List of chapters for specific manga
+type MangadexChapterList struct {
+	Result string `json:"volume"`
+}
+
+// Return a list of all chapters for a specific manga
+func MangadexGetChapterList(manga_id string) (map[string]interface{}, error) {
+
+	// NOTE that the translated language is specifically hard coded here to english
+	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/manga/%s/aggregate?translatedLanguage[]=en", manga_id))
+	if err != nil {
+		return nil, fmt.Errorf("error making http request for chapter list: %s", err)
+	}
+	// schedules the resource cleanup for when the block of code finishes
+	defer response.Body.Close()
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body for chapter list: %s", err)
+	}
+
+	// Decode JSON into a map
+	var result map[string]interface{}
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling JSON for chapter list: %s", err)
+	}
+
+	return result, nil
+}
