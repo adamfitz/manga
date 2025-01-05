@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-// MangaResponse struct represents the API response from Mangadex
+// Nested struct - MangaResponse struct represents the API response from Mangadex
 type MangaResponse struct {
 	Result   string        `json:"message"`
 	Response string        `json:"response"`
@@ -87,33 +87,93 @@ func GetResponseAsStruct(manga_id string) (MangaResponse, error) {
 	return structuredResponse, nil
 }
 
-// List of chapters for specific manga
+// Nested struct - MangadexChapterList represents the root structure of the API response for chapter information
 type MangadexChapterList struct {
-	Result string `json:"volume"`
+	Result  string                `json:"result"`
+	Volumes map[string]VolumeData `json:"volumes"`
+}
+
+// VolumeData represents the data for a specific volume
+type VolumeData struct {
+	Volume   string                 `json:"volume"`
+	Count    int                    `json:"count"`
+	Chapters map[string]ChapterInfo `json:"chapters"`
+}
+
+// ChapterInfo represents the data for a specific chapter
+type ChapterInfo struct {
+	Chapter string   `json:"chapter"`
+	Count   int      `json:"count"`
+	ID      string   `json:"id"`
+	Others  []string `json:"others"`
 }
 
 // Return a list of all chapters for a specific manga
-func MangadexGetChapterList(manga_id string) (map[string]interface{}, error) {
+func MangadexGetChapterList(mangaID string) (*MangadexChapterList, error) {
 
-	// NOTE that the translated language is specifically hard coded here to english
-	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/manga/%s/aggregate?translatedLanguage[]=en", manga_id))
+	// Make the HTTP GET request, NOTE the translated language is hard coded to english
+	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/manga/%s/aggregate?translatedLanguage[]=en", mangaID))
 	if err != nil {
-		return nil, fmt.Errorf("error making http request for chapter list: %s", err)
+		return nil, fmt.Errorf("error making HTTP request for list of volumes and chapters: %s", err)
 	}
 	// schedules the resource cleanup for when the block of code finishes
 	defer response.Body.Close()
 
+	// Read the response body
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		return nil, fmt.Errorf("error reading response body for chapter list: %s", err)
+		return nil, fmt.Errorf("error reading response body for list of volumes and chapters: %s", err)
 	}
 
-	// Decode JSON into a map
-	var result map[string]interface{}
-	err = json.Unmarshal(body, &result)
+	// Decode the JSON response into the struct
+	var chapterList MangadexChapterList
+	err = json.Unmarshal(body, &chapterList)
 	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling JSON for chapter list: %s", err)
+		return nil, fmt.Errorf("error unmarshalling JSON for list of volumes and chapters: %s", err)
 	}
 
-	return result, nil
+	return &chapterList, nil
+}
+
+// Nested struct - Chapter page data represents the data for all the pages in a chapter
+type ChapterPageData struct {
+	Result          string                     `json:"result"`
+	Baseurl         string                     `json:"baseurl"`
+	ChapterPageInfo map[string]ChapterPageInfo `json:"chapterpageinfo"`
+}
+
+type ChapterPageInfo struct {
+	Hash  string  `json:"hash"`
+	Pages []Pages `json:"pages"`
+}
+
+type Pages struct {
+	Page string `json:"page"`
+}
+
+// Return a list of all pages and information within a chapter
+func MangadexGetPagesList(mangaID string) (*ChapterPageData, error) {
+
+	// Make the HTTP GET request for the specific chapter data
+	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/at-home/server/%s", mangaID))
+	if err != nil {
+		return nil, fmt.Errorf("error making HTTP request for chapter page information: %s", err)
+	}
+	// schedules the resource cleanup for when the block of code finishes
+	defer response.Body.Close()
+
+	// Read the response body
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body for chapter page information %s", err)
+	}
+
+	// Decode the JSON response into the struct
+	var chapterPageData ChapterPageData
+	err = json.Unmarshal(body, &chapterPageData)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling JSON for chapter page information: %s", err)
+	}
+
+	return &chapterPageData, nil
 }
