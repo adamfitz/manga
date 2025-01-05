@@ -135,37 +135,33 @@ func MangadexGetChapterList(mangaID string) (*MangadexChapterList, error) {
 	return &chapterList, nil
 }
 
-// Nested struct - Chapter page data represents the data for all the pages in a chapter
+// ChapterPageData represents the top-level JSON structure
 type ChapterPageData struct {
-	Result          string                     `json:"result"`
-	Baseurl         string                     `json:"baseurl"`
-	ChapterPageInfo map[string]ChapterPageInfo `json:"chapterpageinfo"`
+	Result  string         `json:"result"`
+	BaseURL string         `json:"baseUrl"`
+	Chapter ChapterDetails `json:"chapter"`
 }
 
-type ChapterPageInfo struct {
-	Hash  string  `json:"hash"`
-	Pages []Pages `json:"pages"`
-}
-
-type Pages struct {
-	Page string `json:"page"`
+// ChapterDetails represents the "chapter" field in the JSON
+type ChapterDetails struct {
+	Hash      string   `json:"hash"`
+	Data      []string `json:"data"`
+	DataSaver []string `json:"dataSaver"`
 }
 
 // Return a list of all pages and information within a chapter
-func MangadexGetPagesList(mangaID string) (*ChapterPageData, error) {
-
-	// Make the HTTP GET request for the specific chapter data
-	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/at-home/server/%s", mangaID))
+func MangadexGetPagesList(chapterID string) (*ChapterPageData, error) {
+	// Make the HTTP GET request
+	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/at-home/server/%s", chapterID))
 	if err != nil {
 		return nil, fmt.Errorf("error making HTTP request for chapter page information: %s", err)
 	}
-	// schedules the resource cleanup for when the block of code finishes
 	defer response.Body.Close()
 
 	// Read the response body
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		return nil, fmt.Errorf("error reading response body for chapter page information %s", err)
+		return nil, fmt.Errorf("error reading response body for chapter page information: %s", err)
 	}
 
 	// Decode the JSON response into the struct
@@ -176,4 +172,16 @@ func MangadexGetPagesList(mangaID string) (*ChapterPageData, error) {
 	}
 
 	return &chapterPageData, nil
+}
+
+// Get request: baseurl/hash/pageNumber
+
+// Download chapter page
+func DownloadPage(baseUrl string, hash string, pageName string, targetDir string) (Nil error) {
+
+}
+
+// Create CBZ file (zip file)
+func CreateCbzFile(sourceDir string, outputFileName string) {
+
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"fmt"
 	//"strings"
 
@@ -13,16 +13,56 @@ import (
 func main() {
 
 	/*
-		These managas are a PITA due to the fact that there is a possibliity that the latest chapter is available but
-		earlier chapters are not.
+			These managas are a PITA due to the fact that there is a possibliity that the latest chapter is available but
+			earlier chapters are not.
+
+
+		manga_id := "05a56be4-26ab-4f50-8fc0-ab8304570258"
+
+		response, err := httprequests.MangadexGetChapterList(manga_id)
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+
+		//fmt.Printf("Response: %+v\n", response)
+
+		// If you want to print specific nested data:
+		for volume, volumeData := range response.Volumes {
+			fmt.Printf("Volume: %s, Chapter Count: %d\n", volume, volumeData.Count)
+			for chapter, chapterData := range volumeData.Chapters {
+				fmt.Printf("  Chapter %s: ID=%s, Count=%d\n", chapter, chapterData.ID, chapterData.Count)
+			}
+		}
 	*/
 
-	manga_id := "05a56be4-26ab-4f50-8fc0-ab8304570258"
+	chapterID := "06fb0bd0-855a-44d6-ad5a-319c84513ce7"
 
-	response, err := httprequests.MangadexGetChapterList(manga_id)
+	pagesResponse, err := httprequests.MangadexGetPagesList(chapterID)
 	if err != nil {
 		fmt.Println("Error:", err)
 		return
+	}
+
+	// Print the base URL and hash
+	fmt.Printf("Base URL: %s\n", pagesResponse.BaseURL)
+	fmt.Printf("Hash: %s\n", pagesResponse.Chapter.Hash)
+
+	// Print each page in the "data" array
+	fmt.Println("Pages:")
+	for i, page := range pagesResponse.Chapter.Data {
+		fmt.Printf("  Page %d: %s\n", i+1, page)
+	}
+
+	// Print each page in the "dataSaver" array
+	fmt.Println("Data Saver Pages:")
+	for i, page := range pagesResponse.Chapter.DataSaver {
+		fmt.Printf("  Page %d: %s\n", i+1, page)
+	}
+
+	//printing out a list of all the pages
+	for _, page := range pagesResponse.Chapter.Data {
+		fmt.Printf("Page: %v\n", page)
 	}
 
 	/*
@@ -34,55 +74,57 @@ func main() {
 			}
 		}
 	*/
-	// Convert the response to JSON
-	responseJSON, err := json.MarshalIndent(response, "", "  ")
-	if err != nil {
-		fmt.Println("Error marshaling response:", err)
-		return
-	}
 
-	// Print the JSON string
-	fmt.Println(string(responseJSON))
 	/*
-		// load bookmarks and return struct to iterate
-		mangaList, err := utils.LoadBookmarks()
+		// Convert the response to JSON
+		responseJSON, err := json.MarshalIndent(response, "", "  ")
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error marshaling response:", err)
 			return
 		}
 
-		// Iterate through the returned slice (each managa in the list)
-		for _, entry := range mangaList {
+		// Print the JSON string
+		fmt.Println(string(responseJSON))
 
-			// fmt.Printf("Manga Id: %s\n", entry.Key.Manga)
-			// fmt.Println()
+			// load bookmarks and return struct to iterate
+			mangaList, err := utils.LoadBookmarks()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 
-			// for each entry in mangaList struct
-			// if the id contains https then the manga is not at mangadex (and has its own URL / URI)
-			if !strings.Contains(entry.Key.Manga, "https") {
-				// get the mangadex id
-				mangaId := entry.Key.Manga
+			// Iterate through the returned slice (each managa in the list)
+			for _, entry := range mangaList {
 
-				// make api call for the mangaId
-				response, err := httprequests.GetResponseAsStruct(mangaId)
-				if err != nil {
-					fmt.Println("Error:", err)
-					return
-				}
+				// fmt.Printf("Manga Id: %s\n", entry.Key.Manga)
+				// fmt.Println()
 
-				// print out the manga title
-				fmt.Printf("Manga Title: %s\n", entry.Title.Manga)
-				// print out the mangaId, chapter number and updated date
-				for _, chapter := range response.Data {
-					if chapter.Attributes.TranslatedLanguage == "en" {
-						fmt.Printf("ID: %s\n", chapter.Id)
-						fmt.Printf("Chapter: %s\n", chapter.Attributes.Chapter)
-						fmt.Printf("Updated At: %s\n\n", chapter.Attributes.UpdatedAt)
+				// for each entry in mangaList struct
+				// if the id contains https then the manga is not at mangadex (and has its own URL / URI)
+				if !strings.Contains(entry.Key.Manga, "https") {
+					// get the mangadex id
+					mangaId := entry.Key.Manga
 
+					// make api call for the mangaId
+					response, err := httprequests.GetResponseAsStruct(mangaId)
+					if err != nil {
+						fmt.Println("Error:", err)
+						return
+					}
+
+					// print out the manga title
+					fmt.Printf("Manga Title: %s\n", entry.Title.Manga)
+					// print out the mangaId, chapter number and updated date
+					for _, chapter := range response.Data {
+						if chapter.Attributes.TranslatedLanguage == "en" {
+							fmt.Printf("ID: %s\n", chapter.Id)
+							fmt.Printf("Chapter: %s\n", chapter.Attributes.Chapter)
+							fmt.Printf("Updated At: %s\n\n", chapter.Attributes.UpdatedAt)
+
+						}
 					}
 				}
 			}
-		}
 	*/
 
 	/*
