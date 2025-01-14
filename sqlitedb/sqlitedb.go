@@ -61,57 +61,57 @@ func QueryRow(db *sql.DB, query string, args ...interface{}) (map[string]interfa
 }
 
 func QueryWithCondition(db *sql.DB, tableName, columnName, condition string) (map[string]interface{}, error) {
-    query := fmt.Sprintf("SELECT * FROM %s WHERE %s = ?", tableName, columnName)
-    rows, err := db.Query(query, condition)
-    if err != nil {
-        return nil, fmt.Errorf("failed to execute query: %w", err)
-    }
-    defer rows.Close()
+	query := fmt.Sprintf("SELECT * FROM %s WHERE %s = ?", tableName, columnName)
+	rows, err := db.Query(query, condition)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute query: %w", err)
+	}
+	defer rows.Close()
 
-    // Retrieve column names
-    columns, err := rows.Columns()
-    if err != nil {
-        return nil, fmt.Errorf("failed to get columns: %w", err)
-    }
+	// Retrieve column names
+	columns, err := rows.Columns()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get columns: %w", err)
+	}
 
-    // Create a slice to hold the results
-    var results []map[string]interface{}
+	// Create a slice to hold the results
+	var results []map[string]interface{}
 
-    // Iterate through the rows
-    for rows.Next() {
-        // Create a container for the values
-        values := make([]interface{}, len(columns))
-        valuePtrs := make([]interface{}, len(columns))
-        for i := range values {
-            valuePtrs[i] = &values[i]
-        }
+	// Iterate through the rows
+	for rows.Next() {
+		// Create a container for the values
+		values := make([]interface{}, len(columns))
+		valuePtrs := make([]interface{}, len(columns))
+		for i := range values {
+			valuePtrs[i] = &values[i]
+		}
 
-        // Scan the row into the values container
-        err := rows.Scan(valuePtrs...)
-        if err != nil {
-            return nil, fmt.Errorf("failed to scan row: %w", err)
-        }
+		// Scan the row into the values container
+		err := rows.Scan(valuePtrs...)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
 
-        // Map the column names to their values
-        result := make(map[string]interface{})
-        for i, colName := range columns {
-            result[colName] = values[i]
-        }
+		// Map the column names to their values
+		result := make(map[string]interface{})
+		for i, colName := range columns {
+			result[colName] = values[i]
+		}
 
-        // Append the result to the list
-        results = append(results, result)
-    }
+		// Append the result to the list
+		results = append(results, result)
+	}
 
-    // Check if any error occurred during iteration
-    if err := rows.Err(); err != nil {
-        return nil, fmt.Errorf("failed during row iteration: %w", err)
-    }
+	// Check if any error occurred during iteration
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("failed during row iteration: %w", err)
+	}
 
-    // Return only the first result (map) if there is at least one
-    if len(results) > 0 {
-        return results[0], nil
-    }
+	// Return only the first result (map) if there is at least one
+	if len(results) > 0 {
+		return results[0], nil
+	}
 
-    // If no rows were found, return nil
-    return nil, nil
+	// If no rows were found, return nil
+	return nil, nil
 }
