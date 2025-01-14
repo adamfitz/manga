@@ -1,9 +1,10 @@
-package utils
+package bookmarks
 
 import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 )
 
 // struct for bookmarks json file
@@ -24,9 +25,10 @@ type Key struct {
 	Manga     string `json:"manga"`
 }
 
+// LoadBookmarks loads the bookmarks from the file and sorts them by Title.Manga alphabetically
 func LoadBookmarks() ([]MangaList, error) {
 	// Read the JSON file
-	bookmarks, err := os.ReadFile("bookmarks.json")
+	bookmarks, err := os.ReadFile("bookmarks/bookmarks.json")
 	if err != nil {
 		return nil, fmt.Errorf("error reading file: %w", err)
 	}
@@ -38,6 +40,10 @@ func LoadBookmarks() ([]MangaList, error) {
 		return nil, fmt.Errorf("error unmarshalling JSON: %w", err)
 	}
 
-	return mangaList, nil
+	// Sort the mangaList by the Manga title alphabetically
+	sort.Slice(mangaList, func(i, j int) bool {
+		return mangaList[i].Title.Manga < mangaList[j].Title.Manga
+	})
 
+	return mangaList, nil
 }

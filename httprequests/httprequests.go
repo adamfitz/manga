@@ -195,25 +195,25 @@ func CreateCbzFile(sourceDir string, outputFileName string) {
 }
 */
 
-func MangadexChaptersSorted(mangaId string) error {
+func MangadexChaptersSorted(mangaId string) (string, error) {
 	// Make the HTTP GET request
 	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/manga/%s/feed?translatedLanguage[]=en", mangaId))
 	if err != nil {
-		return fmt.Errorf("error making HTTP request: %w", err)
+		return "", fmt.Errorf("error making HTTP request: %w", err)
 	}
 	defer response.Body.Close()
 
 	// Read the response body
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		return fmt.Errorf("error reading response body: %w", err)
+		return "", fmt.Errorf("error reading response body: %w", err)
 	}
 
 	// Parse JSON into a generic map
 	var data map[string]interface{}
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		return fmt.Errorf("error unmarshalling JSON: %w", err)
+		return "", fmt.Errorf("error unmarshalling JSON: %w", err)
 	}
 
 	// Extract chapters
@@ -236,11 +236,19 @@ func MangadexChaptersSorted(mangaId string) error {
 		return chapterI < chapterJ
 	})
 
-	// Print sorted chapters
+	// Build JSON string array
+	var chapterLines []string
 	for _, chapter := range chapters {
-		fmt.Printf("Chapter: %v, Title: %v, Volume: %v\n",
-			chapter["chapter"], chapter["title"], chapter["volume"])
+		line := fmt.Sprintf("Volume: %v Chapter: %v Title: %v",
+			chapter["volume"], chapter["chapter"], chapter["title"])
+		chapterLines = append(chapterLines, line)
 	}
 
-	return nil
+	// Convert the slice of lines into a JSON string array
+	jsonArray, err := json.Marshal(chapterLines)
+	if err != nil {
+		return "", fmt.Errorf("error marshalling JSON array: %w", err)
+	}
+
+	return string(jsonArray), nil
 }

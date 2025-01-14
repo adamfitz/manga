@@ -5,9 +5,10 @@ import (
 	"fmt"
 	//"strings"
 
-	//"mangadex/sqlitedb" // importing custom code from 'sqlitedb' package in subdir
+	//"manga/sqlitedb" // importing custom code from 'sqlitedb' package in subdir
+	//"main/httprequests"
+	"main/bookmarks"
 	"main/httprequests"
-	//"main/utils"
 )
 
 func main() {
@@ -144,10 +145,37 @@ func main() {
 	// chapter list
 
 	manga_id := "05a56be4-26ab-4f50-8fc0-ab8304570258"
-	err := httprequests.MangadexChaptersSorted(manga_id)
+	//jsonSAtringArray, err := httprequests.MangadexChaptersSorted(manga_id)
+	//if err != nil {
+	//	fmt.Println("Error:", err)
+	//	return
+	//}
+
+	//fmt.Printf("%s", jsonSAtringArray)
+
+	//Update the sqlite database with a list of the mangadex chapters
+	// load bookmarks and return SORTED struct to iterate
+	bookmarks, err := bookmarks.LoadBookmarks()
 	if err != nil {
-		fmt.Println("Error:", err)
+		fmt.Println(err)
 		return
 	}
+
+	// test on the first 3 bookmarks before continuing
+	for idx, name := range bookmarks {
+		// print out the struct title as a string
+		if idx >= 3 {
+			break
+		}
+		fmt.Println(name.Title.Manga)
+
+		jsonChapters, err := httprequests.MangadexChaptersSorted(manga_id)
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		fmt.Println(jsonChapters)
+	}
+	// write them into the database?
 
 }
