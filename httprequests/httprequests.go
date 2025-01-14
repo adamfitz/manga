@@ -5,7 +5,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
+	"strconv"
 )
+
+// httprequests structs start here
 
 // Nested struct - MangaResponse struct represents the API response from Mangadex
 type MangaResponse struct {
@@ -38,6 +42,43 @@ type ChapterAttributes struct {
 	Pages              int    `json:"pages"`
 	Version            int    `json:"version"`
 }
+
+// Nested struct - MangadexChapterList represents the root structure of the API response for chapter information
+type MangadexChapterList struct {
+	Result  string                `json:"result"`
+	Volumes map[string]VolumeData `json:"volumes"`
+}
+
+// VolumeData represents the data for a specific volume
+type VolumeData struct {
+	Volume   string                 `json:"volume"`
+	Count    int                    `json:"count"`
+	Chapters map[string]ChapterInfo `json:"chapters"`
+}
+
+// ChapterInfo represents the data for a specific chapter
+type ChapterInfo struct {
+	Chapter string   `json:"chapter"`
+	Count   int      `json:"count"`
+	ID      string   `json:"id"`
+	Others  []string `json:"others"`
+}
+
+// ChapterPageData represents the top-level JSON structure
+type ChapterPageData struct {
+	Result  string         `json:"result"`
+	BaseURL string         `json:"baseUrl"`
+	Chapter ChapterDetails `json:"chapter"`
+}
+
+// ChapterDetails represents the "chapter" field in the JSON
+type ChapterDetails struct {
+	Hash      string   `json:"hash"`
+	Data      []string `json:"data"`
+	DataSaver []string `json:"dataSaver"`
+}
+
+// httprequests functions below here
 
 func GetResponseAsString(manga_id string) (map[string]interface{}, error) {
 	response, err := http.Get("https://api.mangadex.org/chapter?manga=" + manga_id)
@@ -87,27 +128,6 @@ func GetResponseAsStruct(manga_id string) (MangaResponse, error) {
 	return structuredResponse, nil
 }
 
-// Nested struct - MangadexChapterList represents the root structure of the API response for chapter information
-type MangadexChapterList struct {
-	Result  string                `json:"result"`
-	Volumes map[string]VolumeData `json:"volumes"`
-}
-
-// VolumeData represents the data for a specific volume
-type VolumeData struct {
-	Volume   string                 `json:"volume"`
-	Count    int                    `json:"count"`
-	Chapters map[string]ChapterInfo `json:"chapters"`
-}
-
-// ChapterInfo represents the data for a specific chapter
-type ChapterInfo struct {
-	Chapter string   `json:"chapter"`
-	Count   int      `json:"count"`
-	ID      string   `json:"id"`
-	Others  []string `json:"others"`
-}
-
 // Return a list of all chapters for a specific manga
 func MangadexGetChapterList(mangaID string) (*MangadexChapterList, error) {
 
@@ -135,20 +155,6 @@ func MangadexGetChapterList(mangaID string) (*MangadexChapterList, error) {
 	return &chapterList, nil
 }
 
-// ChapterPageData represents the top-level JSON structure
-type ChapterPageData struct {
-	Result  string         `json:"result"`
-	BaseURL string         `json:"baseUrl"`
-	Chapter ChapterDetails `json:"chapter"`
-}
-
-// ChapterDetails represents the "chapter" field in the JSON
-type ChapterDetails struct {
-	Hash      string   `json:"hash"`
-	Data      []string `json:"data"`
-	DataSaver []string `json:"dataSaver"`
-}
-
 // Return a list of all pages and information within a chapter
 func MangadexGetPagesList(chapterID string) (*ChapterPageData, error) {
 	// Make the HTTP GET request
@@ -174,6 +180,8 @@ func MangadexGetPagesList(chapterID string) (*ChapterPageData, error) {
 	return &chapterPageData, nil
 }
 
+/*
+
 // Get request: baseurl/hash/pageNumber
 
 // Download chapter page
@@ -184,4 +192,55 @@ func DownloadPage(baseUrl string, hash string, pageName string, targetDir string
 // Create CBZ file (zip file)
 func CreateCbzFile(sourceDir string, outputFileName string) {
 
+}
+*/
+
+func MangadexChaptersSorted(mangaId string) error {
+	// Make the HTTP GET request
+	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/manga/%s/feed?translatedLanguage[]=en", mangaId))
+	if err != nil {
+		return fmt.Errorf("error making HTTP request: %w", err)
+	}
+	defer response.Body.Close()
+
+	// Read the response body
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return fmt.Errorf("error reading response body: %w", err)
+	}
+
+	// Parse JSON into a generic map
+	var data map[string]interface{}
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return fmt.Errorf("error unmarshalling JSON: %w", err)
+	}
+
+	// Extract chapters
+	var chapters []map[string]interface{}
+	if dataArray, ok := data["data"].([]interface{}); ok {
+		for _, item := range dataArray {
+			if chapterMap, ok := item.(map[string]interface{}); ok {
+				if attributes, ok := chapterMap["attributes"].(map[string]interface{}); ok {
+					chapters = append(chapters, attributes)
+				}
+			}
+		}
+	}
+
+	// Sort chapters by the "chapter" field
+	sort.Slice(chapters, func(i, j int) bool {
+		// Convert chapter strings to numbers for comparison
+		chapterI, _ := strconv.ParseFloat(chapters[i]["chapter"].(string), 64)
+		chapterJ, _ := strconv.ParseFloat(chapters[j]["chapter"].(string), 64)
+		return chapterI < chapterJ
+	})
+
+	// Print sorted chapters
+	for _, chapter := range chapters {
+		fmt.Printf("Chapter: %v, Title: %v, Volume: %v\n",
+			chapter["chapter"], chapter["title"], chapter["volume"])
+	}
+
+	return nil
 }
