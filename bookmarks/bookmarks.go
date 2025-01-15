@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 )
 
 // struct for bookmarks json file
@@ -46,4 +47,25 @@ func LoadBookmarks() ([]MangaList, error) {
 	})
 
 	return mangaList, nil
+}
+
+// extract manga names (for mangadex) to iterate the DB
+func MangadexMangaTitles(bookmarks []MangaList) []string {
+	var mangaDexTitles []string
+
+	// Iterate over bookmarks and filter titles with the "mangadex" connector
+	for _, bookmark := range bookmarks {
+
+		// Check if the connector is "mangadex" (case-insensitive)
+		if strings.ToLower(bookmark.Title.Connector) == "mangadex" {
+			mangaDexTitles = append(mangaDexTitles, bookmark.Title.Manga)
+		}
+	}
+
+	// Check if mangaDexTitles is empty after filtering
+	if len(mangaDexTitles) == 0 {
+		fmt.Println("No MangaDex titles found.")
+	}
+
+	return mangaDexTitles
 }

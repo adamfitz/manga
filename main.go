@@ -4,10 +4,11 @@ import (
 	//"encoding/json"
 	"fmt"
 	//"strings"
+	"log"
 
-	"main/httprequests"
-	"main/sqlitedb" // importing custom code from 'sqlitedb' package in subdir
-	//"main/bookmarks"
+	//"main/httprequests"
+	//"main/sqlitedb" // importing custom code from 'sqlitedb' package in subdir
+	"main/bookmarks"
 )
 
 func main() {
@@ -130,77 +131,99 @@ func main() {
 	/*
 
 
-			// open database
-			mangaListDb, _ := sqlitedb.OpenDatabase("./database/mangaList.db")
-			// query for a row
-			databaseRow, _ := sqlitedb.QueryWithCondition(mangaListDb, "chapters", "name", "Absolute Dominion")
-			// Print the extracted row (single map)
-			fmt.Println("Extracted Row:", databaseRow)
-			// print out selected fields
-			fmt.Printf("Name: %s\n", databaseRow["name"])
-			fmt.Printf("Latest Chapter: %d\n", databaseRow["current_dld_chapter"])
+				// open database
+				mangaListDb, _ := sqlitedb.OpenDatabase("./database/mangaList.db")
+				// query for a row
+				databaseRow, _ := sqlitedb.QueryWithCondition(mangaListDb, "chapters", "name", "Absolute Dominion")
+				// Print the extracted row (single map)
+				fmt.Println("Extracted Row:", databaseRow)
+				// print out selected fields
+				fmt.Printf("Name: %s\n", databaseRow["name"])
+				fmt.Printf("Latest Chapter: %d\n", databaseRow["current_dld_chapter"])
 
 
-		// chapter list
+			// chapter list
 
-		manga_id := "05a56be4-26ab-4f50-8fc0-ab8304570258"
-		//jsonSAtringArray, err := httprequests.MangadexChaptersSorted(manga_id)
-		//if err != nil {
-		//	fmt.Println("Error:", err)
-		//	return
-		//}
+			manga_id := "05a56be4-26ab-4f50-8fc0-ab8304570258"
+			//jsonSAtringArray, err := httprequests.MangadexChaptersSorted(manga_id)
+			//if err != nil {
+			//	fmt.Println("Error:", err)
+			//	return
+			//}
 
-		//fmt.Printf("%s", jsonSAtringArray)
+			//fmt.Printf("%s", jsonSAtringArray)
 
-		//Update the sqlite database with a list of the mangadex chapters
-		// load bookmarks and return SORTED struct to iterate
-		bookmarks, err := bookmarks.LoadBookmarks()
+			//Update the sqlite database with a list of the mangadex chapters
+			// load bookmarks and return SORTED struct to iterate
+			bookmarks, err := bookmarks.LoadBookmarks()
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+
+			// test on the first 3 bookmarks before continuing
+			for idx, name := range bookmarks {
+				// print out the struct title as a string
+				if idx >= 3 {
+					break
+				}
+				fmt.Println(name.Title.Manga)
+
+				jsonChapters, err := httprequests.MangadexChaptersSorted(manga_id)
+				if err != nil {
+					fmt.Println("Error:", err)
+					return
+				}
+				fmt.Println(jsonChapters)
+			}
+
+
+		// Testing the flow to update initially the db column with a json list of all the chapters from mangadex
+
+		// open the database
+		mangaListDb, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
+
+		// A Sharp-Eyed Classmate mangaid - get a list of all the english chapters
+		jsonChapters, err := httprequests.MangadexChaptersSorted("e5f13b1a-eabd-4752-863a-cc3930a20d24")
+		if err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		fmt.Println("Json chapters requested from mangadex:")
+		fmt.Println(jsonChapters)
+
+		// update the DB with the json list of chapters
+		sqlitedb.MangaDexInitialDbChapterListUpdate(mangaListDb, "A Sharp-Eyed Classmate", jsonChapters)
+
+		// After populating the table column - lookup the current list in the database
+		dbChapterList, err := sqlitedb.MangaDexLookupChapterList(mangaListDb, "A Sharp-Eyed Classmate")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-
-
-		// test on the first 3 bookmarks before continuing
-		for idx, name := range bookmarks {
-			// print out the struct title as a string
-			if idx >= 3 {
-				break
-			}
-			fmt.Println(name.Title.Manga)
-
-			jsonChapters, err := httprequests.MangadexChaptersSorted(manga_id)
-			if err != nil {
-				fmt.Println("Error:", err)
-				return
-			}
-			fmt.Println(jsonChapters)
-		}
+		fmt.Println("Json chapters retrieved from the database:")
+		fmt.Println(dbChapterList)
 	*/
 
-	// Testing the flow to update initially the db column with a json list of all the chapters from mangadex
+	// load bookmarks and iterate through each name if the connect ir mangadex
 
-	// open the database
-	mangaListDb, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
-
-	// A Sharp-Eyed Classmate mangaid - get a list of all the english chapters
-	jsonChapters, err := httprequests.MangadexChaptersSorted("e5f13b1a-eabd-4752-863a-cc3930a20d24")
+	// Load bookmarks
+	bookmarksFromFile, err := bookmarks.LoadBookmarks()
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		log.Fatalf("Error loading bookmarks: %v", err)
 	}
-	fmt.Println("Json chapters requested from mangadex:")
-	fmt.Println(jsonChapters)
 
-	// update the DB with the json list of chapters
-	sqlitedb.MangaDexInitialJsonChapterListUpdate(mangaListDb, "A Sharp-Eyed Classmate", jsonChapters)
+	//fmt.Println(bookmarksFromFile)
 
-	// After populating the table column - lookup the current list in the database
-	dbChapterList, err := sqlitedb.MangaDexLookupChapterList(mangaListDb, "A Sharp-Eyed Classmate")
-	if err != nil {
-		fmt.Println(err)
-		return
+	// Get titles with "mangadex" connector
+	names := bookmarks.MangadexMangaTitles(bookmarksFromFile)
+
+	//fmt.Println(names)
+
+	// Print the result
+	fmt.Println("MangaDex Titles:")
+	for _, name := range names {
+		fmt.Println(name)
 	}
-	fmt.Println("Json chapters retrieved from the database:")
-	fmt.Println(dbChapterList)
 }

@@ -138,7 +138,7 @@ func MangaDexLookupChapterList(db *sql.DB, name string) (string, error) {
 // Initial function to add the mangadex json string to the correct  database column
 // UpdateMangaDexChapterList updates the mangadex_ch_list column in the chapters table
 // with the provided JSON string for the corresponding name.
-func MangaDexInitialJsonChapterListUpdate(db *sql.DB, name string, jsonString string) error {
+func MangaDexInitialDbChapterListUpdate(db *sql.DB, name string, jsonString string) error {
 	// SQL query to update the mangadex_ch_list column
 	query := `UPDATE chapters SET mangadex_ch_list = ? WHERE name = ?`
 
