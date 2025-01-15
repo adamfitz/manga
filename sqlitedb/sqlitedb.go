@@ -115,3 +115,69 @@ func QueryWithCondition(db *sql.DB, tableName, columnName, condition string) (ma
 	// If no rows were found, return nil
 	return nil, nil
 }
+
+// MangaDexLookupChapterList retrieves the JSON string array from the "mangadex_ch_list" column
+// for a given name in the SQLite database.
+func MangaDexLookupChapterList(db *sql.DB, name string) (string, error) {
+	// Query to select the "mangadex_ch_list" column based on the "name"
+	query := `SELECT mangadex_ch_list FROM chapters WHERE name = ?`
+	var jsonString string
+
+	// Execute the query
+	err := db.QueryRow(query, name).Scan(&jsonString)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", fmt.Errorf("no entry found for name: %s", name)
+		}
+		return "", err
+	}
+
+	return jsonString, nil
+}
+
+// Initial function to add the mangadex json string to the correct  database column
+// UpdateMangaDexChapterList updates the mangadex_ch_list column in the chapters table
+// with the provided JSON string for the corresponding name.
+func MangaDexInitialDbChapterListUpdate(db *sql.DB, name string, jsonString string) error {
+	// SQL query to update the mangadex_ch_list column
+	query := `UPDATE chapters SET mangadex_ch_list = ? WHERE name = ?`
+
+	// Execute the query
+	result, err := db.Exec(query, jsonString, name)
+	if err != nil {
+		return fmt.Errorf("failed to update mangadex_ch_list: %v", err)
+	}
+
+	// Check if any row was affected
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get affected rows: %v", err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("no rows updated; name '%s' may not exist", name)
+	}
+
+	return nil
+}
+
+func LookupMangadexId(db *sql.DB, name, tableName string) (string, error) {
+	// Use a parameterized query to avoid SQL injection
+	query := fmt.Sprintf("SELECT mangadex_id FROM %s WHERE name = ?", tableName)
+
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return "", fmt.Errorf("failed to prepare query: %w", err)
+	}
+	defer stmt.Close()
+
+	// Execute the query with the provided name
+	var mangadexId string
+	err = stmt.QueryRow(name).Scan(&mangadexId)
+	if err == sql.ErrNoRows {
+		return "", fmt.Errorf("no matching record found for name: %s", name)
+	} else if err != nil {
+		return "", fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	return mangadexId, nil
+}
