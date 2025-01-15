@@ -159,3 +159,25 @@ func MangaDexInitialDbChapterListUpdate(db *sql.DB, name string, jsonString stri
 
 	return nil
 }
+
+func LookupMangadexId(db *sql.DB, name, tableName string) (string, error) {
+	// Use a parameterized query to avoid SQL injection
+	query := fmt.Sprintf("SELECT mangadex_id FROM %s WHERE name = ?", tableName)
+
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return "", fmt.Errorf("failed to prepare query: %w", err)
+	}
+	defer stmt.Close()
+
+	// Execute the query with the provided name
+	var mangadexId string
+	err = stmt.QueryRow(name).Scan(&mangadexId)
+	if err == sql.ErrNoRows {
+		return "", fmt.Errorf("no matching record found for name: %s", name)
+	} else if err != nil {
+		return "", fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	return mangadexId, nil
+}

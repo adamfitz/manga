@@ -9,6 +9,8 @@ import (
 	//"main/httprequests"
 	//"main/sqlitedb" // importing custom code from 'sqlitedb' package in subdir
 	"main/bookmarks"
+	"main/httprequests"
+	"main/sqlitedb"
 )
 
 func main() {
@@ -208,22 +210,30 @@ func main() {
 
 	// load bookmarks and iterate through each name if the connect ir mangadex
 
-	// Load bookmarks
+	// 1 - Load bookmarks
 	bookmarksFromFile, err := bookmarks.LoadBookmarks()
 	if err != nil {
 		log.Fatalf("Error loading bookmarks: %v", err)
 	}
 
-	//fmt.Println(bookmarksFromFile)
-
-	// Get titles with "mangadex" connector
+	// 2 - Get a list of the titles with "mangadex" connector
 	names := bookmarks.MangadexMangaTitles(bookmarksFromFile)
 
-	//fmt.Println(names)
+	// 3 - Updating the database
+	fmt.Println("== Updating database with Mangadex chapter list ==:")
 
-	// Print the result
-	fmt.Println("MangaDex Titles:")
+	// open the database
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
 	for _, name := range names {
-		fmt.Println(name)
+		fmt.Printf("\nUpdating Chapter list for %s ...\n", name)
+
+		// a. extract the mangadex id from the database based on the manga name
+		mangadexId, _ := sqlitedb.LookupMangadexId(dbConnection, name, "chapters")
+
+		// b. get the list of chapters from mangadex
+		chapterList, _ := httprequests.MangadexChaptersSorted(mangadexId)
+
+		// c. update the database with the list of chapters
+		sqlitedb.MangaDexInitialDbChapterListUpdate(dbConnection, name, chapterList)
 	}
 }
