@@ -231,16 +231,32 @@ func MangadexChaptersSorted(mangaId string) (string, error) {
 	// Sort chapters by the "chapter" field
 	sort.Slice(chapters, func(i, j int) bool {
 		// Convert chapter strings to numbers for comparison
-		chapterI, _ := strconv.ParseFloat(chapters[i]["chapter"].(string), 64)
-		chapterJ, _ := strconv.ParseFloat(chapters[j]["chapter"].(string), 64)
+		chapterI, _ := strconv.ParseFloat(fmt.Sprintf("%v", chapters[i]["chapter"]), 64)
+		chapterJ, _ := strconv.ParseFloat(fmt.Sprintf("%v", chapters[j]["chapter"]), 64)
 		return chapterI < chapterJ
 	})
 
 	// Build JSON string array
 	var chapterLines []string
 	for _, chapter := range chapters {
-		line := fmt.Sprintf("Volume: %v Chapter: %v Title: %v",
-			chapter["volume"], chapter["chapter"], chapter["title"])
+		// Ensure each field has a string value or defaults to an empty string
+		volume := fmt.Sprintf("%v", chapter["volume"])
+		if volume == "<nil>" || volume == "null" {
+			volume = ""
+		}
+
+		chapterNumber := fmt.Sprintf("%v", chapter["chapter"])
+		if chapterNumber == "<nil>" || chapterNumber == "null" {
+			chapterNumber = ""
+		}
+
+		title := fmt.Sprintf("%v", chapter["title"])
+		if title == "<nil>" || title == "null" {
+			title = ""
+		}
+
+		// Create the formatted line
+		line := fmt.Sprintf("Volume: %s Chapter: %s Title: %s", volume, chapterNumber, title)
 		chapterLines = append(chapterLines, line)
 	}
 
