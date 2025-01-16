@@ -5,9 +5,6 @@ import (
 	"fmt"
 	//"strings"
 	"log"
-
-	//"main/httprequests"
-	//"main/sqlitedb" // importing custom code from 'sqlitedb' package in subdir
 	"main/bookmarks"
 	"main/compare"
 	"main/httprequests"
@@ -135,8 +132,6 @@ func NewMangaDbUpdate() {
 	 for a specific list of mangas.
 	*/
 
-	//mangaNotInDb := []string{}
-
 	// 1 - Load bookmarks
 	bookmarksFromFile, err := bookmarks.LoadBookmarks()
 	if err != nil {
@@ -148,6 +143,9 @@ func NewMangaDbUpdate() {
 	// open the database
 	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
 
+	// declare list to hold the return dicts
+	var mangaNotInDb []string
+
 	// iterate of the names of the mangas in the bookmark list
 	for _, name := range names {
 
@@ -156,9 +154,8 @@ func NewMangaDbUpdate() {
 
 		if !mangaNameDb {
 			mangaData, _ := httprequests.MangadexTitleSearch(name)
-			//mangaNotInDb = append(mangaNotInDb, name)
-			fmt.Printf("Name: %s\n", name)
-			fmt.Printf("Found data: %s\n", mangaData)
+			mangaNotInDb = append(mangaNotInDb, mangaData)
 		}
+		fmt.Println(mangaNotInDb)
 	}
 }
