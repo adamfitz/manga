@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-// httprequests structs start here
+// -- httprequests structs --
 
 // Nested struct - MangaResponse struct represents the API response from Mangadex
 type MangaResponse struct {
@@ -78,9 +78,12 @@ type ChapterDetails struct {
 	DataSaver []string `json:"dataSaver"`
 }
 
-// httprequests functions below here
+// -- httprequests functions --
 
-func GetResponseAsString(manga_id string) (map[string]interface{}, error) {
+func MangadexHttpRespAsString(manga_id string) (map[string]interface{}, error) {
+	/*
+		func returns the chapter information for a specific manga by the manga id as as a string
+	*/
 	response, err := http.Get("https://api.mangadex.org/chapter?manga=" + manga_id)
 	if err != nil {
 		return nil, fmt.Errorf("error making http request: %s", err)
@@ -103,7 +106,10 @@ func GetResponseAsString(manga_id string) (map[string]interface{}, error) {
 	return result, nil
 }
 
-func GetResponseAsStruct(manga_id string) (MangaResponse, error) {
+func MangadexHttpRespAsStruct(manga_id string) (MangaResponse, error) {
+	/*
+		func returns the chapter information for a specific manga by the manga id as as struct (custom type)
+	*/
 
 	// parsed response
 	var structuredResponse MangaResponse
@@ -128,8 +134,13 @@ func GetResponseAsStruct(manga_id string) (MangaResponse, error) {
 	return structuredResponse, nil
 }
 
-// Return a list of all chapters for a specific manga
-func MangadexGetChapterList(mangaID string) (*MangadexChapterList, error) {
+func MangadexChapters(mangaID string) (*MangadexChapterList, error) {
+	/*
+		func returns a list of all chapters for a specific manga
+
+		NOTE: This func is different from MangadexChaptersSorted() becuase this func uses the /aggregate URI which
+		provides only the volume, chapter and chapter info (not detailed info).
+	*/
 
 	// Make the HTTP GET request, NOTE the translated language is hard coded to english
 	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/manga/%s/aggregate?translatedLanguage[]=en", mangaID))
@@ -155,47 +166,18 @@ func MangadexGetChapterList(mangaID string) (*MangadexChapterList, error) {
 	return &chapterList, nil
 }
 
-// Return a list of all pages and information within a chapter
-func MangadexGetPagesList(chapterID string) (*ChapterPageData, error) {
-	// Make the HTTP GET request
-	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/at-home/server/%s", chapterID))
-	if err != nil {
-		return nil, fmt.Errorf("error making HTTP request for chapter page information: %s", err)
-	}
-	defer response.Body.Close()
-
-	// Read the response body
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, fmt.Errorf("error reading response body for chapter page information: %s", err)
-	}
-
-	// Decode the JSON response into the struct
-	var chapterPageData ChapterPageData
-	err = json.Unmarshal(body, &chapterPageData)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling JSON for chapter page information: %s", err)
-	}
-
-	return &chapterPageData, nil
-}
-
-/*
-
-// Get request: baseurl/hash/pageNumber
-
-// Download chapter page
-func DownloadPage(baseUrl string, hash string, pageName string, targetDir string) (Nil error) {
-
-}
-
-// Create CBZ file (zip file)
-func CreateCbzFile(sourceDir string, outputFileName string) {
-
-}
-*/
-
 func MangadexChaptersSorted(mangaId string) (string, error) {
+	/*
+		This function grabs a list of all the chapters for a specific manga from mangadex.com and returns a JSON string,
+		sorted and ordered by chapter number.
+
+		NOTE: This func is different from MangadexChapters() becuase this func uses the /feed URI which provides
+		detailed information about each chapter.
+
+		Also this func returns chapter list sorted by chapter number.  THe URis probably also should be swapped and
+		this func use /aggregate and the otrher /feed.
+	*/
+
 	// Make the HTTP GET request
 	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/manga/%s/feed?translatedLanguage[]=en", mangaId))
 	if err != nil {
@@ -268,3 +250,45 @@ func MangadexChaptersSorted(mangaId string) (string, error) {
 
 	return string(jsonArray), nil
 }
+
+func MangadexChapterPages(chapterID string) (*ChapterPageData, error) {
+	/*
+		func returns a list of all pages and page information for a specific chapter
+	*/
+	// Make the HTTP GET request
+	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/at-home/server/%s", chapterID))
+	if err != nil {
+		return nil, fmt.Errorf("error making HTTP request for chapter page information: %s", err)
+	}
+	defer response.Body.Close()
+
+	// Read the response body
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body for chapter page information: %s", err)
+	}
+
+	// Decode the JSON response into the struct
+	var chapterPageData ChapterPageData
+	err = json.Unmarshal(body, &chapterPageData)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling JSON for chapter page information: %s", err)
+	}
+
+	return &chapterPageData, nil
+}
+
+/*
+
+// Get request: baseurl/hash/pageNumber
+
+// Download chapter page
+func DownloadPage(baseUrl string, hash string, pageName string, targetDir string) (Nil error) {
+
+}
+
+// Create CBZ file (zip file)
+func CreateCbzFile(sourceDir string, outputFileName string) {
+
+}
+*/
