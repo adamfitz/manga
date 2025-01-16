@@ -283,8 +283,9 @@ func MangadexChapterPages(chapterID string) (*ChapterPageData, error) {
 
 func MangadexTitleSearch(name string) (string, error) {
 	/*
-		Function to search for a manga by name (title) and extract the id and altTitles to use to populate the database.
+		Function to search for a manga by name (title) and extract the id and a prioritized altTitle to populate the database.
 	*/
+
 	// Create the URL and add the query parameters
 	baseURL := mangadexBaseUri + "/manga"
 	params := url.Values{}
@@ -319,12 +320,34 @@ func MangadexTitleSearch(name string) (string, error) {
 		firstManga := mangaData[0].(map[string]interface{})
 		id := firstManga["id"].(string)
 		attributes := firstManga["attributes"].(map[string]interface{})
-		altTitles := attributes["altTitles"]
+		altTitles := attributes["altTitles"].([]interface{})
+
+		// Find the prioritized altTitle
+		var prioritizedAltTitle string
+		for _, alt := range altTitles {
+			altMap := alt.(map[string]interface{})
+			if enTitle, ok := altMap["en"]; ok {
+				prioritizedAltTitle = enTitle.(string)
+				break
+			} else if jaTitle, ok := altMap["ja"]; ok {
+				prioritizedAltTitle = jaTitle.(string)
+			} else if zhTitle, ok := altMap["zh"]; ok {
+				prioritizedAltTitle = zhTitle.(string)
+			} else if prioritizedAltTitle == "" {
+				// Assign any if no prioritized language found
+				for _, v := range altMap {
+					prioritizedAltTitle = v.(string)
+					break
+				}
+			}
+		}
 
 		// Build the result
 		result = map[string]interface{}{
-			"id":        id,
-			"altTitles": altTitles,
+			"id":       id,
+			"altTitle": prioritizedAltTitle,
+			"name":     name,                                             // add name to the result
+			"url":      fmt.Sprintf("https://mangadex.org/manga/%s", id), // build the url from the id
 		}
 	} else {
 		return "", fmt.Errorf("no manga found for the title: %s", name)
