@@ -16,7 +16,8 @@ func main() {
 	//NewMangaDbUpdate()
 	//CheckIfBookmarkInDb()
 	//BlanketUpdateDb()
-	ExtractMangasWithoutChapterList()
+	//ExtractMangasWithoutChapterList()
+	UpdateMangasWithoutChapterList()
 }
 
 func CheckForNewChapters() {
@@ -186,5 +187,33 @@ func ExtractMangasWithoutChapterList() {
 
 	for _, manga := range mangasWithoutChapterLists {
 		fmt.Println(manga)
+	}
+}
+
+func UpdateMangasWithoutChapterList() {
+	/*
+		func to grab a list of chapters from mangadex and then add to the database.  The list of mangas is manually
+		provided.
+	*/
+
+	// 1 - open the database
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
+
+	// 2 list of mangas to get the chapter list for
+	mangasToUpdate := sqlitedb.QueryAllMangadexNames(dbConnection)
+
+	// 3 - iterate over the list of mangas
+	for _, manga := range mangasToUpdate {
+
+		// a. extract the mangadex id from the database based on the manga name
+		mangadexId, _ := sqlitedb.MangadexIdDbLookup(dbConnection, manga, "chapters")
+
+		// b. get the list of chapters from mangadex
+		chapterList, _ := httprequests.MangadexChaptersSorted(mangadexId)
+
+		// c. update the DB with the new chapter list
+		sqlitedb.MangadexInitialDbChapterListUpdate(dbConnection, manga, chapterList)
+
+		fmt.Println("Updated DB for: ", manga)
 	}
 }
