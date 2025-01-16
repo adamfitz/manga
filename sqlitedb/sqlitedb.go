@@ -127,7 +127,7 @@ func QueryWithCondition(db *sql.DB, tableName, columnName, condition string) (ma
 
 func MangadexDbLookupChapterList(db *sql.DB, name string) (string, error) {
 	/*
-		Perform a DB lookup for a given string in teh name column (saerch by name) and return the JSON string array
+		Perform a DB lookup for a given string in the name column (saerch by name) and return the JSON string array
 		(if it exists) from the mangadex_ch_list column
 	*/
 
