@@ -169,7 +169,7 @@ func NewMangaDbUpdate() {
 			continue
 		}
 		// if there is no error then update the DB with the new manga data
-		sqlitedb.AddMangaEntry(dbConnection, dataMap["name"].(string), dataMap["altTitle"].(string), dataMap["id"].(string), dataMap["url"].(string))
+		sqlitedb.AddMangaEntry(dbConnection, dataMap["name"].(string), dataMap["altTitle"].(string), dataMap["url"].(string), dataMap["id"].(string))
 		fmt.Println("Updated DB for: ", dataMap["name"].(string))
 	}
 }
