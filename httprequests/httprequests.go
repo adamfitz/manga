@@ -347,7 +347,7 @@ func MangadexTitleSearch(name string) (string, error) {
 		result = map[string]interface{}{
 			"id":       id,
 			"altTitle": prioritizedAltTitle,
-			"name":     name,                                             // add name to the result
+			"name":     name,                                            // add name to the result
 			"url":      fmt.Sprintf("%s/manga/%s", mangadexBaseUri, id), // build the url from the id
 		}
 	} else {

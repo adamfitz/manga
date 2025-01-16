@@ -15,7 +15,8 @@ func main() {
 
 	//NewMangaDbUpdate()
 	//CheckIfBookmarkInDb()
-	BlanketUpdateDb()
+	//BlanketUpdateDb()
+	ExtractMangasWithoutChapterList()
 }
 
 func CheckForNewChapters() {
@@ -173,5 +174,17 @@ func NewMangaDbUpdate() {
 		// 4b - if there is no error then update the DB with the new manga data
 		sqlitedb.AddMangaEntry(dbConnection, dataMap["name"].(string), dataMap["altTitle"].(string), dataMap["url"].(string), dataMap["id"].(string))
 		fmt.Println("Updated DB for: ", dataMap["name"].(string))
+	}
+}
+
+func ExtractMangasWithoutChapterList() {
+
+	// 1 - open the database
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
+
+	mangasWithoutChapterLists := sqlitedb.QueryAllMangadexNames(dbConnection)
+
+	for _, manga := range mangasWithoutChapterLists {
+		fmt.Println(manga)
 	}
 }
