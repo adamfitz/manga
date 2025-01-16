@@ -16,6 +16,7 @@ import (
 
 func main() {
 
+	BlanketUpdateDb()
 }
 
 func CheckForNewChapters() {
