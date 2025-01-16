@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"sort"
 	"strconv"
 )
+
+var mangadexBaseUri string = "https://api.mangadex.org"
 
 // -- httprequests structs --
 
@@ -114,7 +117,7 @@ func MangadexHttpRespAsStruct(manga_id string) (MangaResponse, error) {
 	// parsed response
 	var structuredResponse MangaResponse
 
-	response, err := http.Get("https://api.mangadex.org/chapter?manga=" + manga_id)
+	response, err := http.Get(mangadexBaseUri + "/chapter?manga=" + manga_id)
 	if err != nil {
 		return MangaResponse{}, fmt.Errorf("error making http request")
 	}
@@ -143,7 +146,7 @@ func MangadexChapters(mangaID string) (*MangadexChapterList, error) {
 	*/
 
 	// Make the HTTP GET request, NOTE the translated language is hard coded to english
-	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/manga/%s/aggregate?translatedLanguage[]=en", mangaID))
+	response, err := http.Get(fmt.Sprintf("%s/manga/%s/aggregate?translatedLanguage[]=en", mangadexBaseUri, mangaID))
 	if err != nil {
 		return nil, fmt.Errorf("error making HTTP request for list of volumes and chapters: %s", err)
 	}
@@ -179,7 +182,7 @@ func MangadexChaptersSorted(mangaId string) (string, error) {
 	*/
 
 	// Make the HTTP GET request
-	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/manga/%s/feed?translatedLanguage[]=en", mangaId))
+	response, err := http.Get(fmt.Sprintf("%s/manga/%s/feed?translatedLanguage[]=en", mangadexBaseUri, mangaId))
 	if err != nil {
 		return "", fmt.Errorf("error making HTTP request: %w", err)
 	}
@@ -256,7 +259,7 @@ func MangadexChapterPages(chapterID string) (*ChapterPageData, error) {
 		func returns a list of all pages and page information for a specific chapter
 	*/
 	// Make the HTTP GET request
-	response, err := http.Get(fmt.Sprintf("https://api.mangadex.org/at-home/server/%s", chapterID))
+	response, err := http.Get(fmt.Sprintf("%s/at-home/server/%s", mangadexBaseUri, chapterID))
 	if err != nil {
 		return nil, fmt.Errorf("error making HTTP request for chapter page information: %s", err)
 	}
@@ -276,6 +279,64 @@ func MangadexChapterPages(chapterID string) (*ChapterPageData, error) {
 	}
 
 	return &chapterPageData, nil
+}
+
+func MangadexTitleSearch(name string) (string, error) {
+	/*
+		Function to search for a manga by name (title) and extract the id and altTitles to use to populate the database.
+	*/
+	// Create the URL and add the query parameters
+	baseURL := mangadexBaseUri + "/manga"
+	params := url.Values{}
+	params.Add("title", name)
+
+	// Create the full URL with parameters
+	mangaUrl := fmt.Sprintf("%s?%s", baseURL, params.Encode())
+
+	// Make the HTTP GET request
+	response, err := http.Get(mangaUrl)
+	if err != nil {
+		return "", fmt.Errorf("error making HTTP request for manga information: %w", err)
+	}
+	defer response.Body.Close()
+
+	// Read the response body
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return "", fmt.Errorf("error reading response body: %w", err)
+	}
+
+	// Parse JSON response
+	var data map[string]interface{}
+	if err := json.Unmarshal(body, &data); err != nil {
+		return "", fmt.Errorf("error unmarshalling JSON: %w", err)
+	}
+
+	// Extract relevant information
+	var result map[string]interface{}
+	if mangaData, ok := data["data"].([]interface{}); ok && len(mangaData) > 0 {
+		// Only process the first result
+		firstManga := mangaData[0].(map[string]interface{})
+		id := firstManga["id"].(string)
+		attributes := firstManga["attributes"].(map[string]interface{})
+		altTitles := attributes["altTitles"]
+
+		// Build the result
+		result = map[string]interface{}{
+			"id":        id,
+			"altTitles": altTitles,
+		}
+	} else {
+		return "", fmt.Errorf("no manga found for the title: %s", name)
+	}
+
+	// Convert result to JSON string
+	jsonResult, err := json.MarshalIndent(result, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("error marshalling result to JSON: %w", err)
+	}
+
+	return string(jsonResult), nil
 }
 
 /*

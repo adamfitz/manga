@@ -230,3 +230,42 @@ func MangaNameDbLookup(db *sql.DB, name, tableName string) (bool, error) {
 	// Record exists
 	return true, nil
 }
+
+/*
+
+func ConstructDbEntryAndUpdate(jsonResponseData string)  {
+
+// contruct the URL from teh ID as follows:
+
+mangadexBaseUri + "/manga/" + id
+
+id from the json Response data
+
+{
+  "result": "ok",
+  "response": "collection",
+  "data": [
+    {
+      "id": "d803df2d-9706-41ed-8b45-cc6fe3b10185",
+      "type": "manga",
+      "attributes": {
+        "title": {
+          "en": "Almark"
+        },
+        "altTitles": [
+          {
+            "ja": "アルマーク"
+          },
+          {
+            "fr": "Almark (Komikku)"
+          }
+        ],
+        "description": {
+
+
+
+
+
+}
+
+*/

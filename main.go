@@ -16,7 +16,7 @@ import (
 
 func main() {
 
-	CheckIfBookmarkInDb() // Check if the bookmarks are in the database
+	NewMangaDbUpdate()
 }
 
 func CheckForNewChapters() {
@@ -112,7 +112,6 @@ func CheckIfBookmarkInDb() {
 	if err != nil {
 		log.Fatalf("Error loading bookmarks: %v", err)
 	}
-
 	// 2 - Get a list of the titles with "mangadex" connector from bookmarks
 	names := bookmarks.MangadexMangaTitles(bookmarksFromFile)
 
@@ -126,6 +125,40 @@ func CheckIfBookmarkInDb() {
 
 		if !mangaNameDb {
 			fmt.Printf("Bookmark not in DB: %s\n", name)
+		}
+	}
+}
+
+func NewMangaDbUpdate() {
+	/*
+	 func to make rest call for managa information and the update teh database with the filters/processed information
+	 for a specific list of mangas.
+	*/
+
+	//mangaNotInDb := []string{}
+
+	// 1 - Load bookmarks
+	bookmarksFromFile, err := bookmarks.LoadBookmarks()
+	if err != nil {
+		log.Fatalf("Error loading bookmarks: %v", err)
+	}
+	// 2 - Get a list of the titles with "mangadex" connector from bookmarks
+	names := bookmarks.MangadexMangaTitles(bookmarksFromFile)
+
+	// open the database
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
+
+	// iterate of the names of the mangas in the bookmark list
+	for _, name := range names {
+
+		// a. extract the mangadex id from the database based on the manga name
+		mangaNameDb, _ := sqlitedb.MangaNameDbLookup(dbConnection, name, "chapters")
+
+		if !mangaNameDb {
+			mangaData, _ := httprequests.MangadexTitleSearch(name)
+			//mangaNotInDb = append(mangaNotInDb, name)
+			fmt.Printf("Name: %s\n", name)
+			fmt.Printf("Found data: %s\n", mangaData)
 		}
 	}
 }
