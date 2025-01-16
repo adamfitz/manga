@@ -13,6 +13,7 @@ import (
 
 func main() {
 
+	//NewMangaDbUpdate()
 	CheckIfBookmarkInDb()
 }
 
@@ -140,16 +141,16 @@ func NewMangaDbUpdate() {
 	// 2 - Get a list of the titles with "mangadex" connector from bookmarks
 	names := bookmarks.MangadexMangaTitles(bookmarksFromFile)
 
-	// open the database
+	// 3 - open the database
 	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
 
-	// declare list to hold the return dicts
+	// 3a - declare list to hold the return dicts
 	var mangaNotInDb []string
 
 	// iterate of the names of the mangas in the bookmark list
 	for _, name := range names {
 
-		// a. extract the mangadex id from the database based on the manga name
+		// 3b - extract the mangadex id from the database based on the manga name
 		mangaNameDb, _ := sqlitedb.MangaNameDbLookup(dbConnection, name, "chapters")
 
 		if !mangaNameDb {
@@ -157,18 +158,18 @@ func NewMangaDbUpdate() {
 			mangaNotInDb = append(mangaNotInDb, mangaData)
 		}
 	}
-	// Iterate through the mangaNotInDb list
+	// 4 - Iterate through the mangaNotInDb list
 	for _, mangaDict := range mangaNotInDb {
 		// create datamap to hold the json data
 		var dataMap map[string]interface{}
 
-		// Convert JSON string to a map
+		// 4a - Convert JSON string to a map
 		err := json.Unmarshal([]byte(mangaDict), &dataMap)
 		if err != nil {
 			fmt.Printf("Error unmarshalling manga data: %v\n", err)
 			continue
 		}
-		// if there is no error then update the DB with the new manga data
+		// 4b - if there is no error then update the DB with the new manga data
 		sqlitedb.AddMangaEntry(dbConnection, dataMap["name"].(string), dataMap["altTitle"].(string), dataMap["url"].(string), dataMap["id"].(string))
 		fmt.Println("Updated DB for: ", dataMap["name"].(string))
 	}
