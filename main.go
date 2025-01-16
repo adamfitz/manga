@@ -14,7 +14,8 @@ import (
 func main() {
 
 	//NewMangaDbUpdate()
-	CheckIfBookmarkInDb()
+	//CheckIfBookmarkInDb()
+	BlanketUpdateDb()
 }
 
 func CheckForNewChapters() {
@@ -37,7 +38,7 @@ func CheckForNewChapters() {
 	fmt.Println("== Performing chapter list comparison between local DB and mangadex.org ==:")
 
 	// open the database
-	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
 
 	// iterate of the names of the mangas in the bookmark list
 	for _, name := range names {
@@ -81,7 +82,7 @@ func BlanketUpdateDb() {
 	names := bookmarks.MangadexMangaTitles(bookmarksFromFile)
 
 	// open the database
-	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
 	// iterate of the names of the mangas in the bookmark list
 	for _, name := range names {
 
@@ -114,7 +115,7 @@ func CheckIfBookmarkInDb() {
 	names := bookmarks.MangadexMangaTitles(bookmarksFromFile)
 
 	// open the database
-	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
 	// iterate of the names of the mangas in the bookmark list
 	for _, name := range names {
 
@@ -142,7 +143,7 @@ func NewMangaDbUpdate() {
 	names := bookmarks.MangadexMangaTitles(bookmarksFromFile)
 
 	// 3 - open the database
-	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
 
 	// 3a - declare list to hold the return dicts
 	var mangaNotInDb []string
