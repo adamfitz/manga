@@ -231,41 +231,36 @@ func MangaNameDbLookup(db *sql.DB, name, tableName string) (bool, error) {
 	return true, nil
 }
 
-/*
+func AddChapterEntry(db *sql.DB, name, altTitle, url, mangadexID string) error {
+	/*
+		Function to add a new entry to the `chapters` table.
+		- `name` goes into the `name` column.
+		- `altTitle` goes into the `alt_name` column.
+		- `url` goes into the `url` column.
+		- `mangadexID` goes into the `mangadex_id` column.
+		- Other columns are left empty.
+	*/
 
-func ConstructDbEntryAndUpdate(jsonResponseData string)  {
+	// SQL query to insert a new row into the chapters table
+	query := `
+		INSERT INTO chapters (name, alt_name, url, mangadex_id) 
+		VALUES (?, ?, ?, ?)
+	`
 
-// contruct the URL from teh ID as follows:
+	// Execute the query
+	result, err := db.Exec(query, name, altTitle, url, mangadexID)
+	if err != nil {
+		return fmt.Errorf("failed to insert new chapter entry: %v", err)
+	}
 
-mangadexBaseUri + "/manga/" + id
+	// Verify if a row was inserted
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get affected rows: %v", err)
+	}
+	if rowsAffected == 0 {
+		return fmt.Errorf("no rows inserted; check your query parameters")
+	}
 
-id from the json Response data
-
-{
-  "result": "ok",
-  "response": "collection",
-  "data": [
-    {
-      "id": "d803df2d-9706-41ed-8b45-cc6fe3b10185",
-      "type": "manga",
-      "attributes": {
-        "title": {
-          "en": "Almark"
-        },
-        "altTitles": [
-          {
-            "ja": "アルマーク"
-          },
-          {
-            "fr": "Almark (Komikku)"
-          }
-        ],
-        "description": {
-
-
-
-
-
+	return nil
 }
-
-*/

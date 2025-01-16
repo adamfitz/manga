@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"encoding/json"
+	"encoding/json"
 	"fmt"
 	//"strings"
 	"log"
@@ -128,7 +128,7 @@ func CheckIfBookmarkInDb() {
 
 func NewMangaDbUpdate() {
 	/*
-	 func to make rest call for managa information and the update teh database with the filters/processed information
+	 func to make rest call for managa information and the update the database with the filters/processed information
 	 for a specific list of mangas.
 	*/
 
@@ -156,6 +156,22 @@ func NewMangaDbUpdate() {
 			mangaData, _ := httprequests.MangadexTitleSearch(name)
 			mangaNotInDb = append(mangaNotInDb, mangaData)
 		}
-		fmt.Println(mangaNotInDb)
+	}
+	// Iterate through the mangaNotInDb list
+	for _, mangaDict := range mangaNotInDb {
+		// create datamap to hold the json data
+		var dataMap map[string]interface{}
+
+		// Convert JSON string to a map
+		err := json.Unmarshal([]byte(mangaDict), &dataMap)
+		if err != nil {
+			fmt.Printf("Error unmarshalling manga data: %v\n", err)
+			continue
+		}
+		// if there is no error then update the DB with the new manga data
+		fmt.Printf("\n%s\n", dataMap["name"].(string))
+		fmt.Printf("%s\n", dataMap["altTitle"].(string))
+		fmt.Printf("%s\n", dataMap["id"].(string))
+		fmt.Printf("%s\n", dataMap["url"].(string))
 	}
 }
