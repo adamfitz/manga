@@ -7,8 +7,10 @@ import (
 	_ "github.com/mattn/go-sqlite3" // SQLite driver
 )
 
-// OpenDatabase opens a connection to the SQLite database and returns the *sql.DB instance.
 func OpenDatabase(dbPath string) (*sql.DB, error) {
+	/*
+		Open a connection to the sprecified SQLite database and return the *sql.DB instance.
+	*/
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
@@ -16,8 +18,11 @@ func OpenDatabase(dbPath string) (*sql.DB, error) {
 	return db, nil
 }
 
-// QueryRow retrieves a single row from the database.
+
 func QueryRow(db *sql.DB, query string, args ...interface{}) (map[string]interface{}, error) {
+	/*
+		Perform a DB lookup for specific row and return the result as a map.
+	*/
 	row := db.QueryRow(query, args...)
 
 	// Prepare a statement to get column names
@@ -61,6 +66,10 @@ func QueryRow(db *sql.DB, query string, args ...interface{}) (map[string]interfa
 }
 
 func QueryWithCondition(db *sql.DB, tableName, columnName, condition string) (map[string]interface{}, error) {
+	/*
+		Perform a gerneric DB lookup for specific row and return the result as a map, based on the provided column name
+		and condition eg: name
+	*/
 	query := fmt.Sprintf("SELECT * FROM %s WHERE %s = ?", tableName, columnName)
 	rows, err := db.Query(query, condition)
 	if err != nil {
@@ -116,9 +125,12 @@ func QueryWithCondition(db *sql.DB, tableName, columnName, condition string) (ma
 	return nil, nil
 }
 
-// MangaDexLookupChapterList retrieves the JSON string array from the "mangadex_ch_list" column
-// for a given name in the SQLite database.
-func MangaDexLookupChapterList(db *sql.DB, name string) (string, error) {
+func MangadexDbLookupChapterList(db *sql.DB, name string) (string, error) {
+	/*
+		Perform a DB lookup for a given string in teh name column (saerch by name) and return the JSON string array
+		(if it exists) from the mangadex_ch_list column
+	*/
+
 	// Query to select the "mangadex_ch_list" column based on the "name"
 	query := `SELECT mangadex_ch_list FROM chapters WHERE name = ?`
 	var jsonString string
@@ -135,10 +147,12 @@ func MangaDexLookupChapterList(db *sql.DB, name string) (string, error) {
 	return jsonString, nil
 }
 
-// Initial function to add the mangadex json string to the correct  database column
-// UpdateMangaDexChapterList updates the mangadex_ch_list column in the chapters table
-// with the provided JSON string for the corresponding name.
-func MangaDexInitialDbChapterListUpdate(db *sql.DB, name string, jsonString string) error {
+func MangadexInitialDbChapterListUpdate(db *sql.DB, name string, jsonString string) error {
+	/*
+		func will insert (update/overwrite) the mangadex_ch_list column in the chapters table with the provided JSON
+		string for the provided name.
+	*/
+
 	// SQL query to update the mangadex_ch_list column
 	query := `UPDATE chapters SET mangadex_ch_list = ? WHERE name = ?`
 
@@ -160,7 +174,11 @@ func MangaDexInitialDbChapterListUpdate(db *sql.DB, name string, jsonString stri
 	return nil
 }
 
-func LookupMangadexId(db *sql.DB, name, tableName string) (string, error) {
+func MangadexIdDbLookup(db *sql.DB, name, tableName string) (string, error) {
+	/*
+		func performs a lookup in the provided table for the provided name and returns the mangadex_id in string format.
+	*/
+
 	// Use a parameterized query to avoid SQL injection
 	query := fmt.Sprintf("SELECT mangadex_id FROM %s WHERE name = ?", tableName)
 

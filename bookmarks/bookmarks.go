@@ -26,8 +26,11 @@ type Key struct {
 	Manga     string `json:"manga"`
 }
 
-// LoadBookmarks loads the bookmarks from the file and sorts them by Title.Manga alphabetically
 func LoadBookmarks() ([]MangaList, error) {
+	/*
+		Loads the bookmarks from the boomarks.json file and sorts them by Title.Manga alphabetically
+
+	*/
 	// Read the JSON file
 	bookmarks, err := os.ReadFile("bookmarks/bookmarks.json")
 	if err != nil {
@@ -49,8 +52,13 @@ func LoadBookmarks() ([]MangaList, error) {
 	return mangaList, nil
 }
 
-// extract manga names (for mangadex) to iterate the DB
 func MangadexMangaTitles(bookmarks []MangaList) []string {
+	/*
+		filter the loaded bookmarks variable on the manga title and return all titles as string slice.
+
+		Can be used as a list to iterate over the DB.
+	*/
+
 	var mangaDexTitles []string
 
 	// Iterate over bookmarks and filter titles with the "mangadex" connector

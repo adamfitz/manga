@@ -228,12 +228,12 @@ func main() {
 		fmt.Printf("\nUpdating Chapter list for %s ...\n", name)
 
 		// a. extract the mangadex id from the database based on the manga name
-		mangadexId, _ := sqlitedb.LookupMangadexId(dbConnection, name, "chapters")
+		mangadexId, _ := sqlitedb.MangadexIdDbLookup(dbConnection, name, "chapters")
 
 		// b. get the list of chapters from mangadex
 		chapterList, _ := httprequests.MangadexChaptersSorted(mangadexId)
 
 		// c. update the database with the list of chapters
-		sqlitedb.MangaDexInitialDbChapterListUpdate(dbConnection, name, chapterList)
+		sqlitedb.MangadexInitialDbChapterListUpdate(dbConnection, name, chapterList)
 	}
 }
