@@ -198,3 +198,35 @@ func MangadexIdDbLookup(db *sql.DB, name, tableName string) (string, error) {
 
 	return mangadexId, nil
 }
+
+func MangaNameDbLookup(db *sql.DB, name, tableName string) (bool, error) {
+	/*
+		This function performs a lookup in the provided table for the provided name.
+
+		NOTE: This function exists to perform a comparison with bookmark names and database names.
+	*/
+
+	// check if the record exists in DB dont retrieve the name column
+	query := fmt.Sprintf("SELECT 1 FROM %s WHERE name = ?", tableName)
+
+	// Prepare the statement
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return false, fmt.Errorf("failed to prepare query: %w", err)
+	}
+	defer stmt.Close()
+
+	// Execute the query with the provided name
+	var exists int
+	err = stmt.QueryRow(name).Scan(&exists)
+	if err == sql.ErrNoRows {
+		// No matching record found
+		return false, nil
+	} else if err != nil {
+		// Other errors
+		return false, fmt.Errorf("failed to execute query: %w", err)
+	}
+
+	// Record exists
+	return true, nil
+}

@@ -16,7 +16,7 @@ import (
 
 func main() {
 
-	BlanketUpdateDb()
+	CheckIfBookmarkInDb() // Check if the bookmarks are in the database
 }
 
 func CheckForNewChapters() {
@@ -97,5 +97,35 @@ func BlanketUpdateDb() {
 		sqlitedb.MangadexInitialDbChapterListUpdate(dbConnection, name, chapterList)
 
 		fmt.Println("Updated DB for: ", name)
+	}
+}
+
+func CheckIfBookmarkInDb() {
+
+	/*
+		compares the managa names in bookmarks to the names in the database, prints out the difference if the name does
+		not exist in the DB.
+	*/
+
+	// 1 - Load bookmarks
+	bookmarksFromFile, err := bookmarks.LoadBookmarks()
+	if err != nil {
+		log.Fatalf("Error loading bookmarks: %v", err)
+	}
+
+	// 2 - Get a list of the titles with "mangadex" connector from bookmarks
+	names := bookmarks.MangadexMangaTitles(bookmarksFromFile)
+
+	// open the database
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
+	// iterate of the names of the mangas in the bookmark list
+	for _, name := range names {
+
+		// a. extract the mangadex id from the database based on the manga name
+		mangaNameDb, _ := sqlitedb.MangaNameDbLookup(dbConnection, name, "chapters")
+
+		if !mangaNameDb {
+			fmt.Printf("Bookmark not in DB: %s\n", name)
+		}
 	}
 }
