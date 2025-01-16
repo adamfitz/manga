@@ -18,7 +18,6 @@ func OpenDatabase(dbPath string) (*sql.DB, error) {
 	return db, nil
 }
 
-
 func QueryRow(db *sql.DB, query string, args ...interface{}) (map[string]interface{}, error) {
 	/*
 		Perform a DB lookup for specific row and return the result as a map.

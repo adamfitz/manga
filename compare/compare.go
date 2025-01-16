@@ -6,7 +6,7 @@ import (
 )
 
 func CompareJSONArrays(jsonA, jsonB string) ([]string, error) {
-	/* 
+	/*
 		Performs a comparison of two JSON arrays and returns the elements that are present in the first array but not in the second array.
 	*/
 	var listA, listB []string

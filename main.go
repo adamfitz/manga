@@ -16,17 +16,14 @@ import (
 
 func main() {
 
+}
+
+func CheckForNewChapters() {
+
 	/*
-		These managas are a PITA due to the fact that there is a possibliity that the latest chapter is available but
-		earlier chapters are not.
-
-		So instead we will operate under this assumption and instead store a list of the chapters in a specific format
-		in the DB and then compare that with the list of chapters from the mangadex API.
-
+		func gets a list of chapters from mangadex and comnpares it to the list in the database, outputting the differences
+		(if any).
 	*/
-
-
-	// load bookmarks and iterate through each name if the connect ir mangadex
 
 	// 1 - Load bookmarks
 	bookmarksFromFile, err := bookmarks.LoadBookmarks()
@@ -42,6 +39,8 @@ func main() {
 
 	// open the database
 	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
+
+	// iterate of the names of the mangas in the bookmark list
 	for _, name := range names {
 
 		// a. extract the mangadex id from the database based on the manga name
@@ -53,16 +52,49 @@ func main() {
 		// c. extract the list of chapters from the database
 		chapterListDb, _ := sqlitedb.MangadexDbLookupChapterList(dbConnection, name)
 
-		// d. perform a comparison of both of the json arrays, returning teh difference (compares A to B) and returns
+		// d. perform a comparison of both of the json arrays, returning the difference (compares A to B) and returns
 		// the elements from list A that are not present in list B
 		differences, _ := compare.CompareJSONArrays(chapterList, chapterListDb)
 
 		// Output the differences
 		if len(differences) != 0 {
-			fmt.Printf("Chapters available on mangadex for %s\n", name)
+			fmt.Printf("New chapters available on mangadex for\t\t %s\n", name)
 			for _, diff := range differences {
 				fmt.Println(diff)
 			}
 		}
+	}
+
+}
+
+func BlanketUpdateDb() {
+	/*
+		func gets a sorted list of all the chapters from mangadex and write them into the database
+	*/
+
+	// 1 - Load bookmarks
+	bookmarksFromFile, err := bookmarks.LoadBookmarks()
+	if err != nil {
+		log.Fatalf("Error loading bookmarks: %v", err)
+	}
+
+	// 2 - Get a list of the titles with "mangadex" connector
+	names := bookmarks.MangadexMangaTitles(bookmarksFromFile)
+
+	// open the database
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
+	// iterate of the names of the mangas in the bookmark list
+	for _, name := range names {
+
+		// a. extract the mangadex id from the database based on the manga name
+		mangadexId, _ := sqlitedb.MangadexIdDbLookup(dbConnection, name, "chapters")
+
+		// b. get the list of chapters from mangadex
+		chapterList, _ := httprequests.MangadexChaptersSorted(mangadexId)
+
+		// c. update the DB with the new chapter list
+		sqlitedb.MangadexInitialDbChapterListUpdate(dbConnection, name, chapterList)
+
+		fmt.Println("Updated DB for: ", name)
 	}
 }
