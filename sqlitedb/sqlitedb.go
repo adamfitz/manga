@@ -231,7 +231,7 @@ func MangaNameDbLookup(db *sql.DB, name, tableName string) (bool, error) {
 	return true, nil
 }
 
-func AddChapterEntry(db *sql.DB, name, altTitle, url, mangadexID string) error {
+func AddMangaEntry(db *sql.DB, name, altTitle, url, mangadexID string) error {
 	/*
 		Function to add a new entry to the `chapters` table.
 		- `name` goes into the `name` column.

@@ -10,7 +10,8 @@ import (
 	"strconv"
 )
 
-var mangadexBaseUri string = "https://api.mangadex.org"
+var mangadexApiBaseUri string = "https://api.mangadex.org"
+var mangadexBaseUri string = "https://mangadex.org"
 
 // -- httprequests structs --
 
@@ -117,7 +118,7 @@ func MangadexHttpRespAsStruct(manga_id string) (MangaResponse, error) {
 	// parsed response
 	var structuredResponse MangaResponse
 
-	response, err := http.Get(mangadexBaseUri + "/chapter?manga=" + manga_id)
+	response, err := http.Get(mangadexApiBaseUri + "/chapter?manga=" + manga_id)
 	if err != nil {
 		return MangaResponse{}, fmt.Errorf("error making http request")
 	}
@@ -146,7 +147,7 @@ func MangadexChapters(mangaID string) (*MangadexChapterList, error) {
 	*/
 
 	// Make the HTTP GET request, NOTE the translated language is hard coded to english
-	response, err := http.Get(fmt.Sprintf("%s/manga/%s/aggregate?translatedLanguage[]=en", mangadexBaseUri, mangaID))
+	response, err := http.Get(fmt.Sprintf("%s/manga/%s/aggregate?translatedLanguage[]=en", mangadexApiBaseUri, mangaID))
 	if err != nil {
 		return nil, fmt.Errorf("error making HTTP request for list of volumes and chapters: %s", err)
 	}
@@ -182,7 +183,7 @@ func MangadexChaptersSorted(mangaId string) (string, error) {
 	*/
 
 	// Make the HTTP GET request
-	response, err := http.Get(fmt.Sprintf("%s/manga/%s/feed?translatedLanguage[]=en", mangadexBaseUri, mangaId))
+	response, err := http.Get(fmt.Sprintf("%s/manga/%s/feed?translatedLanguage[]=en", mangadexApiBaseUri, mangaId))
 	if err != nil {
 		return "", fmt.Errorf("error making HTTP request: %w", err)
 	}
@@ -259,7 +260,7 @@ func MangadexChapterPages(chapterID string) (*ChapterPageData, error) {
 		func returns a list of all pages and page information for a specific chapter
 	*/
 	// Make the HTTP GET request
-	response, err := http.Get(fmt.Sprintf("%s/at-home/server/%s", mangadexBaseUri, chapterID))
+	response, err := http.Get(fmt.Sprintf("%s/at-home/server/%s", mangadexApiBaseUri, chapterID))
 	if err != nil {
 		return nil, fmt.Errorf("error making HTTP request for chapter page information: %s", err)
 	}
@@ -287,7 +288,7 @@ func MangadexTitleSearch(name string) (string, error) {
 	*/
 
 	// Create the URL and add the query parameters
-	baseURL := mangadexBaseUri + "/manga"
+	baseURL := mangadexApiBaseUri + "/manga"
 	params := url.Values{}
 	params.Add("title", name)
 
@@ -347,7 +348,7 @@ func MangadexTitleSearch(name string) (string, error) {
 			"id":       id,
 			"altTitle": prioritizedAltTitle,
 			"name":     name,                                             // add name to the result
-			"url":      fmt.Sprintf("https://mangadex.org/manga/%s", id), // build the url from the id
+			"url":      fmt.Sprintf("%s/manga/%s", mangadexBaseUri, id), // build the url from the id
 		}
 	} else {
 		return "", fmt.Errorf("no manga found for the title: %s", name)

@@ -13,7 +13,7 @@ import (
 
 func main() {
 
-	NewMangaDbUpdate()
+	CheckIfBookmarkInDb()
 }
 
 func CheckForNewChapters() {
@@ -169,9 +169,7 @@ func NewMangaDbUpdate() {
 			continue
 		}
 		// if there is no error then update the DB with the new manga data
-		fmt.Printf("\n%s\n", dataMap["name"].(string))
-		fmt.Printf("%s\n", dataMap["altTitle"].(string))
-		fmt.Printf("%s\n", dataMap["id"].(string))
-		fmt.Printf("%s\n", dataMap["url"].(string))
+		sqlitedb.AddMangaEntry(dbConnection, dataMap["name"].(string), dataMap["altTitle"].(string), dataMap["id"].(string), dataMap["url"].(string))
+		fmt.Println("Updated DB for: ", dataMap["name"].(string))
 	}
 }
