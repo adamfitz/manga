@@ -15,9 +15,9 @@ func main() {
 
 	//NewMangaDbUpdate()
 	//CheckIfBookmarkInDb()
-	//BlanketUpdateDb()
+	BlanketUpdateDb()
 	//ExtractMangasWithoutChapterList()
-	UpdateMangasWithoutChapterList()
+	//UpdateMangasWithoutChapterList()
 }
 
 func CheckForNewChapters() {
