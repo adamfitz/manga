@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Substring Search Result</title>
+	<style>
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		th, td {
+			border: 1px solid #ddd;
+			padding: 8px;
+			text-align: left;
+		}
+		th {
+			background-color: #f2f2f2;
+		}
+		tr:nth-child(even) {
+			background-color: #f9f9f9;
+		}
+		tr:hover {
+			background-color: #f1f1f1;
+		}
+		/* Adjust the size of the "Database ID" column */
+		th:nth-child(1), td:nth-child(1) {
+			width: 5%;
+		}
+	</style>
+</head>
+<body>
+	<h1>{{.Result}}</h1>
+	<p>
+	<button onclick="window.location.href='/index.html';">Back to Index</button>
+	</p>
+	<table>
+		<thead>
+			<tr>
+				<th>Database ID</th>
+				<th>Name</th>
+				<th>Alternate Name</th>
+				<th>URL</th>
+				<th>Mangadex ID</th>
+			</tr>
+		</thead>
+		<tbody>
+			{{range .SearchResult}}
+			<tr>
+				<td>{{index . "id"}}</td>
+				<td>{{index . "name"}}</td>
+				<td>{{index . "alt_name"}}</td>
+				<td><a href="{{index . "url"}}" target="_blank">{{index . "url"}}</a></td>
+				<td>{{index . "mangadex_id"}}</td>
+			</tr>
+			{{end}}
+		</tbody>
+	</table>
+	<p>
+	<button onclick="window.location.href='/index.html';">Back to Index</button>
+	</p>
+</body>
+</html>

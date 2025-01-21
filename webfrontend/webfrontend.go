@@ -14,6 +14,7 @@ import (
 func StartServer(port string) {
 	http.HandleFunc("/", homePageHandler)
 	http.HandleFunc("/query", queryHandler)
+	http.HandleFunc("/search", searchHandler)
 	http.HandleFunc("/update", updateHandler)
 
 	log.Printf("Web server running at http://localhost:%s/", port)
@@ -43,7 +44,7 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 	// Extract and clean input variables
 	mangaName := strings.TrimSpace(r.FormValue("manga_name"))
 	alternateName := strings.TrimSpace(r.FormValue("alternate_name"))
-	id := strings.TrimSpace(r.FormValue("id"))
+	dbId := strings.TrimSpace(r.FormValue("id"))
 
 	// If empty, set to "Null"
 	if mangaName == "" {
@@ -52,8 +53,8 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 	if alternateName == "" {
 		alternateName = "Null"
 	}
-	if id == "" {
-		id = "Null"
+	if dbId == "" {
+		dbId = "Null"
 	}
 
 	// Open database connection
@@ -70,9 +71,9 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 	} else if alternateName != "Null" {
 		queryResult, _ = sqlitedb.QueryWithCondition(dbConnection, "chapters", "alt_name", alternateName)
 		result = fmt.Sprintf("Query Result for Alternate Name: %s", alternateName)
-	} else if id != "Null" {
-		queryResult, _ = sqlitedb.QueryWithCondition(dbConnection, "chapters", "id", id)
-		result = fmt.Sprintf("Query Result for ID: %s", id)
+	} else if dbId != "Null" {
+		queryResult, _ = sqlitedb.QueryWithCondition(dbConnection, "chapters", "id", dbId)
+		result = fmt.Sprintf("Query Result for ID: %s", dbId)
 	}
 
 	// Check if mangadex_ch_list exists and is a string
@@ -106,6 +107,72 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Load the queryresult page template with the requested data
 	tmpl, err := template.ParseFiles("./webfrontend/queryresult.html")
+	if err != nil {
+		// Print the error to the server logs for debugging
+		fmt.Println("Error loading template:", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+	// Send the response to the user
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, data)
+}
+
+// Column substring search handler
+func searchHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract and clean input variables
+	mangaName := strings.TrimSpace(r.FormValue("manga_name"))
+	alternateName := strings.TrimSpace(r.FormValue("alternate_name"))
+
+	// If empty, set to "Null"
+	if mangaName == "" {
+		mangaName = "Null"
+	}
+	if alternateName == "" {
+		alternateName = "Null"
+	}
+
+	// Open database connection
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
+
+	// Prepare the response
+	var result string
+	var searchResult []map[string]interface{}
+
+	// Declare error variable
+	var err error
+
+	// Query by mangaName or alternateName
+	if mangaName != "Null" {
+		searchResult, err = sqlitedb.QuerySearchSubstring(dbConnection, "chapters", "name", mangaName)
+		result = fmt.Sprintf("Search Result for Manga Name: %s", mangaName)
+	} else if alternateName != "Null" {
+		searchResult, err = sqlitedb.QuerySearchSubstring(dbConnection, "chapters", "alt_name", alternateName)
+		result = fmt.Sprintf("Search Result for Alternate Name: %s", alternateName)
+	}
+	if err != nil {
+		http.Error(w, "Error querying database", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare data for the template
+	data := struct {
+		Result       string
+		SearchResult []map[string]interface{}
+	}{
+		Result:       result,
+		SearchResult: searchResult,
+	}
+
+	// Load the searchresult page template with the requested data
+	tmpl, err := template.ParseFiles("./webfrontend/searchresult.html")
 	if err != nil {
 		// Print the error to the server logs for debugging
 		fmt.Println("Error loading template:", err)
