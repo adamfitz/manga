@@ -14,7 +14,10 @@ import (
 func main() {
 
 	//NewMangaDbUpdate()
-	CheckIfBookmarkInDb()
+	//CheckIfBookmarkInDb()
+	BlanketUpdateDb()
+	//ExtractMangasWithoutChapterList()
+	//UpdateMangasWithoutChapterList()
 }
 
 func CheckForNewChapters() {
@@ -37,7 +40,7 @@ func CheckForNewChapters() {
 	fmt.Println("== Performing chapter list comparison between local DB and mangadex.org ==:")
 
 	// open the database
-	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
 
 	// iterate of the names of the mangas in the bookmark list
 	for _, name := range names {
@@ -81,7 +84,7 @@ func BlanketUpdateDb() {
 	names := bookmarks.MangadexMangaTitles(bookmarksFromFile)
 
 	// open the database
-	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
 	// iterate of the names of the mangas in the bookmark list
 	for _, name := range names {
 
@@ -114,7 +117,7 @@ func CheckIfBookmarkInDb() {
 	names := bookmarks.MangadexMangaTitles(bookmarksFromFile)
 
 	// open the database
-	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
 	// iterate of the names of the mangas in the bookmark list
 	for _, name := range names {
 
@@ -142,7 +145,7 @@ func NewMangaDbUpdate() {
 	names := bookmarks.MangadexMangaTitles(bookmarksFromFile)
 
 	// 3 - open the database
-	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList_test.db")
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
 
 	// 3a - declare list to hold the return dicts
 	var mangaNotInDb []string
@@ -172,5 +175,45 @@ func NewMangaDbUpdate() {
 		// 4b - if there is no error then update the DB with the new manga data
 		sqlitedb.AddMangaEntry(dbConnection, dataMap["name"].(string), dataMap["altTitle"].(string), dataMap["url"].(string), dataMap["id"].(string))
 		fmt.Println("Updated DB for: ", dataMap["name"].(string))
+	}
+}
+
+func ExtractMangasWithoutChapterList() {
+
+	// 1 - open the database
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
+
+	mangasWithoutChapterLists := sqlitedb.QueryAllMangadexNames(dbConnection)
+
+	for _, manga := range mangasWithoutChapterLists {
+		fmt.Println(manga)
+	}
+}
+
+func UpdateMangasWithoutChapterList() {
+	/*
+		func to grab a list of chapters from mangadex and then add to the database.  The list of mangas is manually
+		provided.
+	*/
+
+	// 1 - open the database
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
+
+	// 2 list of mangas to get the chapter list for
+	mangasToUpdate := sqlitedb.QueryAllMangadexNames(dbConnection)
+
+	// 3 - iterate over the list of mangas
+	for _, manga := range mangasToUpdate {
+
+		// a. extract the mangadex id from the database based on the manga name
+		mangadexId, _ := sqlitedb.MangadexIdDbLookup(dbConnection, manga, "chapters")
+
+		// b. get the list of chapters from mangadex
+		chapterList, _ := httprequests.MangadexChaptersSorted(mangadexId)
+
+		// c. update the DB with the new chapter list
+		sqlitedb.MangadexInitialDbChapterListUpdate(dbConnection, manga, chapterList)
+
+		fmt.Println("Updated DB for: ", manga)
 	}
 }

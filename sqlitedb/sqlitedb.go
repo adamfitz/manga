@@ -264,3 +264,43 @@ func AddMangaEntry(db *sql.DB, name, altTitle, url, mangadexID string) error {
 
 	return nil
 }
+
+func QueryAllMangadexNames(db *sql.DB) []string {
+	/*
+		Function to query for all the names of mangas that have a Null or empty mangadex_ch_list and contains the
+		substring "mangadex" in the url column.
+
+		Returns a slice of strings containing the names matching the above conditions.
+	*/
+
+	// SQL query to select all names
+	query := `SELECT name FROM chapters WHERE (mangadex_ch_list IS NULL OR mangadex_ch_list = '') AND url LIKE '%mangadex%' ORDER BY name ASC;`
+
+	// Execute the query
+	rows, err := db.Query(query)
+	if err != nil {
+		fmt.Printf("Error querying all manga names: %v\n", err)
+		return nil
+	}
+	defer rows.Close()
+
+	// Create a slice to hold the manga names
+	var mangaNames []string
+
+	// Iterate over the rows and append each name to the slice
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			fmt.Printf("Error scanning row: %v\n", err)
+			continue
+		}
+		mangaNames = append(mangaNames, name)
+	}
+
+	// Check for any error that occurred during iteration
+	if err := rows.Err(); err != nil {
+		fmt.Printf("Error during row iteration: %v\n", err)
+	}
+
+	return mangaNames
+}

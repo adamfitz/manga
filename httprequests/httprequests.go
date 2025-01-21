@@ -171,6 +171,7 @@ func MangadexChapters(mangaID string) (*MangadexChapterList, error) {
 }
 
 func MangadexChaptersSorted(mangaId string) (string, error) {
+
 	/*
 		This function grabs a list of all the chapters for a specific manga from mangadex.com and returns a JSON string,
 		sorted and ordered by chapter number.
@@ -182,41 +183,63 @@ func MangadexChaptersSorted(mangaId string) (string, error) {
 		this func use /aggregate and the otrher /feed.
 	*/
 
-	// Make the HTTP GET request
-	response, err := http.Get(fmt.Sprintf("%s/manga/%s/feed?translatedLanguage[]=en", mangadexApiBaseUri, mangaId))
-	if err != nil {
-		return "", fmt.Errorf("error making HTTP request: %w", err)
-	}
-	defer response.Body.Close()
-
-	// Read the response body
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return "", fmt.Errorf("error reading response body: %w", err)
-	}
-
-	// Parse JSON into a generic map
-	var data map[string]interface{}
-	err = json.Unmarshal(body, &data)
-	if err != nil {
-		return "", fmt.Errorf("error unmarshalling JSON: %w", err)
-	}
-
-	// Extract chapters
+	const limit = 100 // Define the limit for pagination
+	baseURL := fmt.Sprintf("%s/manga/%s/feed", mangadexApiBaseUri, mangaId)
 	var chapters []map[string]interface{}
-	if dataArray, ok := data["data"].([]interface{}); ok {
-		for _, item := range dataArray {
-			if chapterMap, ok := item.(map[string]interface{}); ok {
-				if attributes, ok := chapterMap["attributes"].(map[string]interface{}); ok {
-					chapters = append(chapters, attributes)
+	var totalChapters int
+
+	offset := 0
+	for {
+		// Construct URL with pagination parameters
+		url := fmt.Sprintf("%s?limit=%d&offset=%d&translatedLanguage[]=en", baseURL, limit, offset)
+
+		// Make the HTTP GET request
+		response, err := http.Get(url)
+		if err != nil {
+			return "", fmt.Errorf("error making HTTP request: %w", err)
+		}
+		defer response.Body.Close()
+
+		// Read the response body
+		body, err := io.ReadAll(response.Body)
+		if err != nil {
+			return "", fmt.Errorf("error reading response body: %w", err)
+		}
+
+		// Parse JSON into a generic map
+		var data map[string]interface{}
+		err = json.Unmarshal(body, &data)
+		if err != nil {
+			return "", fmt.Errorf("error unmarshalling JSON: %w", err)
+		}
+
+		// Extract total chapters on the first request
+		if totalChapters == 0 {
+			if total, ok := data["total"].(float64); ok {
+				totalChapters = int(total)
+			}
+		}
+
+		// Extract chapter data
+		if dataArray, ok := data["data"].([]interface{}); ok {
+			for _, item := range dataArray {
+				if chapterMap, ok := item.(map[string]interface{}); ok {
+					if attributes, ok := chapterMap["attributes"].(map[string]interface{}); ok {
+						chapters = append(chapters, attributes)
+					}
 				}
 			}
 		}
+
+		// Break the loop if there are no more chapters to fetch
+		if len(chapters) >= totalChapters {
+			break
+		}
+		offset += limit
 	}
 
 	// Sort chapters by the "chapter" field
 	sort.Slice(chapters, func(i, j int) bool {
-		// Convert chapter strings to numbers for comparison
 		chapterI, _ := strconv.ParseFloat(fmt.Sprintf("%v", chapters[i]["chapter"]), 64)
 		chapterJ, _ := strconv.ParseFloat(fmt.Sprintf("%v", chapters[j]["chapter"]), 64)
 		return chapterI < chapterJ
@@ -225,7 +248,6 @@ func MangadexChaptersSorted(mangaId string) (string, error) {
 	// Build JSON string array
 	var chapterLines []string
 	for _, chapter := range chapters {
-		// Ensure each field has a string value or defaults to an empty string
 		volume := fmt.Sprintf("%v", chapter["volume"])
 		if volume == "<nil>" || volume == "null" {
 			volume = ""
@@ -241,10 +263,12 @@ func MangadexChaptersSorted(mangaId string) (string, error) {
 			title = ""
 		}
 
-		// Create the formatted line
 		line := fmt.Sprintf("Volume: %s Chapter: %s Title: %s", volume, chapterNumber, title)
 		chapterLines = append(chapterLines, line)
 	}
+
+	// Print the total number of chapters
+	//fmt.Printf("Total chapters: %d\n", totalChapters)
 
 	// Convert the slice of lines into a JSON string array
 	jsonArray, err := json.Marshal(chapterLines)
@@ -347,7 +371,7 @@ func MangadexTitleSearch(name string) (string, error) {
 		result = map[string]interface{}{
 			"id":       id,
 			"altTitle": prioritizedAltTitle,
-			"name":     name,                                             // add name to the result
+			"name":     name,                                            // add name to the result
 			"url":      fmt.Sprintf("%s/manga/%s", mangadexBaseUri, id), // build the url from the id
 		}
 	} else {
