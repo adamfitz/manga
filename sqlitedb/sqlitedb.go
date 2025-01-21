@@ -304,3 +304,39 @@ func QueryAllMangadexNames(db *sql.DB) []string {
 
 	return mangaNames
 }
+
+func QuerySearchSubstring(db *sql.DB, tableName, columnName, subString string) ([]map[string]interface{}, error) {
+	query := fmt.Sprintf("SELECT id, name, alt_name, url, mangadex_id FROM %s WHERE %s LIKE ?", tableName, columnName)
+	rows, err := db.Query(query, "%"+subString+"%")
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute query: %w", err)
+	}
+	defer rows.Close()
+
+	var results []map[string]interface{}
+
+	for rows.Next() {
+		var id int
+		var name, altName, url, mangadexID string
+
+		err := rows.Scan(&id, &name, &altName, &url, &mangadexID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+
+		result := map[string]interface{}{
+			"id":          id,
+			"name":        name,
+			"alt_name":    altName,
+			"url":         url,
+			"mangadex_id": mangadexID,
+		}
+		results = append(results, result)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("row iteration error: %w", err)
+	}
+
+	return results, nil
+}

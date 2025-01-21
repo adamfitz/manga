@@ -9,15 +9,17 @@ import (
 	"main/compare"
 	"main/httprequests"
 	"main/sqlitedb"
+	"main/webfrontend"
 )
 
 func main() {
 
 	//NewMangaDbUpdate()
 	//CheckIfBookmarkInDb()
-	BlanketUpdateDb()
+	//BlanketUpdateDb()
 	//ExtractMangasWithoutChapterList()
 	//UpdateMangasWithoutChapterList()
+	webfrontend.StartServer("8080")
 }
 
 func CheckForNewChapters() {
