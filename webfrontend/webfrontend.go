@@ -1,10 +1,13 @@
 package webfrontend
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
+	"main/sqlitedb"
 	"net/http"
+	"strings"
 )
 
 // StartServer initializes and starts the web server on the given port.
@@ -37,31 +40,83 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract input variables
-	mangaName := r.FormValue("manga_name")
-	alternateName := r.FormValue("alternate_name")
-	id := r.FormValue("id")
+	// Extract and clean input variables
+	mangaName := strings.TrimSpace(r.FormValue("manga_name"))
+	alternateName := strings.TrimSpace(r.FormValue("alternate_name"))
+	id := strings.TrimSpace(r.FormValue("id"))
 
-	// Use a switch statement to handle empty or null values
-	switch {
-	case mangaName == "":
+	// If empty, set to "Null"
+	if mangaName == "" {
 		mangaName = "Null"
 	}
-	switch {
-	case alternateName == "":
+	if alternateName == "" {
 		alternateName = "Null"
 	}
-	switch {
-	case id == "":
+	if id == "" {
 		id = "Null"
 	}
 
-	// Format the result string
-	result := fmt.Sprintf("Variables received - Manga Name: %s, Alternate Name: %s, ID: %s", mangaName, alternateName, id)
+	// Open database connection
+	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
 
-	// Respond back with a success message
+	// Prepare the response
+	var result string
+	var queryResult map[string]interface{}
+
+	// Query by mangaName
+	if mangaName != "Null" {
+		queryResult, _ = sqlitedb.QueryWithCondition(dbConnection, "chapters", "name", mangaName)
+		result = fmt.Sprintf("Query Result for Manga Name: %s", mangaName)
+	} else if alternateName != "Null" {
+		queryResult, _ = sqlitedb.QueryWithCondition(dbConnection, "chapters", "alt_name", alternateName)
+		result = fmt.Sprintf("Query Result for Alternate Name: %s", alternateName)
+	} else if id != "Null" {
+		queryResult, _ = sqlitedb.QueryWithCondition(dbConnection, "chapters", "id", id)
+		result = fmt.Sprintf("Query Result for ID: %s", id)
+	}
+
+	// Check if mangadex_ch_list exists and is a string
+	if mangadexChList, ok := queryResult["mangadex_ch_list"].(string); ok {
+		// Parse mangadex_ch_list if it's a string representation of a JSON array
+		var chapters []string
+		err := json.Unmarshal([]byte(mangadexChList), &chapters)
+		if err != nil {
+			http.Error(w, "Error parsing chapter list", http.StatusInternalServerError)
+			return
+		}
+		// Update the queryResult with the parsed chapter list
+		queryResult["mangadex_ch_list"] = chapters
+	}
+
+	// Marshal queryResult to pretty-printed JSON
+	queryResultJSON, err := json.MarshalIndent(queryResult, "", "    ")
+	if err != nil {
+		http.Error(w, "Error marshaling query result", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare data for the template
+	data := struct {
+		Result      string
+		QueryResult string
+	}{
+		Result:      result,
+		QueryResult: string(queryResultJSON),
+	}
+
+	// Load the queryresult page template with the requested data
+	tmpl, err := template.ParseFiles("./webfrontend/queryresult.html")
+	if err != nil {
+		// Print the error to the server logs for debugging
+		fmt.Println("Error loading template:", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+	// Send the response to the user
+	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(result))
+	tmpl.Execute(w, data)
 }
 
 // Update handler

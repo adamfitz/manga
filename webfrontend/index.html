@@ -6,7 +6,12 @@
 	<body>
 		<h1>Database Query and Update</h1>
 		<h2>Lookup manga</h2>
-        Only one of the fields is required. If you provide multiple fields, the query will be performed with an AND operation.
+        Only one of the fields is required. If you provide multiple fields, the query is performed in order as follows using only the single value:
+		<ol>
+			<li>Manga Name</li>
+			<li>Alternate Name</li>
+			<li>id</li>
+		</ol>
         <p>
     <form action="/query" method="post">
         <label for="manga_name">Manga Name:</label>
