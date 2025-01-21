@@ -22,8 +22,6 @@ func main() {
 	webfrontend.StartServer("8080")
 }
 
-
-
 func CheckForNewChapters() {
 
 	/*

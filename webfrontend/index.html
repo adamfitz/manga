@@ -5,11 +5,21 @@
 	</head>
 	<body>
 		<h1>Database Query and Update</h1>
-		<form method="POST" action="/query">
-			<label for="query">SQL Query:</label><br>
-			<textarea id="query" name="query" rows="5" cols="50"></textarea><br><br>
-			<button type="submit">Execute Query</button>
-		</form>
+		<h2>Lookup manga</h2>
+        Only one of the fields is required. If you provide multiple fields, the query will be performed with an AND operation.
+        <p>
+    <form action="/query" method="post">
+        <label for="manga_name">Manga Name:</label>
+        <input type="text" id="manga_name" name="manga_name">
+
+        <label for="alternate_name">Alternate Name:</label>
+        <input type="text" id="alternate_name" name="alternate_name">
+
+        <label for="id">ID:</label>
+        <input type="text" id="id" name="id"><p>
+
+        <button type="submit">Submit Query</button>
+    </form>
 		<br>
 		<form method="POST" action="/update">
 			<label for="update">SQL Update:</label><br>

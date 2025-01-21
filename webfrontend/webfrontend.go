@@ -1,11 +1,11 @@
 package webfrontend
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 )
-
 
 // StartServer initializes and starts the web server on the given port.
 func StartServer(port string) {
@@ -31,18 +31,35 @@ func homePageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
-// Query handler
 func queryHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
 
-	query := r.FormValue("query")
-	// Call your database query logic here
-	result := "Query executed: " + query
+	// Extract input variables
+	mangaName := r.FormValue("manga_name")
+	alternateName := r.FormValue("alternate_name")
+	id := r.FormValue("id")
 
+	// Use a switch statement to handle empty or null values
+	switch {
+	case mangaName == "":
+		mangaName = "Null"
+	}
+	switch {
+	case alternateName == "":
+		alternateName = "Null"
+	}
+	switch {
+	case id == "":
+		id = "Null"
+	}
+
+	// Format the result string
+	result := fmt.Sprintf("Variables received - Manga Name: %s, Alternate Name: %s, ID: %s", mangaName, alternateName, id)
+
+	// Respond back with a success message
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(result))
 }
