@@ -231,9 +231,9 @@ func MangaNameDbLookup(db *sql.DB, name, tableName string) (bool, error) {
 	return true, nil
 }
 
-func AddMangaEntry(db *sql.DB, name, altTitle, url, mangadexID string) error {
+func AddMangaEntry(db *sql.DB, name, altTitle, url, mangadexID string) (int64, error) {
 	/*
-		Function to add a new entry to the `chapters` table.
+		Function to add a new entry to the `chapters` table and return the ID of the newly inserted row.
 		- `name` goes into the `name` column.
 		- `altTitle` goes into the `alt_name` column.
 		- `url` goes into the `url` column.
@@ -250,19 +250,16 @@ func AddMangaEntry(db *sql.DB, name, altTitle, url, mangadexID string) error {
 	// Execute the query
 	result, err := db.Exec(query, name, altTitle, url, mangadexID)
 	if err != nil {
-		return fmt.Errorf("failed to insert new chapter entry: %v", err)
+		return 0, fmt.Errorf("failed to insert new chapter entry: %v", err)
 	}
 
-	// Verify if a row was inserted
-	rowsAffected, err := result.RowsAffected()
+	// Retrieve the ID of the newly inserted row
+	newID, err := result.LastInsertId()
 	if err != nil {
-		return fmt.Errorf("failed to get affected rows: %v", err)
-	}
-	if rowsAffected == 0 {
-		return fmt.Errorf("no rows inserted; check your query parameters")
+		return 0, fmt.Errorf("failed to get the ID of the new chapter entry: %v", err)
 	}
 
-	return nil
+	return newID, nil
 }
 
 func QueryAllMangadexNames(db *sql.DB) []string {
@@ -339,4 +336,67 @@ func QuerySearchSubstring(db *sql.DB, tableName, columnName, subString string) (
 	}
 
 	return results, nil
+}
+
+func QueryByID(db *sql.DB, tableName string, id int64) (map[string]interface{}, error) {
+	/*
+		Query the table by the specified ID and return the entry as a map[string]interface{}.
+		This function is tailored to retrieve a single row by its ID.
+	*/
+
+	// Prepare the query
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id = ?", tableName)
+
+	// Execute the query
+	row := db.QueryRow(query, id)
+
+	// Get column names
+	columnNames, err := db.Query(fmt.Sprintf("PRAGMA table_info(%s)", tableName))
+	if err != nil {
+		return nil, fmt.Errorf("failed to get column names for table %s: %v", tableName, err)
+	}
+	defer columnNames.Close()
+
+	// Collect column names
+	columns := []string{}
+	for columnNames.Next() {
+		var cid int
+		var name string
+		var ctype string
+		var notnull int
+		var dfltValue interface{}
+		var pk int
+		if err := columnNames.Scan(&cid, &name, &ctype, &notnull, &dfltValue, &pk); err != nil {
+			return nil, fmt.Errorf("failed to parse column info: %v", err)
+		}
+		columns = append(columns, name)
+	}
+
+	// Prepare storage for the row values
+	values := make([]interface{}, len(columns))
+	valuePtrs := make([]interface{}, len(columns))
+	for i := range values {
+		valuePtrs[i] = &values[i]
+	}
+
+	// Scan the result
+	if err := row.Scan(valuePtrs...); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("no row found with id %d", id)
+		}
+		return nil, fmt.Errorf("failed to scan row: %v", err)
+	}
+
+	// Map the result
+	result := make(map[string]interface{})
+	for i, col := range columns {
+		val := values[i]
+		if b, ok := val.([]byte); ok {
+			result[col] = string(b)
+		} else {
+			result[col] = val
+		}
+	}
+
+	return result, nil
 }
