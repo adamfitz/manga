@@ -110,7 +110,7 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("./webfrontend/queryresult.html")
 	if err != nil {
 		// Print the error to the server logs for debugging
-		fmt.Println("Error loading template:", err)
+		log.Println("Error loading template:", err)
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
@@ -176,7 +176,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFiles("./webfrontend/searchresult.html")
 	if err != nil {
 		// Print the error to the server logs for debugging
-		fmt.Println("Error loading template:", err)
+		log.Println("Error loading template:", err)
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
@@ -225,7 +225,7 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	dbConnection, err := sqlitedb.OpenDatabase("database/mangaList.db")
 	if err != nil {
 		http.Error(w, "Error connecting to the database", http.StatusInternalServerError)
-		fmt.Println("Database connection error:", err)
+		log.Println("Database connection error:", err)
 		return
 	}
 	defer dbConnection.Close()
@@ -234,23 +234,26 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	newID, err := sqlitedb.AddMangaEntry(dbConnection, mangaName, alternateName, url, mangadexID)
 	if err != nil {
 		http.Error(w, "Error adding manga entry to the database", http.StatusInternalServerError)
-		fmt.Println("Error adding entry:", err)
+		log.Println("Error adding entry:", err)
 		return
 	}
+	fmt.Printf("New entry added with ID: %d\n", newID)
 
 	// Query the database using the new ID
-	queryCondition := fmt.Sprintf("id = %d", newID)
-	newEntry, err := sqlitedb.QueryWithCondition(dbConnection, "manga", "id", queryCondition)
-	if err != nil || len(newEntry) == 0 {
+	//queryCondition := fmt.Sprintf("id = %d", newID)
+	//fmt.Printf("Querying table 'chapters' with condition: %s\n", queryCondition)
+
+	newEntry, err := sqlitedb.QueryByID(dbConnection, "chapters", newID)
+	if err != nil {
 		http.Error(w, "Error retrieving the added manga entry from the database", http.StatusInternalServerError)
-		fmt.Println("Error querying for added entry:", err)
+		log.Println("Error querying for added entry:", err)
 		return
 	}
 
 	// Load the addmangaentryresult.html template
-	tmpl, err := template.ParseFiles("./webfrontend/addmangaentryresult.html")
+	tmpl, err := template.ParseFiles("./webfrontend/adddbentryresult.html")
 	if err != nil {
-		fmt.Println("Error loading template:", err)
+		log.Println("Error loading template:", err)
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}

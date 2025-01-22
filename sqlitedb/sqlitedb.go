@@ -337,3 +337,66 @@ func QuerySearchSubstring(db *sql.DB, tableName, columnName, subString string) (
 
 	return results, nil
 }
+
+func QueryByID(db *sql.DB, tableName string, id int64) (map[string]interface{}, error) {
+	/*
+		Query the table by the specified ID and return the entry as a map[string]interface{}.
+		This function is tailored to retrieve a single row by its ID.
+	*/
+
+	// Prepare the query
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id = ?", tableName)
+
+	// Execute the query
+	row := db.QueryRow(query, id)
+
+	// Get column names
+	columnNames, err := db.Query(fmt.Sprintf("PRAGMA table_info(%s)", tableName))
+	if err != nil {
+		return nil, fmt.Errorf("failed to get column names for table %s: %v", tableName, err)
+	}
+	defer columnNames.Close()
+
+	// Collect column names
+	columns := []string{}
+	for columnNames.Next() {
+		var cid int
+		var name string
+		var ctype string
+		var notnull int
+		var dfltValue interface{}
+		var pk int
+		if err := columnNames.Scan(&cid, &name, &ctype, &notnull, &dfltValue, &pk); err != nil {
+			return nil, fmt.Errorf("failed to parse column info: %v", err)
+		}
+		columns = append(columns, name)
+	}
+
+	// Prepare storage for the row values
+	values := make([]interface{}, len(columns))
+	valuePtrs := make([]interface{}, len(columns))
+	for i := range values {
+		valuePtrs[i] = &values[i]
+	}
+
+	// Scan the result
+	if err := row.Scan(valuePtrs...); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("no row found with id %d", id)
+		}
+		return nil, fmt.Errorf("failed to scan row: %v", err)
+	}
+
+	// Map the result
+	result := make(map[string]interface{})
+	for i, col := range columns {
+		val := values[i]
+		if b, ok := val.([]byte); ok {
+			result[col] = string(b)
+		} else {
+			result[col] = val
+		}
+	}
+
+	return result, nil
+}
