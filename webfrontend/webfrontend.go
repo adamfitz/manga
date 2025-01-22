@@ -16,6 +16,7 @@ func StartServer(port string) {
 	http.HandleFunc("/query", queryHandler)
 	http.HandleFunc("/search", searchHandler)
 	http.HandleFunc("/update", updateHandler)
+	http.HandleFunc("/add", addMangaEntryHandler)
 
 	log.Printf("Web server running at http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
@@ -199,4 +200,72 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(result))
+}
+
+// Add Manga Entry Handler
+func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract and clean input variables
+	mangaName := strings.TrimSpace(r.FormValue("manga_name"))
+	alternateName := strings.TrimSpace(r.FormValue("alternate_name"))
+	url := strings.TrimSpace(r.FormValue("url"))
+	mangadexID := strings.TrimSpace(r.FormValue("mangadex_id"))
+
+	// Validate input (ensure mangaName is provided)
+	if mangaName == "" {
+		http.Error(w, "Manga name is required", http.StatusBadRequest)
+		return
+	}
+
+	// Open database connection
+	dbConnection, err := sqlitedb.OpenDatabase("database/mangaList.db")
+	if err != nil {
+		http.Error(w, "Error connecting to the database", http.StatusInternalServerError)
+		fmt.Println("Database connection error:", err)
+		return
+	}
+	defer dbConnection.Close()
+
+	// Add entry to the database and get the new ID
+	newID, err := sqlitedb.AddMangaEntry(dbConnection, mangaName, alternateName, url, mangadexID)
+	if err != nil {
+		http.Error(w, "Error adding manga entry to the database", http.StatusInternalServerError)
+		fmt.Println("Error adding entry:", err)
+		return
+	}
+
+	// Query the database using the new ID
+	queryCondition := fmt.Sprintf("id = %d", newID)
+	newEntry, err := sqlitedb.QueryWithCondition(dbConnection, "manga", "id", queryCondition)
+	if err != nil || len(newEntry) == 0 {
+		http.Error(w, "Error retrieving the added manga entry from the database", http.StatusInternalServerError)
+		fmt.Println("Error querying for added entry:", err)
+		return
+	}
+
+	// Load the addmangaentryresult.html template
+	tmpl, err := template.ParseFiles("./webfrontend/addmangaentryresult.html")
+	if err != nil {
+		fmt.Println("Error loading template:", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare data for the template
+	data := struct {
+		Message string
+		Entry   map[string]interface{}
+	}{
+		Message: fmt.Sprintf("Manga entry '%s' was added successfully!", mangaName),
+		Entry:   newEntry,
+	}
+
+	// Send the response to the user
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, data)
 }

@@ -231,9 +231,9 @@ func MangaNameDbLookup(db *sql.DB, name, tableName string) (bool, error) {
 	return true, nil
 }
 
-func AddMangaEntry(db *sql.DB, name, altTitle, url, mangadexID string) error {
+func AddMangaEntry(db *sql.DB, name, altTitle, url, mangadexID string) (int64, error) {
 	/*
-		Function to add a new entry to the `chapters` table.
+		Function to add a new entry to the `chapters` table and return the ID of the newly inserted row.
 		- `name` goes into the `name` column.
 		- `altTitle` goes into the `alt_name` column.
 		- `url` goes into the `url` column.
@@ -250,19 +250,16 @@ func AddMangaEntry(db *sql.DB, name, altTitle, url, mangadexID string) error {
 	// Execute the query
 	result, err := db.Exec(query, name, altTitle, url, mangadexID)
 	if err != nil {
-		return fmt.Errorf("failed to insert new chapter entry: %v", err)
+		return 0, fmt.Errorf("failed to insert new chapter entry: %v", err)
 	}
 
-	// Verify if a row was inserted
-	rowsAffected, err := result.RowsAffected()
+	// Retrieve the ID of the newly inserted row
+	newID, err := result.LastInsertId()
 	if err != nil {
-		return fmt.Errorf("failed to get affected rows: %v", err)
-	}
-	if rowsAffected == 0 {
-		return fmt.Errorf("no rows inserted; check your query parameters")
+		return 0, fmt.Errorf("failed to get the ID of the new chapter entry: %v", err)
 	}
 
-	return nil
+	return newID, nil
 }
 
 func QueryAllMangadexNames(db *sql.DB) []string {
