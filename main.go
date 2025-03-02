@@ -9,7 +9,7 @@ import (
 	"main/compare"
 	"main/mangadex"
 	"main/sqlitedb"
-	"main/webfrontend"
+	//"main/webfrontend"
 	"os"
 )
 
@@ -24,11 +24,11 @@ func init() {
 func main() {
 
 	//NewMangaDbUpdate()
-	//CheckIfBookmarkInDb()
+	CheckIfBookmarkInDb()
 	//BlanketUpdateDb()
 	//ExtractMangasWithoutChapterList()
 	//UpdateMangasWithoutChapterList()
-	webfrontend.StartServer("8080")
+	//webfrontend.StartServer("8080")
 }
 
 func CheckForNewChapters() {
