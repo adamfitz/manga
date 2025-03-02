@@ -94,7 +94,6 @@ func LoadBookmarks() ([]MangaList, error) {
 	return mangaList, nil
 }
 
-
 func MangadexMangaTitles(bookmarks []MangaList) []string {
 	/*
 		filter the loaded bookmarks variable on the manga title and return all titles as string slice.
