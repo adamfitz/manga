@@ -7,7 +7,7 @@ import (
 	"log"
 	"main/bookmarks"
 	"main/compare"
-	"main/httprequests"
+	"main/mangadex"
 	"main/sqlitedb"
 	"main/webfrontend"
 	"os"
@@ -60,7 +60,7 @@ func CheckForNewChapters() {
 		mangadexId, _ := sqlitedb.MangadexIdDbLookup(dbConnection, name, "chapters")
 
 		// b. get the list of chapters from mangadex
-		chapterList, _ := httprequests.MangadexChaptersSorted(mangadexId)
+		chapterList, _ := mangadex.MangadexChaptersSorted(mangadexId)
 
 		// c. extract the list of chapters from the database
 		chapterListDb, _ := sqlitedb.MangadexDbLookupChapterList(dbConnection, name)
@@ -103,7 +103,7 @@ func BlanketUpdateDb() {
 		mangadexId, _ := sqlitedb.MangadexIdDbLookup(dbConnection, name, "chapters")
 
 		// b. get the list of chapters from mangadex
-		chapterList, _ := httprequests.MangadexChaptersSorted(mangadexId)
+		chapterList, _ := mangadex.MangadexChaptersSorted(mangadexId)
 
 		// c. update the DB with the new chapter list
 		sqlitedb.MangadexInitialDbChapterListUpdate(dbConnection, name, chapterList)
@@ -168,7 +168,7 @@ func NewMangaDbUpdate() {
 		mangaNameDb, _ := sqlitedb.MangaNameDbLookup(dbConnection, name, "chapters")
 
 		if !mangaNameDb {
-			mangaData, _ := httprequests.MangadexTitleSearch(name)
+			mangaData, _ := mangadex.MangadexTitleSearch(name)
 			mangaNotInDb = append(mangaNotInDb, mangaData)
 		}
 	}
@@ -220,7 +220,7 @@ func UpdateMangasWithoutChapterList() {
 		mangadexId, _ := sqlitedb.MangadexIdDbLookup(dbConnection, manga, "chapters")
 
 		// b. get the list of chapters from mangadex
-		chapterList, _ := httprequests.MangadexChaptersSorted(mangadexId)
+		chapterList, _ := mangadex.MangadexChaptersSorted(mangadexId)
 
 		// c. update the DB with the new chapter list
 		sqlitedb.MangadexInitialDbChapterListUpdate(dbConnection, manga, chapterList)

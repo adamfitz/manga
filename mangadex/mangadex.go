@@ -1,4 +1,4 @@
-package httprequests
+package mangadex
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ import (
 var mangadexApiBaseUri string = "https://api.mangadex.org"
 var mangadexBaseUri string = "https://mangadex.org"
 
-// -- httprequests structs --
+// -- mangadex structs --
 
 // Nested struct - MangaResponse struct represents the API response from Mangadex
 type MangaResponse struct {
@@ -82,7 +82,7 @@ type ChapterDetails struct {
 	DataSaver []string `json:"dataSaver"`
 }
 
-// -- httprequests functions --
+// -- mangadex functions --
 
 func MangadexHttpRespAsString(manga_id string) (map[string]interface{}, error) {
 	/*
