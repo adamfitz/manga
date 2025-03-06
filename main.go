@@ -32,7 +32,8 @@ func main() {
 	//ExtractMangasWithoutChapterList()
 	//UpdateMangasWithoutChapterList()
 	//webfrontend.StartServer("8080")
-	DumpPostgressDb()
+	//DumpPostgressDb()
+	PgQueryByID("21")
 }
 
 func CheckForNewChapters() {
@@ -242,7 +243,7 @@ func DumpPostgressDb() {
 	config, _ := auth.LoadConfig()
 
 	// Connect to postgresql db
-	postgresqlDb, err := postgresqldb.OpenDatabase(
+	pgDb, err := postgresqldb.OpenDatabase(
 		config.PgServer,
 		config.PgPort,
 		config.PgUser,
@@ -251,10 +252,10 @@ func DumpPostgressDb() {
 	if err != nil {
 		log.Fatalf("Error opening database: %v", err)
 	}
-	defer postgresqlDb.Close()
+	defer pgDb.Close()
 
 	// get all data in postgresql manga table
-	data, err := postgresqldb.QueryAllData(postgresqlDb, "manga")
+	data, err := postgresqldb.QueryAllData(pgDb, "manga")
 	if err != nil {
 		log.Fatalf("Error querying data: %v", err)
 	}
@@ -281,4 +282,35 @@ func DumpPostgressDb() {
 		}
 	}
 
+}
+
+func PgQueryByID(id string) {
+	/*
+		Dumps the postgresql db.
+	*/
+
+	//load db connection config
+	config, _ := auth.LoadConfig()
+
+	// Connect to postgresql db
+	pgDb, err := postgresqldb.OpenDatabase(
+		config.PgServer,
+		config.PgPort,
+		config.PgUser,
+		config.PgPassword,
+		config.PgDbName)
+	if err != nil {
+		log.Fatalf("Error opening database: %v", err)
+	}
+	defer pgDb.Close()
+
+	// get all data in postgresql manga table
+	data, err := postgresqldb.QueryByID(pgDb, "manga", id)
+	if err != nil {
+		log.Fatalf("Error querying data: %v", err)
+	}
+
+	for key, value := range data {
+		fmt.Printf("%s: %v\n", key, value)
+	}
 }

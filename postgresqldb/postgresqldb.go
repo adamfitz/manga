@@ -188,3 +188,66 @@ func QueryAllData(db *sql.DB, tableName string) ([]map[string]interface{}, error
 
 	return results, nil
 }
+
+func QueryByID(db *sql.DB, tableName string, id string) (map[string]interface{}, error) {
+	/*
+		Query the table by the specified ID and return the entry as a map[string]interface{}.
+		This function is tailored to retrieve a single row by its ID.
+	*/
+
+	// Prepare the query
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", tableName)
+
+	// Execute the query
+	row := db.QueryRow(query, id)
+
+	// Get column names from the PostgreSQL catalog
+	columnNamesQuery := `
+		SELECT column_name
+		FROM information_schema.columns
+		WHERE table_name = $1
+	`
+	columnNamesRows, err := db.Query(columnNamesQuery, tableName)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get column names for table %s: %v", tableName, err)
+	}
+	defer columnNamesRows.Close()
+
+	// Collect column names
+	columns := []string{}
+	for columnNamesRows.Next() {
+		var name string
+		if err := columnNamesRows.Scan(&name); err != nil {
+			return nil, fmt.Errorf("failed to parse column info: %v", err)
+		}
+		columns = append(columns, name)
+	}
+
+	// Prepare storage for the row values
+	values := make([]interface{}, len(columns))
+	valuePtrs := make([]interface{}, len(columns))
+	for i := range values {
+		valuePtrs[i] = &values[i]
+	}
+
+	// Scan the result
+	if err := row.Scan(valuePtrs...); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("no row found with id %d", id)
+		}
+		return nil, fmt.Errorf("failed to scan row: %v", err)
+	}
+
+	// Map the result
+	result := make(map[string]interface{})
+	for i, col := range columns {
+		val := values[i]
+		if b, ok := val.([]byte); ok {
+			result[col] = string(b)
+		} else {
+			result[col] = val
+		}
+	}
+
+	return result, nil
+}
