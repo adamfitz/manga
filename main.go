@@ -5,12 +5,15 @@ import (
 	"fmt"
 	//"strings"
 	"log"
+	"main/auth"
 	"main/bookmarks"
 	"main/compare"
 	"main/mangadex"
+	"main/postgresqldb"
 	"main/sqlitedb"
 	//"main/webfrontend"
 	"os"
+	"sort"
 )
 
 func init() {
@@ -24,11 +27,12 @@ func init() {
 func main() {
 
 	//NewMangaDbUpdate()
-	CheckIfBookmarkInDb()
+	//CheckIfBookmarkInDb()
 	//BlanketUpdateDb()
 	//ExtractMangasWithoutChapterList()
 	//UpdateMangasWithoutChapterList()
 	//webfrontend.StartServer("8080")
+	DumpPostgressDb()
 }
 
 func CheckForNewChapters() {
@@ -227,4 +231,54 @@ func UpdateMangasWithoutChapterList() {
 
 		fmt.Println("Updated DB for: ", manga)
 	}
+}
+
+func DumpPostgressDb() {
+	/*
+		Dumps the postgresql db.
+	*/
+
+	//load db connection config
+	config, _ := auth.LoadConfig()
+
+	// Connect to postgresql db
+	postgresqlDb, err := postgresqldb.OpenDatabase(
+		config.PgServer,
+		config.PgPort,
+		config.PgUser,
+		config.PgPassword,
+		config.PgDbName)
+	if err != nil {
+		log.Fatalf("Error opening database: %v", err)
+	}
+	defer postgresqlDb.Close()
+
+	// get all data in postgresql manga table
+	data, err := postgresqldb.QueryAllData(postgresqlDb, "manga")
+	if err != nil {
+		log.Fatalf("Error querying data: %v", err)
+	}
+
+	// Iterate over each map in the data slice
+	for _, row := range data {
+		// Create a slice to hold the keys
+		var keys []string
+		for key := range row {
+			keys = append(keys, key)
+		}
+
+		// Sort the keys slice
+		sort.Strings(keys)
+
+		// Iterate over the sorted keys and print the corresponding key-value pairs
+		for _, key := range keys {
+			value := row[key]
+			switch key {
+			case "id", "name", "mangadex_id", "url":
+				fmt.Printf("%s:\t%v\n", key, value)
+			}
+			// Add more cases as needed for other keys
+		}
+	}
+
 }

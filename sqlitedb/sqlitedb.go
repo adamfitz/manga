@@ -442,4 +442,3 @@ func QueryAllRows(db *sql.DB, tableName string) ([]map[string]interface{}, error
 
 	return results, nil
 }
-
