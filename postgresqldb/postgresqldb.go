@@ -32,7 +32,7 @@ func OpenDatabase(dbHost, dbPort, dbUser, dbPassword, dbName string) (*sql.DB, e
 }
 
 // insert rows into database
-func InsertIntoDb(pgDB *sql.DB, tableName string, rows []map[string]interface{}) error {
+func InsertRow(pgDB *sql.DB, tableName string, rows []map[string]interface{}) error {
 	if len(rows) == 0 {
 		return nil
 	}
@@ -68,7 +68,7 @@ func InsertIntoDb(pgDB *sql.DB, tableName string, rows []map[string]interface{})
 }
 
 // Lookup and return row from database
-func QueryRowFromDb(pgDB *sql.DB, tableName string, conditions map[string]interface{}) ([]byte, error) {
+func LookupRow(pgDB *sql.DB, tableName string, conditions map[string]interface{}) ([]byte, error) {
 	if len(conditions) == 0 {
 		return nil, errors.New("no conditions provided for query")
 	}
@@ -133,7 +133,7 @@ func QueryRowFromDb(pgDB *sql.DB, tableName string, conditions map[string]interf
 }
 
 // query all data in a table
-func QueryAllData(db *sql.DB, tableName string) ([]map[string]interface{}, error) {
+func LookupAllRows(db *sql.DB, tableName string) ([]map[string]interface{}, error) {
 	/*
 		Query all data from the specified PostgreSQL table and return the results as a slice of maps.
 	*/
@@ -189,7 +189,7 @@ func QueryAllData(db *sql.DB, tableName string) ([]map[string]interface{}, error
 	return results, nil
 }
 
-func QueryByID(db *sql.DB, tableName string, id string) (map[string]interface{}, error) {
+func LookupByID(db *sql.DB, tableName string, id string) (map[string]interface{}, error) {
 	/*
 		Query the table by the specified ID and return the entry as a map[string]interface{}.
 		This function is tailored to retrieve a single row by its ID.
@@ -233,7 +233,7 @@ func QueryByID(db *sql.DB, tableName string, id string) (map[string]interface{},
 	// Scan the result
 	if err := row.Scan(valuePtrs...); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("no row found with id %d", id)
+			return nil, fmt.Errorf("no row found with id %v", id)
 		}
 		return nil, fmt.Errorf("failed to scan row: %v", err)
 	}

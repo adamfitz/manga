@@ -33,7 +33,7 @@ func main() {
 	//UpdateMangasWithoutChapterList()
 	//webfrontend.StartServer("8080")
 	//DumpPostgressDb()
-	PgQueryByID("21")
+	//PgQueryByID("21")
 }
 
 func CheckForNewChapters() {
@@ -255,7 +255,7 @@ func DumpPostgressDb() {
 	defer pgDb.Close()
 
 	// get all data in postgresql manga table
-	data, err := postgresqldb.QueryAllData(pgDb, "manga")
+	data, err := postgresqldb.LookupAllRows(pgDb, "manga")
 	if err != nil {
 		log.Fatalf("Error querying data: %v", err)
 	}
@@ -305,7 +305,7 @@ func PgQueryByID(id string) {
 	defer pgDb.Close()
 
 	// get all data in postgresql manga table
-	data, err := postgresqldb.QueryByID(pgDb, "manga", id)
+	data, err := postgresqldb.LookupByID(pgDb, "manga", id)
 	if err != nil {
 		log.Fatalf("Error querying data: %v", err)
 	}
