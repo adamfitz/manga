@@ -11,12 +11,42 @@
   },
   {
     "title": {
-      "connector": "ManhuaTop",
+      "connector": "MangaGeko",
+      "manga": "A story about a Dragon and the Rising of an Adventurer ~ A healer who was seen as useless and was kicked out from an S rank party, goes off to revive the strongest dragon in an abandoned area"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/a-story-about-a-dragon-and-the-rising-of-an-adventurer-a-healer/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "A Woman Who Is Too Honest Despite Her Kyoto Dialect"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "78df87fa-74bb-4e8c-9c22-33194e3935ae"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "A-Rank Boukensha no Slow Life"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "f9b82990-7198-4131-84bb-c952830f5ea7"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaGeko",
       "manga": "Absolute Dominion"
     },
     "key": {
-      "connector": "topmanhua",
-      "manga": "https://manhuatop.org/manhua/absolute-dominion/"
+      "connector": "mangaraw",
+      "manga": "/manga/absolute-dominion/"
     }
   },
   {
@@ -121,6 +151,16 @@
   },
   {
     "title": {
+      "connector": "MangaKakalot",
+      "manga": "Boku no Ikezuna Konyakusha"
+    },
+    "key": {
+      "connector": "mangakakalot",
+      "manga": "https://mangakakalot.com/manga/xb939785"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaDex",
       "manga": "Boku no Nakama wa Isekai Saikyo Undead"
     },
@@ -131,12 +171,32 @@
   },
   {
     "title": {
+      "connector": "MangaDex",
+      "manga": "Boku wo Shirita Sugiru Shimizu-san"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "23ae2a63-eb44-4580-9adc-fbd8ba4b2670"
+    }
+  },
+  {
+    "title": {
       "connector": "ManhuaTop",
       "manga": "Catastrophic Priest"
     },
     "key": {
       "connector": "topmanhua",
       "manga": "https://manhuatop.org/manhua/catastrophic-priest/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Chanto Suenai Kyuuketsuki-chan"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "334b3730-21a7-4293-af2f-4875abd08ed1"
     }
   },
   {
@@ -221,12 +281,42 @@
   },
   {
     "title": {
+      "connector": "ManhuaTop",
+      "manga": "Contract with Consequences"
+    },
+    "key": {
+      "connector": "topmanhua",
+      "manga": "https://manhuatop.org/manhua/contract-with-consequences/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Cool na Tsuma no Saa-chan"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "27c025f4-d9f7-4ff7-bb43-2c5cc816fbb1"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaDex",
       "manga": "D-kyuu Boukensha no Ore, Naze ka Yuusha Party ni Kanyuu Sareta Ageku, Oujo ni Tsukimatowareteru"
     },
     "key": {
       "connector": "mangadex",
       "manga": "a34052d5-0057-4f33-a850-5f145cef5694"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaKatana",
+      "manga": "Daytime Star"
+    },
+    "key": {
+      "connector": "mangakatana",
+      "manga": "/manga/daytime-star.26801"
     }
   },
   {
@@ -287,16 +377,6 @@
     "key": {
       "connector": "mangadex",
       "manga": "05a56be4-26ab-4f50-8fc0-ab8304570258"
-    }
-  },
-  {
-    "title": {
-      "connector": "MangaKakalot",
-      "manga": "Drowning Sorrows in Raging Fire"
-    },
-    "key": {
-      "connector": "mangakakalot",
-      "manga": "https://mangakakalot.com/manga/nj931163"
     }
   },
   {
@@ -412,6 +492,16 @@
   {
     "title": {
       "connector": "MangaDex",
+      "manga": "Henkyou Mob Kizoku no Uchi ni Totsuidekita Akuyaku Reijou ga, Mechakucha Dekiru Yoi Yome Nanda ga?"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "4bf066dc-3a6d-4c33-997b-6033208c4176"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
       "manga": "Henkyou no Yakushi, Miyako de S Rank Boukensha to naru"
     },
     "key": {
@@ -441,12 +531,32 @@
   },
   {
     "title": {
+      "connector": "MangaDex",
+      "manga": "How Could You Repay the Kindness I Raised You With Obsession?"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "375be9e1-5d08-44bd-a99b-b71b8b29bc40"
+    }
+  },
+  {
+    "title": {
       "connector": "ManhuaTop",
       "manga": "I am the Rising Villain"
     },
     "key": {
       "connector": "topmanhua",
       "manga": "https://manhuatop.org/manhua/i-am-the-rising-villain/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaGeko",
+      "manga": "I Am Undercover Agent In The Demon World"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/i-am-undercover-agent-in-the-demon-world/"
     }
   },
   {
@@ -471,12 +581,32 @@
   },
   {
     "title": {
+      "connector": "MangaGeko",
+      "manga": "I Picked A Hammer To Save The World"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/i-picked-a-hammer-to-save-world/"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaKakalot",
       "manga": "I was called incompetent at home, but it seems I’m super-competent Globally"
     },
     "key": {
       "connector": "mangakakalot",
       "manga": "https://mangakakalot.com/manga/lw931574"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "I Work Nine to Five in the Immortal Cultivation World"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "e7f57408-b69e-4281-b180-dc02330f3694"
     }
   },
   {
@@ -507,6 +637,16 @@
     "key": {
       "connector": "mangadex",
       "manga": "f5b69b9e-c41f-4d12-8f62-fa7eba9d9b6c"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Intai Shita Ossan Kenja da ga Manadeshi ga Tsuihou Sarete Kita no de Shoushin Ryokou ni Tsureteiku ~Slow Life na Tabi no Tsumori ga, Nazeka Sekai Saikyou no Shitei ni Natteita~"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "4ec3dcd1-62da-4712-a0f7-b2509d61a36b"
     }
   },
   {
@@ -571,12 +711,32 @@
   },
   {
     "title": {
+      "connector": "MangaGeko",
+      "manga": "I’m a Hero, but the Heroines are Trying to Kill Me"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/im-a-hero-but-the-heroines-are-trying-to-kill-me/"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaDex",
       "manga": "Jirai Nandesuka? Chihara-san"
     },
     "key": {
       "connector": "mangadex",
       "manga": "d553645b-03a3-4fc8-9a9c-57f91cbbab89"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Juunenme, Kikan wo Akirameta Tenisha wa Imasara Shujinkou ni naru"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "bd35f5a7-bcce-40dc-b628-22315cc9aaf7"
     }
   },
   {
@@ -617,6 +777,26 @@
     "key": {
       "connector": "mangadex",
       "manga": "7562156c-3987-4cbd-ad6c-a83cdcca9770"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Kesa mo Yuraretemasu"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "157ab2cc-1fc7-4b29-8955-72d94a140982"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaGeko",
+      "manga": "Killer Peter"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/killer-peter/"
     }
   },
   {
@@ -702,11 +882,41 @@
   {
     "title": {
       "connector": "MangaDex",
+      "manga": "Kyuuseishu «Messiah» ~Isekai o Sukutta Motoyuusha ga Mamono no Afureru Genjitsu Sekai o Musou Suru~"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "3b999f4a-0b7f-4aef-a849-cd86e31c4b57"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
       "manga": "Lilia Pregnant The World End"
     },
     "key": {
       "connector": "mangadex",
       "manga": "b35163ef-efbf-4cb9-bf97-0acc89200455"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaKakalot",
+      "manga": "Magic of Love"
+    },
+    "key": {
+      "connector": "mangakakalot",
+      "manga": "https://mangakakalot.com/manga/magic_of_love"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Maigo ni Natteita Youjo wo Tasuketara, Otonari ni Sumu Bishoujo Ryuugakusei ga Ie ni Asobi ni Kuru You ni Natta Ken Nitsuite"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "a287ef9c-3718-4c6f-80be-44e404b78641"
     }
   },
   {
@@ -752,11 +962,31 @@
   {
     "title": {
       "connector": "MangaDex",
+      "manga": "Maybe Meant to Be"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "220282a9-a2ff-4a6b-9bed-f4a9da24c661"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
       "manga": "Meccha Shoukan Sareta Ken"
     },
     "key": {
       "connector": "mangadex",
       "manga": "802bf297-b156-4053-8542-f12057c4a7b9"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Medusa Dorei o Katta"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "e93849b2-939f-40f3-91b4-79b96133052e"
     }
   },
   {
@@ -791,6 +1021,16 @@
   },
   {
     "title": {
+      "connector": "MangaGeko",
+      "manga": "Monsters (2022)"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/monsters-manhwa-2022/"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaDex",
       "manga": "Moto Yuusha wa Shizuka ni Kurashitai"
     },
@@ -821,12 +1061,42 @@
   },
   {
     "title": {
+      "connector": "MangaGeko",
+      "manga": "My Disciple Became The Great Demon Empress?!"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/my-disciple-became-the-great-demon-empress/"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaDex",
       "manga": "My Friend's Little Sister Has It in for Me!"
     },
     "key": {
       "connector": "mangadex",
       "manga": "61e5da82-16ac-421e-9fcd-2db8995031a3"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "My New Girlfriend Is Not Human?"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "6a8a10f6-b56e-47b4-8a36-951bec3900f0"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "My Wife is a Heavenly Big Shot"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "f1acf348-46f4-42d7-abfd-b217cccc24ec"
     }
   },
   {
@@ -912,6 +1182,26 @@
   {
     "title": {
       "connector": "MangaDex",
+      "manga": "Nigasanai yo? Fukuroji-kun"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "9f5fe08c-c6d0-4b42-9cc6-f70cb1ed7411"
+    }
+  },
+  {
+    "title": {
+      "connector": "Manhua Us",
+      "manga": "Number One Beast Master"
+    },
+    "key": {
+      "connector": "manhuaus",
+      "manga": "https://manhuaus.com/manga/number-one-beast-master/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
       "manga": "Occhoko Doji Onee-san"
     },
     "key": {
@@ -927,6 +1217,16 @@
     "key": {
       "connector": "mangadex",
       "manga": "d9f7540f-4934-446a-923c-81619b5d3b53"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Okitsune Gal Katabami-san"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "2d0a0c63-d6c9-485d-aea5-82088696ad72"
     }
   },
   {
@@ -951,6 +1251,16 @@
   },
   {
     "title": {
+      "connector": "MangaGeko",
+      "manga": "Player Who Returned 10,000 Years Later"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/player-who-returned-10000-years-later/"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaDex",
       "manga": "Quest Supremacy"
     },
@@ -961,12 +1271,42 @@
   },
   {
     "title": {
+      "connector": "MangaGeko",
+      "manga": "Radiance of Tribulation: The Old Man Leads the Way"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/radiance-of-tribulation-the-old-man-leads-the-way/"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaDex",
       "manga": "Rebirth of King Zhou: Not Being the Ultimate Villain"
     },
     "key": {
       "connector": "mangadex",
       "manga": "753e8d16-9977-4422-9ed7-3589492ee371"
+    }
+  },
+  {
+    "title": {
+      "connector": "Manhua Us",
+      "manga": "Reborn As The Heavenly Demon"
+    },
+    "key": {
+      "connector": "manhuaus",
+      "manga": "https://manhuaus.com/manga/reincarnation-of-the-heavenly-demon/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Remote Jugyou ni Nattara Class 1 no Bishoujo to Doukyo Suru Koto ni Natta"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "4bf8e8fd-990d-4a7f-b914-4d009ca06813"
     }
   },
   {
@@ -1021,6 +1361,16 @@
   },
   {
     "title": {
+      "connector": "MangaGeko",
+      "manga": "Shadow’s Resurgence"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/shadows-resurgence/"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaKakalot",
       "manga": "Shinmai Ossan Bouken-sha, Saikyou paati ni shinu hodo kitae rarete Muteki ni naru"
     },
@@ -1061,6 +1411,16 @@
   },
   {
     "title": {
+      "connector": "MangaKakalot",
+      "manga": "Skill Saisei to Hakai kara Hajimaru Saikyou Boukensha Life – Gomihiroi to Tsuihousareta kedo Kikakugai no Chikara de Nariagaru!"
+    },
+    "key": {
+      "connector": "mangakakalot",
+      "manga": "https://mangakakalot.com/manga/fv935210"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaDex",
       "manga": "Souzou Renkinjutsushi wa Jiyuu wo Ouka suru: Kokyou wo Tsuihou saretara, Maou no Ohizamoto de Chouzetsu Kouka no Magic Item Tsukuri-houdai ni Narimashita"
     },
@@ -1081,6 +1441,16 @@
   },
   {
     "title": {
+      "connector": "MangaGeko",
+      "manga": "Strength Through Adversity, My Cultivation Knows No Limits"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/my-cultivation-knows-no-limits/"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaDex",
       "manga": "Taida na Akujoku Kizoku ni Tensei shita Ore, Scenario o Bukkowashitara Kikakugai no Maryoku de Saikyou ni Natta"
     },
@@ -1097,6 +1467,16 @@
     "key": {
       "connector": "mangadex",
       "manga": "9ba43723-337b-4123-912c-03e9dfa5e632"
+    }
+  },
+  {
+    "title": {
+      "connector": "Manganato",
+      "manga": "Tales Of Demons And Gods"
+    },
+    "key": {
+      "connector": "manganel",
+      "manga": "https://chapmanganato.to/manga-ax951880"
     }
   },
   {
@@ -1151,12 +1531,32 @@
   },
   {
     "title": {
+      "connector": "MangaGeko",
+      "manga": "The Boy raised by The Demon Queen and The Dragon Queen has no rival"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/boy-raised/"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaKakalot",
       "manga": "The crow I saved that one time, is just too clumsy for me"
     },
     "key": {
       "connector": "mangakakalot",
       "manga": "https://mangakakalot.com/manga/wy929467"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "The Divine Twilight's Return"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "8d12bb9f-dd9a-45ab-b6d7-fa26e52c91b5"
     }
   },
   {
@@ -1192,11 +1592,51 @@
   {
     "title": {
       "connector": "MangaDex",
+      "manga": "The Hachioji Specialty: Tengu's Love"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "5af50da5-c3f6-4f67-9888-89df886757f6"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaGeko",
+      "manga": "The Irregular of the Royal Academy of Magic"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/the-irregular-of-the-royal-academy-of-magic/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaGeko",
+      "manga": "The Jack-of-all-trades Kicked Out of the Hero’s Party ~ The Swordsman Who Became a Support Mage Due to Party Circumstances, Becomes All Powerful"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/yuusha-party-o-oida-sareta-kiyou-binbou/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
       "manga": "The King Is Back"
     },
     "key": {
       "connector": "mangadex",
       "manga": "0d3d6c11-bffb-4941-9c98-93d5124de914"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaGeko",
+      "manga": "The king Is Back"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/the-king-is-back/"
     }
   },
   {
@@ -1251,12 +1691,42 @@
   },
   {
     "title": {
+      "connector": "ManhuaTop",
+      "manga": "The strongest assassin gets transferred to another world with his whole class"
+    },
+    "key": {
+      "connector": "topmanhua",
+      "manga": "https://manhuatop.org/manhua/the-strongest-assassin-gets-transferred-to-another-world-with-his-whole-class/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "The Strongest Earthbound Spirit and the Guy With No Spiritual Sense"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "83681018-2b22-4ea0-ab05-43749e73035b"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaDex",
       "manga": "The Ultimate of All Ages"
     },
     "key": {
       "connector": "mangadex",
       "manga": "ca3692c0-2abe-4fba-91f4-1c76611539c6"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaGeko",
+      "manga": "The Unrivaled Delinquent Combat King Is Actually A Healer In The Game World?"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/the-unrivaled-delinquent-combat-king-is-actually-a-healer-in-the-game-world/"
     }
   },
   {
@@ -1297,6 +1767,16 @@
     "key": {
       "connector": "mangadex",
       "manga": "aae5607d-f353-455a-bec2-9bc3a97c01d5"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Tobioriru Chokuzen no Doukyuusei ni \"Sekkusu Shiyou!\" to Teianshite Mita."
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "7fe4b18c-7092-487a-b7bd-0a0089ce65d1"
     }
   },
   {
@@ -1381,12 +1861,42 @@
   },
   {
     "title": {
+      "connector": "MangaGeko",
+      "manga": "Versatile Sword Cultivator"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/versatile-sword-cultivator/"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaDex",
       "manga": "XX Shinaide! Tsukimine-san"
     },
     "key": {
       "connector": "mangadex",
       "manga": "7477bdb7-c146-41f7-a8de-29c7b7b5034c"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Yakudatazu Skill ni Jinsei o Sosogikomi 25-nen, Imasara Saikyou no Boukentan Midori Kashi no Akira"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "28bf349e-41e5-4443-84f0-f0581752519b"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Yamiochi Yuusha no Haishin Haishin ~Tsuihousare, Kakushi Boss Beya ni Hourikomareta Kekka, Boss to Tansakushagari Haishin wo Hajimeru~"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "2f59b710-11cf-47a8-a40e-7326391ca28e"
     }
   },
   {
@@ -1417,6 +1927,26 @@
     "key": {
       "connector": "mangadex",
       "manga": "9fc1e72f-ccd2-4674-83a5-7245c121f287"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Yuujin ni 500 Yen Kashitara Shakkin no Kata ni Imouto wo Yokoshitekita no Dakeredo, Ore wa Ittai Dou Sureba Iin Darou"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "3a1dfca8-1d49-4fbe-a9b0-93488530b72b"
+    }
+  },
+  {
+    "title": {
+      "connector": "Manganato",
+      "manga": "Yuusha Party O Oida Sareta Kiyou Binbou"
+    },
+    "key": {
+      "connector": "manganel",
+      "manga": "https://manganato.com/manga-sn995770"
     }
   },
   {
@@ -1457,6 +1987,16 @@
     "key": {
       "connector": "mangadex",
       "manga": "a58747fa-3bca-43ff-9187-549b00f43578"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Zatsuyou Fuyo Jutsushi ga Jibun no Saikyou ni Kizuku made"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "751254d3-ba82-4f3d-9c3c-97c070469bff"
     }
   }
 ]

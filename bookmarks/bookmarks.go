@@ -6,6 +6,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	//"bytes"
 )
 
 // struct for bookmarks json file
@@ -26,22 +27,63 @@ type Key struct {
 	Manga     string `json:"manga"`
 }
 
+// Normalize ensures Key.Manga is always a string
+func (k *Key) Normalize() {
+	switch v := any(k.Manga).(type) {
+	case json.Number:
+		k.Manga = v.String() // Convert to string safely
+	case float64:
+		k.Manga = fmt.Sprintf("%.0f", v) // Convert to string
+	case string:
+		// Already a string, do nothing
+	default:
+		k.Manga = "" // Handle unexpected types gracefully
+	}
+}
+
 func LoadBookmarks() ([]MangaList, error) {
 	/*
-		Loads the bookmarks from the boomarks.json file and sorts them by Title.Manga alphabetically
-
+		Loads the bookmarks from the bookmarks.json file and sorts them by Title.Manga alphabetically
 	*/
+
 	// Read the JSON file
 	bookmarks, err := os.ReadFile("bookmarks/bookmarks.json")
 	if err != nil {
 		return nil, fmt.Errorf("error reading file: %w", err)
 	}
 
-	// Unmarshal the JSON data into a slice of MangaList structs
-	var mangaList []MangaList
-	err = json.Unmarshal(bookmarks, &mangaList)
+	// Unmarshal into generic slice of maps to detect incorrect types
+	var rawData []map[string]interface{}
+	err = json.Unmarshal(bookmarks, &rawData)
 	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling JSON: %w", err)
+		return nil, fmt.Errorf("error unmarshalling into map: %w", err)
+	}
+
+	// Fix data type issues (convert numbers to strings)
+	for _, item := range rawData {
+		if keyData, ok := item["key"].(map[string]interface{}); ok {
+			if mangaValue, exists := keyData["manga"]; exists {
+				switch v := mangaValue.(type) {
+				case float64:
+					keyData["manga"] = fmt.Sprintf("%.0f", v) // Convert number to string
+				case json.Number:
+					keyData["manga"] = v.String()
+				}
+			}
+		}
+	}
+
+	// Re-marshal fixed data
+	fixedJSON, err := json.Marshal(rawData)
+	if err != nil {
+		return nil, fmt.Errorf("error marshalling fixed JSON: %w", err)
+	}
+
+	// Unmarshal into final struct
+	var mangaList []MangaList
+	err = json.Unmarshal(fixedJSON, &mangaList)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling fixed JSON: %w", err)
 	}
 
 	// Sort the mangaList by the Manga title alphabetically

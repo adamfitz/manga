@@ -1,4 +1,4 @@
-package httprequests
+package mangadex
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ import (
 var mangadexApiBaseUri string = "https://api.mangadex.org"
 var mangadexBaseUri string = "https://mangadex.org"
 
-// -- httprequests structs --
+// -- mangadex structs --
 
 // Nested struct - MangaResponse struct represents the API response from Mangadex
 type MangaResponse struct {
@@ -82,9 +82,9 @@ type ChapterDetails struct {
 	DataSaver []string `json:"dataSaver"`
 }
 
-// -- httprequests functions --
+// -- mangadex functions --
 
-func MangadexHttpRespAsString(manga_id string) (map[string]interface{}, error) {
+func HttpResponseAsString(manga_id string) (map[string]interface{}, error) {
 	/*
 		func returns the chapter information for a specific manga by the manga id as as a string
 	*/
@@ -110,7 +110,7 @@ func MangadexHttpRespAsString(manga_id string) (map[string]interface{}, error) {
 	return result, nil
 }
 
-func MangadexHttpRespAsStruct(manga_id string) (MangaResponse, error) {
+func HttpResponseAsStruct(manga_id string) (MangaResponse, error) {
 	/*
 		func returns the chapter information for a specific manga by the manga id as as struct (custom type)
 	*/
@@ -138,11 +138,11 @@ func MangadexHttpRespAsStruct(manga_id string) (MangaResponse, error) {
 	return structuredResponse, nil
 }
 
-func MangadexChapters(mangaID string) (*MangadexChapterList, error) {
+func Chapters(mangaID string) (*MangadexChapterList, error) {
 	/*
 		func returns a list of all chapters for a specific manga
 
-		NOTE: This func is different from MangadexChaptersSorted() becuase this func uses the /aggregate URI which
+		NOTE: This func is different from ChaptersSorted() becuase this func uses the /aggregate URI which
 		provides only the volume, chapter and chapter info (not detailed info).
 	*/
 
@@ -170,13 +170,13 @@ func MangadexChapters(mangaID string) (*MangadexChapterList, error) {
 	return &chapterList, nil
 }
 
-func MangadexChaptersSorted(mangaId string) (string, error) {
+func ChaptersSorted(mangaId string) (string, error) {
 
 	/*
 		This function grabs a list of all the chapters for a specific manga from mangadex.com and returns a JSON string,
 		sorted and ordered by chapter number.
 
-		NOTE: This func is different from MangadexChapters() becuase this func uses the /feed URI which provides
+		NOTE: This func is different from Chapters() becuase this func uses the /feed URI which provides
 		detailed information about each chapter.
 
 		Also this func returns chapter list sorted by chapter number.  THe URis probably also should be swapped and
@@ -279,7 +279,7 @@ func MangadexChaptersSorted(mangaId string) (string, error) {
 	return string(jsonArray), nil
 }
 
-func MangadexChapterPages(chapterID string) (*ChapterPageData, error) {
+func ChapterPages(chapterID string) (*ChapterPageData, error) {
 	/*
 		func returns a list of all pages and page information for a specific chapter
 	*/
@@ -306,7 +306,7 @@ func MangadexChapterPages(chapterID string) (*ChapterPageData, error) {
 	return &chapterPageData, nil
 }
 
-func MangadexTitleSearch(name string) (string, error) {
+func TitleSearch(name string) (string, error) {
 	/*
 		Function to search for a manga by name (title) and extract the id and a prioritized altTitle to populate the database.
 	*/
