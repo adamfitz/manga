@@ -408,10 +408,10 @@ func QuerySearchSubstring(db *sql.DB, tableName, columnName, subString string) (
 	return results, nil
 }
 
-// Add new row to mangadex table
+// Add new row to MANGADEX TABLE
 func AddMangadexRow(db *sql.DB, name, altTitle, url, mangadexID string) (int64, error) {
 	query := `
-		INSERT INTO manga (name, alt_name, url, mangadex_id) 
+		INSERT INTO mangadex (name, alt_name, url, mangadex_id) 
 		VALUES ($1, $2, $3, $4) RETURNING id
 	`
 	// newID is the int value of the new row's ID

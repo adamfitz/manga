@@ -71,13 +71,13 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Query by mangaName
 	if mangaName != "Null" {
-		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "manga", "name", mangaName)
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "mangadex", "name", mangaName)
 		result = fmt.Sprintf("Query Result for Manga Name: %s", mangaName)
 	} else if alternateName != "Null" {
-		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "manga", "alt_name", alternateName)
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "mangadex", "alt_name", alternateName)
 		result = fmt.Sprintf("Query Result for Alternate Name: %s", alternateName)
 	} else if dbId != "Null" {
-		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "manga", "id", dbId)
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "mangadex", "id", dbId)
 		result = fmt.Sprintf("Query Result for ID: %s", dbId)
 	}
 
@@ -159,10 +159,10 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Query by mangaName or alternateName
 	if mangaName != "Null" {
-		searchResult, err = postgresqldb.QuerySearchSubstring(dbConnection, "manga", "name", mangaName)
+		searchResult, err = postgresqldb.QuerySearchSubstring(dbConnection, "mangadex", "name", mangaName)
 		result = fmt.Sprintf("Search Result for Manga Name: %s", mangaName)
 	} else if alternateName != "Null" {
-		searchResult, err = postgresqldb.QuerySearchSubstring(dbConnection, "manga", "alt_name", alternateName)
+		searchResult, err = postgresqldb.QuerySearchSubstring(dbConnection, "mangadex", "alt_name", alternateName)
 		result = fmt.Sprintf("Search Result for Alternate Name: %s", alternateName)
 	}
 	if err != nil {
@@ -253,7 +253,7 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	//queryCondition := fmt.Sprintf("id = %d", newID)
 	//fmt.Printf("Querying table 'chapters' with condition: %s\n", queryCondition)
 
-	newEntry, err := postgresqldb.LookupByID(dbConnection, "manga", fmt.Sprintf("%d", newID)) // convert newID to string (from int)
+	newEntry, err := postgresqldb.LookupByID(dbConnection, "mangadex", fmt.Sprintf("%d", newID)) // convert newID to string (from int)
 	if err != nil {
 		http.Error(w, "Error retrieving the added manga entry from the database", http.StatusInternalServerError)
 		log.Println("Error querying for added entry:", err)
