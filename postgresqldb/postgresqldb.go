@@ -368,7 +368,8 @@ func QueryByName(db *sql.DB, name, tableName string) (bool, error) {
 }
 
 func QuerySearchSubstring(db *sql.DB, tableName, columnName, subString string) ([]map[string]interface{}, error) {
-	query := fmt.Sprintf("SELECT id, name, alt_name, url, mangadex_id FROM %s WHERE %s LIKE $1", tableName, columnName)
+	// ILIKE is case insensitive LIKE (search)
+	query := fmt.Sprintf("SELECT id, name, alt_name, url, mangadex_id FROM %s WHERE %s ILIKE $1", tableName, columnName)
 	rows, err := db.Query(query, "%"+subString+"%")
 	if err != nil {
 		log.Printf("PG QuerySearchSubstring - failed to execute query %v", err)
@@ -380,7 +381,8 @@ func QuerySearchSubstring(db *sql.DB, tableName, columnName, subString string) (
 
 	for rows.Next() {
 		var id int
-		var name, altName, url, mangadexID string
+		var name string
+		var altName, url, mangadexID sql.NullString // Handle NULL values
 
 		err := rows.Scan(&id, &name, &altName, &url, &mangadexID)
 		if err != nil {
@@ -390,10 +392,10 @@ func QuerySearchSubstring(db *sql.DB, tableName, columnName, subString string) (
 
 		result := map[string]interface{}{
 			"id":          id,
-			"name":        name,
-			"alt_name":    altName,
-			"url":         url,
-			"mangadex_id": mangadexID,
+			"name":        name,              // Guaranteed to be non-NULL
+			"alt_name":    altName.String,    // Returns "" if NULL
+			"url":         url.String,        // Returns "" if NULL
+			"mangadex_id": mangadexID.String, // Returns "" if NULL
 		}
 		results = append(results, result)
 	}
