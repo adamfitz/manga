@@ -1,17 +1,17 @@
 package main
 
 import (
-	"encoding/json"
+	//"encoding/json"
 	"fmt"
 	//"strings"
 	"log"
 	"main/auth"
-	"main/bookmarks"
-	"main/compare"
-	"main/mangadex"
+	//"main/bookmarks"
+	//"main/compare"
+	//"main/mangadex"
 	"main/postgresqldb"
-	"main/sqlitedb"
-	//"main/webfrontend"
+	//"main/sqlitedb"
+	"main/webfrontend"
 	"os"
 	"sort"
 )
@@ -31,17 +31,18 @@ func main() {
 	//BlanketUpdateDb()
 	//ExtractMangasWithoutChapterList()
 	//UpdateMangasWithoutChapterList()
-	//webfrontend.StartServer("8080")
+	webfrontend.StartServer("8080")
 	//DumpPostgressDb()
 	//PgQueryByID("21")
 }
 
+/*
 func CheckForNewChapters() {
 
-	/*
-		func gets a list of chapters from mangadex and comnpares it to the list in the database, outputting the differences
-		(if any).
-	*/
+
+	//	func gets a list of chapters from mangadex and comnpares it to the list in the database, outputting the differences
+	//	(if any).
+
 
 	// 1 - Load bookmarks
 	bookmarksFromFile, err := bookmarks.LoadBookmarks()
@@ -82,13 +83,14 @@ func CheckForNewChapters() {
 			}
 		}
 	}
-
 }
+*/
 
+/*
 func BlanketUpdateDb() {
-	/*
-		func gets a sorted list of all the chapters from mangadex and write them into the database
-	*/
+
+	//	func gets a sorted list of all the chapters from mangadex and write them into the database
+
 
 	// 1 - Load bookmarks
 	bookmarksFromFile, err := bookmarks.LoadBookmarks()
@@ -116,13 +118,15 @@ func BlanketUpdateDb() {
 		fmt.Println("Updated DB for: ", name)
 	}
 }
+*/
 
+/*
 func CheckIfBookmarkInDb() {
 
-	/*
-		compares the managa names in bookmarks to the names in the database, prints out the difference if the name does
-		not exist in the DB.
-	*/
+
+	//	compares the managa names in bookmarks to the names in the database, prints out the difference if the name does
+	//	not exist in the DB.
+
 
 	// 1 - Load bookmarks
 	bookmarksFromFile, err := bookmarks.LoadBookmarks()
@@ -145,12 +149,14 @@ func CheckIfBookmarkInDb() {
 		}
 	}
 }
+*/
 
+/*
 func NewMangaDbUpdate() {
-	/*
-	 func to make rest call for managa information and the update the database with the filters/processed information
-	 for a specific list of mangas.
-	*/
+
+	// func to make rest call for managa information and the update the database with the filters/processed information
+	// for a specific list of mangas.
+
 
 	// 1 - Load bookmarks
 	bookmarksFromFile, err := bookmarks.LoadBookmarks()
@@ -193,7 +199,9 @@ func NewMangaDbUpdate() {
 		fmt.Println("Updated DB for: ", dataMap["name"].(string))
 	}
 }
+*/
 
+/*
 func ExtractMangasWithoutChapterList() {
 
 	// 1 - open the database
@@ -205,12 +213,14 @@ func ExtractMangasWithoutChapterList() {
 		fmt.Println(manga)
 	}
 }
+*/
 
+/*
 func UpdateMangasWithoutChapterList() {
-	/*
-		func to grab a list of chapters from mangadex and then add to the database.  The list of mangas is manually
-		provided.
-	*/
+
+	//	func to grab a list of chapters from mangadex and then add to the database.  The list of mangas is manually
+	//	provided.
+
 
 	// 1 - open the database
 	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
@@ -233,6 +243,7 @@ func UpdateMangasWithoutChapterList() {
 		fmt.Println("Updated DB for: ", manga)
 	}
 }
+*/
 
 func DumpPostgressDb() {
 	/*
