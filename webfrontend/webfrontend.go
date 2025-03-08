@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	"main/sqlitedb"
+	"main/auth"
+	"main/postgresqldb"
 	"net/http"
 	"strings"
 )
@@ -37,6 +38,9 @@ func homePageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func queryHandler(w http.ResponseWriter, r *http.Request) {
+	// Load config
+	config, _ := auth.LoadConfig()
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -59,7 +63,7 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Open database connection
-	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
+	dbConnection, _ := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
 
 	// Prepare the response
 	var result string
@@ -67,13 +71,13 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Query by mangaName
 	if mangaName != "Null" {
-		queryResult, _ = sqlitedb.QueryWithCondition(dbConnection, "chapters", "name", mangaName)
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "mangadex", "name", mangaName)
 		result = fmt.Sprintf("Query Result for Manga Name: %s", mangaName)
 	} else if alternateName != "Null" {
-		queryResult, _ = sqlitedb.QueryWithCondition(dbConnection, "chapters", "alt_name", alternateName)
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "mangadex", "alt_name", alternateName)
 		result = fmt.Sprintf("Query Result for Alternate Name: %s", alternateName)
 	} else if dbId != "Null" {
-		queryResult, _ = sqlitedb.QueryWithCondition(dbConnection, "chapters", "id", dbId)
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "mangadex", "id", dbId)
 		result = fmt.Sprintf("Query Result for ID: %s", dbId)
 	}
 
@@ -123,6 +127,9 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 
 // Column substring search handler
 func searchHandler(w http.ResponseWriter, r *http.Request) {
+	// Load config
+	config, _ := auth.LoadConfig()
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -141,7 +148,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Open database connection
-	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
+	dbConnection, _ := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
 
 	// Prepare the response
 	var result string
@@ -152,10 +159,10 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Query by mangaName or alternateName
 	if mangaName != "Null" {
-		searchResult, err = sqlitedb.QuerySearchSubstring(dbConnection, "chapters", "name", mangaName)
+		searchResult, err = postgresqldb.QuerySearchSubstring(dbConnection, "mangadex", "name", mangaName)
 		result = fmt.Sprintf("Search Result for Manga Name: %s", mangaName)
 	} else if alternateName != "Null" {
-		searchResult, err = sqlitedb.QuerySearchSubstring(dbConnection, "chapters", "alt_name", alternateName)
+		searchResult, err = postgresqldb.QuerySearchSubstring(dbConnection, "mangadex", "alt_name", alternateName)
 		result = fmt.Sprintf("Search Result for Alternate Name: %s", alternateName)
 	}
 	if err != nil {
@@ -204,6 +211,9 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 
 // Add Manga Entry Handler
 func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
+	// Load config
+	config, _ := auth.LoadConfig()
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -222,7 +232,7 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Open database connection
-	dbConnection, err := sqlitedb.OpenDatabase("database/mangaList.db")
+	dbConnection, err := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
 	if err != nil {
 		http.Error(w, "Error connecting to the database", http.StatusInternalServerError)
 		log.Println("Database connection error:", err)
@@ -231,7 +241,7 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	defer dbConnection.Close()
 
 	// Add entry to the database and get the new ID
-	newID, err := sqlitedb.AddMangaEntry(dbConnection, mangaName, alternateName, url, mangadexID)
+	newID, err := postgresqldb.AddMangadexRow(dbConnection, mangaName, alternateName, url, mangadexID)
 	if err != nil {
 		http.Error(w, "Error adding manga entry to the database", http.StatusInternalServerError)
 		log.Println("Error adding entry:", err)
@@ -243,7 +253,7 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	//queryCondition := fmt.Sprintf("id = %d", newID)
 	//fmt.Printf("Querying table 'chapters' with condition: %s\n", queryCondition)
 
-	newEntry, err := sqlitedb.QueryByID(dbConnection, "chapters", newID)
+	newEntry, err := postgresqldb.LookupByID(dbConnection, "mangadex", fmt.Sprintf("%d", newID)) // convert newID to string (from int)
 	if err != nil {
 		http.Error(w, "Error retrieving the added manga entry from the database", http.StatusInternalServerError)
 		log.Println("Error querying for added entry:", err)
