@@ -12,6 +12,9 @@ import (
 	_ "github.com/lib/pq" // PostgreSQL driver
 )
 
+// table name comes from an untrusted source (user input) so this map is used to validate the table name
+var allowedTables = map[string]bool{"mangadex": true, "manga": true}
+
 func OpenDatabase(dbHost, dbPort, dbUser, dbPassword, dbName string) (*sql.DB, error) {
 	/*
 		Open a connection to a remote PostgreSQL database using host, port, user, password, and database name.
@@ -333,12 +336,18 @@ func QueryWithCondition(db *sql.DB, tableName, columnName, condition string) (ma
 	return nil, nil
 }
 
-func QueryByName(db *sql.DB, name, tableName string) (bool, error) {
+func LookupByName(db *sql.DB, name, tableName string) (bool, error) {
 	/*
 		This function performs a lookup in the provided table for the provided name.
 
 		NOTE: This function exists to perform a comparison with bookmark names and database names.
 	*/
+
+	// Validate the table name (exists in allowed tables)
+	if !allowedTables[tableName] {
+		log.Printf("Illegal table name, validation failed: %s", tableName)
+		return false, fmt.Errorf("invalid table name")
+	}
 
 	// check if the record exists in DB dont retrieve the name column
 	query := fmt.Sprintf("SELECT 1 FROM %s WHERE name = $1", tableName)
@@ -423,4 +432,44 @@ func AddMangadexRow(db *sql.DB, name, altTitle, url, mangadexID string) (int64, 
 	}
 
 	return newID, nil
+}
+
+func LookupColumnValues(db *sql.DB, tableName, columnName string) ([]string, error) {
+	/*
+		Perform a lookup for a specific column value based on the provided condition.
+	*/
+
+	// Validate the table name (exists in allowed tables)
+	if !allowedTables[tableName] {
+		log.Printf("Illegal table name, validation failed: %s", tableName)
+		return nil, fmt.Errorf("invalid table name")
+	}
+
+	query := fmt.Sprintf("SELECT %s FROM %s", columnName, tableName)
+	result, err := db.Query(query)
+	if err != nil {
+		log.Printf("PG LookupColumnValues - failed to execute query %v", err)
+		return nil, fmt.Errorf("failed to execute query: %w", err)
+	}
+	defer result.Close()
+
+	var results []string
+
+	// Iterate over rows and scan into the slice
+	for result.Next() {
+		var value string
+		if err := result.Scan(&value); err != nil {
+			log.Printf("PG LookupColumnValues - failed to scan row: %v", err)
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+		results = append(results, value)
+	}
+
+	// Check for iteration errors
+	if err := result.Err(); err != nil {
+		log.Printf("PG LookupColumnValues - error iterating rows: %v", err)
+		return nil, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return results, nil
 }

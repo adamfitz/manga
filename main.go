@@ -6,12 +6,12 @@ import (
 	//"strings"
 	"log"
 	"main/auth"
-	//"main/bookmarks"
+	"main/bookmarks"
 	//"main/compare"
 	//"main/mangadex"
 	"main/postgresqldb"
 	//"main/sqlitedb"
-	"main/webfrontend"
+	//"main/webfrontend"
 	"os"
 	"sort"
 )
@@ -28,10 +28,11 @@ func main() {
 
 	//NewMangaDbUpdate()
 	//CheckIfBookmarkInDb()
+	CompareNames()
 	//BlanketUpdateDb()
 	//ExtractMangasWithoutChapterList()
 	//UpdateMangasWithoutChapterList()
-	webfrontend.StartServer("8080")
+	//webfrontend.StartServer("8080")
 	//DumpPostgressDb()
 	//PgQueryByID("21")
 }
@@ -120,13 +121,15 @@ func BlanketUpdateDb() {
 }
 */
 
-/*
 func CheckIfBookmarkInDb() {
 
+	/*
+		compares the managa names in bookmarks to the names in the database, prints out the difference if the name does
+		not exist in the DB.
+	*/
 
-	//	compares the managa names in bookmarks to the names in the database, prints out the difference if the name does
-	//	not exist in the DB.
-
+	//load db connection config
+	config, _ := auth.LoadConfig()
 
 	// 1 - Load bookmarks
 	bookmarksFromFile, err := bookmarks.LoadBookmarks()
@@ -134,22 +137,102 @@ func CheckIfBookmarkInDb() {
 		log.Fatalf("Error loading bookmarks: %v", err)
 	}
 	// 2 - Get a list of the titles with "mangadex" connector from bookmarks
-	names := bookmarks.MangadexMangaTitles(bookmarksFromFile)
+	bookmarkNames := bookmarks.MangadexBookmarks(bookmarksFromFile)
 
 	// open the database
-	dbConnection, _ := sqlitedb.OpenDatabase("database/mangaList.db")
+	dbConnection, _ := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
 	// iterate of the names of the mangas in the bookmark list
-	for _, name := range names {
+	for _, name := range bookmarkNames {
 
-		// a. extract the mangadex id from the database based on the manga name
-		mangaNameDb, _ := sqlitedb.MangaNameDbLookup(dbConnection, name, "chapters")
+		// a. extract the mangadex id from the mangadex table based on the manga name
+		dbNames, _ := postgresqldb.LookupByName(dbConnection, name, "mangadex")
 
-		if !mangaNameDb {
+		if !dbNames {
 			fmt.Printf("Bookmark not in DB: %s\n", name)
 		}
+
 	}
 }
-*/
+
+func CompareNames() {
+
+	/*
+		compares the manga names in bookmarks to the names in the database, returns:
+		- names from the bookmarks file that are not in the DB
+		- names from the DB that are not in the bookmarks file
+	*/
+
+	//load db connection config
+	config, _ := auth.LoadConfig()
+
+	// 1 - Load bookmarks
+	bookmarksFromFile, err := bookmarks.LoadBookmarks()
+	if err != nil {
+		log.Fatalf("Error loading bookmarks: %v", err)
+	}
+	// 2 - Get a list of the titles with "mangadex" connector from bookmarks
+	bookmarkNames := bookmarks.MangadexBookmarks(bookmarksFromFile)
+
+	// 3 - get all the DB names
+	dbConnection, _ := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
+	dbNames, _ := postgresqldb.LookupColumnValues(dbConnection, "mangadex", "name")
+
+	// Sort both slices
+	sort.Strings(bookmarkNames)
+	sort.Strings(dbNames)
+
+	// slices to store missing names
+	var missingInDB []string        // Bookmarks not in DB
+	var missingInBookmarks []string // DB names not in bookmarks
+
+	// Use two pointers to compare sorted slices
+	i, j := 0, 0
+	for i < len(bookmarkNames) && j < len(dbNames) {
+		if bookmarkNames[i] == dbNames[j] {
+			// Name exists in both
+			i++
+			j++
+		} else if bookmarkNames[i] < dbNames[j] {
+			// bookmarkNames[i] is missing in the DB
+			missingInDB = append(missingInDB, bookmarkNames[i])
+			i++
+		} else {
+			// dbNames[j] is missing in the bookmarks
+			missingInBookmarks = append(missingInBookmarks, dbNames[j])
+			j++
+		}
+	}
+
+	// Add remaining unmatched elements
+	for i < len(bookmarkNames) {
+		missingInDB = append(missingInDB, bookmarkNames[i])
+		i++
+	}
+	for j < len(dbNames) {
+		missingInBookmarks = append(missingInBookmarks, dbNames[j])
+		j++
+	}
+
+	// Print results
+	if len(missingInDB) > 0 {
+		fmt.Println("\n--- Bookmarks missing from the database ---")
+		for _, name := range missingInDB {
+			fmt.Println(name)
+		}
+	} else {
+		fmt.Println("All bookmarks are present in the database.")
+	}
+
+	if len(missingInBookmarks) > 0 {
+		fmt.Println("\n--- DB names missing from the bookmarks file ---")
+		for _, name := range missingInBookmarks {
+			fmt.Println(name)
+		}
+	} else {
+		fmt.Println("All database entries are present in the bookmarks file.")
+	}
+
+}
 
 /*
 func NewMangaDbUpdate() {
