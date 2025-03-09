@@ -7,6 +7,7 @@ import (
 	"log"
 	"main/auth"
 	"main/bookmarks"
+	"main/mangadex"
 	//"main/compare"
 	//"main/mangadex"
 	"main/postgresqldb"
@@ -26,9 +27,10 @@ func init() {
 
 func main() {
 
+	MangaAttributes()
 	//NewMangaDbUpdate()
 	//CheckIfBookmarkInDb()
-	CompareNames()
+	//CompareNames()
 	//BlanketUpdateDb()
 	//ExtractMangasWithoutChapterList()
 	//UpdateMangasWithoutChapterList()
@@ -232,6 +234,45 @@ func CompareNames() {
 		fmt.Println("All database entries are present in the bookmarks file.")
 	}
 
+}
+
+func MangaAttributes() {
+
+	//load db connection config
+	config, _ := auth.LoadConfig()
+
+	// Connect to postgresql db
+	pgDb, err := postgresqldb.OpenDatabase(
+		config.PgServer,
+		config.PgPort,
+		config.PgUser,
+		config.PgPassword,
+		config.PgDbName)
+	if err != nil {
+		log.Fatalf("Error opening database: %v", err)
+	}
+	defer pgDb.Close()
+
+	// get all the mangadex ids from the (mangadex_id column)
+	mangadexIds, _ := postgresqldb.LookupColumnValues(pgDb, "mangadex", "mangadex_id")
+
+	// for each mangadex_id in the table, lookup the manga status and convert the API response to a string, write
+	// the string into the table in the applicable column
+	for _, id := range mangadexIds {
+		response, _ := mangadex.MangaAttributes(id)
+		status := mangadex.MangaStatus(response)
+		postgresqldb.InsertMangaStatus(pgDb, "mangadex", status, id)
+	}
+
+	// slice of all the columns to perform the lookup on
+	columns := []string{"name", "completed", "hiatus", "ongoing", "cancelled"}
+	// get all the manga names from the (name column)
+	outputList, _ := postgresqldb.LookupMultipleColumnValues(pgDb, "mangadex", columns...)
+
+	// show me the DB table output for all statues columns by name
+	for _, columnValues := range outputList {
+		fmt.Println(columnValues)
+	}
 }
 
 /*

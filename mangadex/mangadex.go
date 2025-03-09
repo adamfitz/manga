@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
+	"main/parser"
 	"net/http"
 	"net/url"
 	"sort"
@@ -84,30 +86,36 @@ type ChapterDetails struct {
 
 // -- mangadex functions --
 
-func HttpResponseAsString(manga_id string) (map[string]interface{}, error) {
+func HttpResponseAsString(manga_id string) (string, error) {
 	/*
-		func returns the chapter information for a specific manga by the manga id as as a string
+		func returns the chapter information for a specific manga by the manga id as a JSON string
 	*/
 	response, err := http.Get("https://api.mangadex.org/chapter?manga=" + manga_id)
 	if err != nil {
-		return nil, fmt.Errorf("error making http request: %s", err)
+		return "", fmt.Errorf("error making http request: %s", err)
 	}
 	// schedules the resource cleanup for when the block of code finishes
 	defer response.Body.Close()
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		return nil, fmt.Errorf("error reading response body: %s", err)
+		return "", fmt.Errorf("error reading response body: %s", err)
 	}
 
 	// Decode JSON into a map
 	var result map[string]interface{}
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling JSON: %s", err)
+		return "", fmt.Errorf("error unmarshalling JSON: %s", err)
 	}
 
-	return result, nil
+	// Marshal the map back to a JSON string
+	jsonString, err := json.Marshal(result)
+	if err != nil {
+		return "", fmt.Errorf("error marshalling JSON to string: %s", err)
+	}
+
+	return string(jsonString), nil
 }
 
 func HttpResponseAsStruct(manga_id string) (MangaResponse, error) {
@@ -385,6 +393,53 @@ func TitleSearch(name string) (string, error) {
 	}
 
 	return string(jsonResult), nil
+}
+
+func MangaAttributes(manga_id string) (map[string]any, error) {
+	/*
+		func returns the chapter information for a specific manga by the manga id as a map
+	*/
+	response, err := http.Get("https://api.mangadex.org/manga/" + manga_id)
+	if err != nil {
+		log.Printf("error making http request: %s", err)
+		return nil, fmt.Errorf("error making http request: %s", err)
+	}
+	// schedules the resource cleanup for when the block of code finishes
+	defer response.Body.Close()
+
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Printf("error reading response body: %s", err)
+		return nil, fmt.Errorf("error reading response body: %s", err)
+	}
+
+	// Decode JSON into a map
+	var result map[string]any
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		log.Printf("error unmarshalling JSON: %s", err)
+		return nil, fmt.Errorf("error unmarshalling JSON: %s", err)
+	}
+
+	return result, nil
+}
+
+// return the manga status from the reponse
+func MangaStatus(response map[string]any) string {
+	// get the manga status
+	status, err := parser.NestedMapValue(response, "data", "attributes", "status")
+	if err != nil {
+		log.Println("Error: MangaStatus - Problem extracting status", err)
+		return "" //return empty string if there is an error
+	}
+
+	// validate string before returning
+	if strStatus, ok := status.(string); ok {
+		return strStatus
+	}
+
+	log.Println("Error: MangaStatus - status is not a string or is nil")
+	return "" // Return an empty string if the type is incorrect
 }
 
 /*

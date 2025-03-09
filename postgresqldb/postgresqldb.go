@@ -473,3 +473,98 @@ func LookupColumnValues(db *sql.DB, tableName, columnName string) ([]string, err
 
 	return results, nil
 }
+
+// Update applicable manga status column
+func InsertMangaStatus(pgDB *sql.DB, tableName, status, mangadexId string) error {
+	// Map statuses to valid column names
+	validStatuses := map[string]bool{
+		"completed": true,
+		"ongoing":   true,
+		"cancelled": true,
+		"hiatus":    true,
+	}
+
+	// Ensure the given status is valid
+	if !validStatuses[status] {
+		return fmt.Errorf("invalid status: %s", status)
+	}
+
+	// Construct the SQL query to update the correct column
+	query := fmt.Sprintf("UPDATE %s SET %s = TRUE WHERE mangadex_id = $1", tableName, status)
+
+	// Execute the update
+	_, err := pgDB.Exec(query, mangadexId)
+	if err != nil {
+		log.Printf("Error updating manga status: %v", err)
+		return fmt.Errorf("failed to update status: %w", err)
+	}
+
+	return nil
+}
+
+// Extract values from multiple columns at the same time
+func LookupMultipleColumnValues(db *sql.DB, tableName string, columnNames ...string) ([]string, error) {
+	/*
+		Perform a lookup for multiple column values and return each row as a string.
+	*/
+
+	// Validate the table name (exists in allowed tables)
+	if !allowedTables[tableName] {
+		log.Printf("Illegal table name, validation failed: %s", tableName)
+		return nil, fmt.Errorf("invalid table name")
+	}
+
+	// Ensure at least one column name is provided
+	if len(columnNames) == 0 {
+		return nil, fmt.Errorf("no column names provided")
+	}
+
+	// Construct the query dynamically
+	query := fmt.Sprintf("SELECT %s FROM %s", strings.Join(columnNames, ", "), tableName)
+	result, err := db.Query(query)
+	if err != nil {
+		log.Printf("PG LookupMultipleColumnValues - failed to execute query %v", err)
+		return nil, fmt.Errorf("failed to execute query: %w", err)
+	}
+	defer result.Close()
+
+	var rows []string
+
+	// Iterate over rows
+	for result.Next() {
+		// Create a slice of interface{} to hold scanned values
+		values := make([]any, len(columnNames))
+		valuePtrs := make([]any, len(columnNames))
+
+		// Assign pointers to the interface slice
+		for i := range values {
+			valuePtrs[i] = &values[i]
+		}
+
+		// Scan the row
+		if err := result.Scan(valuePtrs...); err != nil {
+			log.Printf("PG LookupMultipleColumnValues - failed to scan row: %v", err)
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+
+		// Convert row data into a single string
+		var rowStrings []string
+		for _, val := range values {
+			if val != nil {
+				rowStrings = append(rowStrings, fmt.Sprintf("%v", val)) // Convert to string
+			} else {
+				rowStrings = append(rowStrings, "NULL") // Handle NULL values
+			}
+		}
+
+		rows = append(rows, strings.Join(rowStrings, " ")) // Join values with a space
+	}
+
+	// Check for iteration errors
+	if err := result.Err(); err != nil {
+		log.Printf("PG LookupMultipleColumnValues - error iterating rows: %v", err)
+		return nil, fmt.Errorf("error iterating rows: %w", err)
+	}
+
+	return rows, nil
+}
