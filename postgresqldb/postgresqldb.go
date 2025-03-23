@@ -418,20 +418,32 @@ func QuerySearchSubstring(db *sql.DB, tableName, columnName, subString string) (
 }
 
 // Add new row to MANGADEX TABLE
-func AddMangadexRow(db *sql.DB, name, altTitle, url, mangadexID string) (int64, error) {
+func AddMangadexRow(db *sql.DB, name, altTitle, url, mangadexID string, completed, ongoing, hiatus, cancelled *bool) (int64, error) {
 	query := `
-		INSERT INTO mangadex (name, alt_name, url, mangadex_id) 
-		VALUES ($1, $2, $3, $4) RETURNING id
+		INSERT INTO mangadex (name, alt_name, url, mangadex_id, completed, ongoing, hiatus, cancelled)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		RETURNING id
 	`
-	// newID is the int value of the new row's ID
+
+	// Ensure all 8 parameters are passed, using `nil` for unchecked fields
 	var newID int64
-	err := db.QueryRow(query, name, altTitle, url, mangadexID).Scan(&newID)
+	err := db.QueryRow(query, name, altTitle, url, mangadexID,
+		nullableBool(completed), nullableBool(ongoing), nullableBool(hiatus), nullableBool(cancelled),
+	).Scan(&newID)
 	if err != nil {
 		log.Printf("PG AddMangadexRow - failed to insert new row entry %v", err)
 		return 0, fmt.Errorf("failed to insert new row entry: %w", err)
 	}
 
 	return newID, nil
+}
+
+// Helper function to handle *bool -> SQL NULL conversion
+func nullableBool(b *bool) interface{} {
+	if b == nil {
+		return nil // Store as NULL in database
+	}
+	return *b // Store TRUE if checked
 }
 
 func LookupColumnValues(db *sql.DB, tableName, columnName string) ([]string, error) {

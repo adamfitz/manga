@@ -225,6 +225,26 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	url := strings.TrimSpace(r.FormValue("url"))
 	mangadexID := strings.TrimSpace(r.FormValue("mangadex_id"))
 
+	// Extract boolean fields (use pointers so NULL can be stored)
+	var completed, ongoing, hiatus, cancelled *bool
+
+	if r.FormValue("completed") == "on" {
+		val := true
+		completed = &val
+	}
+	if r.FormValue("ongoing") == "on" {
+		val := true
+		ongoing = &val
+	}
+	if r.FormValue("hiatus") == "on" {
+		val := true
+		hiatus = &val
+	}
+	if r.FormValue("cancelled") == "on" {
+		val := true
+		cancelled = &val
+	}
+
 	// Validate input (ensure mangaName is provided)
 	if mangaName == "" {
 		http.Error(w, "Manga name is required", http.StatusBadRequest)
@@ -241,7 +261,7 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	defer dbConnection.Close()
 
 	// Add entry to the database and get the new ID
-	newID, err := postgresqldb.AddMangadexRow(dbConnection, mangaName, alternateName, url, mangadexID)
+	newID, err := postgresqldb.AddMangadexRow(dbConnection, mangaName, alternateName, url, mangadexID, completed, ongoing, hiatus, cancelled)
 	if err != nil {
 		http.Error(w, "Error adding manga entry to the database", http.StatusInternalServerError)
 		log.Println("Error adding entry:", err)
@@ -250,10 +270,7 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("New entry added with ID: %d\n", newID)
 
 	// Query the database using the new ID
-	//queryCondition := fmt.Sprintf("id = %d", newID)
-	//fmt.Printf("Querying table 'chapters' with condition: %s\n", queryCondition)
-
-	newEntry, err := postgresqldb.LookupByID(dbConnection, "mangadex", fmt.Sprintf("%d", newID)) // convert newID to string (from int)
+	newEntry, err := postgresqldb.LookupByID(dbConnection, "mangadex", fmt.Sprintf("%d", newID))
 	if err != nil {
 		http.Error(w, "Error retrieving the added manga entry from the database", http.StatusInternalServerError)
 		log.Println("Error querying for added entry:", err)

@@ -48,32 +48,36 @@
 	<hr>
 	<p>
 		<h2>Add Manga Entry</h2>
-		<p>
-		The Manga name field is the only required field, the rest are optional, however url and mangadex_id are recommended.
-		<p>
-		<form method="POST" action="/add">
-			<label for="name">Manga Name:</label>
-			<input type="text" id="name" name="manga_name">
+<p>
+    The Manga name field is the only required field, the rest are optional, however, URL and Mangadex ID are recommended.
+</p>
+<form method="POST" action="/add">
+    <label for="name">Manga Name:</label>
+    <input type="text" id="name" name="manga_name" required>
 
-			<label for="alt_name">Alternate Name:</label>
-			<input type="text" id="alt_name" name="alternate_name">
+    <label for="alt_name">Alternate Name:</label>
+    <input type="text" id="alt_name" name="alternate_name">
 
-			<label for="url">URL:</label>
-			<input type="text" id="url" name="url">
+    <label for="url">URL:</label>
+    <input type="text" id="url" name="url">
 
-			<label for="mangadex_id">Mangadex ID:</label>
-			<input type="text" id="mangadex_id" name="mangadex_id"><br><br>
+    <label for="mangadex_id">Mangadex ID:</label>
+    <input type="text" id="mangadex_id" name="mangadex_id"><br><br>
 
-			<button type="submit">Add Entry</button>
-		<br>
-		</form>
-		<p>
-		<hr>
-		<p>
-		<form method="POST" action="/update">
-			<label for="update">SQL Update:</label><br>
-			<textarea id="update" name="update" rows="5" cols="50"></textarea><br><br>
-			<button type="submit">Execute Update</button>
-		</form>
+    <label>
+        <input type="checkbox" name="completed"> Completed
+    </label>
+    <label>
+        <input type="checkbox" name="ongoing"> Ongoing
+    </label>
+    <label>
+        <input type="checkbox" name="hiatus"> Hiatus
+    </label>
+    <label>
+        <input type="checkbox" name="cancelled"> Cancelled
+    </label><br><br>
+
+    <button type="submit">Add Entry</button>
+</form>
 	</body>
 	</html>

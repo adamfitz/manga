@@ -12,7 +12,7 @@ import (
 	//"main/mangadex"
 	"main/postgresqldb"
 	//"main/sqlitedb"
-	//"main/webfrontend"
+	"main/webfrontend"
 	"os"
 	"sort"
 )
@@ -27,14 +27,14 @@ func init() {
 
 func main() {
 
-	MangaAttributes()
+	//MangaAttributes()
 	//NewMangaDbUpdate()
 	//CheckIfBookmarkInDb()
 	//CompareNames()
 	//BlanketUpdateDb()
 	//ExtractMangasWithoutChapterList()
 	//UpdateMangasWithoutChapterList()
-	//webfrontend.StartServer("8080")
+	webfrontend.StartServer("8080")
 	//DumpPostgressDb()
 	//PgQueryByID("21")
 }
