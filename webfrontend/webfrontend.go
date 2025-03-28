@@ -152,7 +152,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Prepare the response
 	var result string
-	var searchResult []map[string]interface{}
+	var searchResult []map[string]any
 
 	// Declare error variable
 	var err error
@@ -173,7 +173,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	// Prepare data for the template
 	data := struct {
 		Result       string
-		SearchResult []map[string]interface{}
+		SearchResult []map[string]any
 	}{
 		Result:       result,
 		SearchResult: searchResult,
