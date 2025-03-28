@@ -42,6 +42,10 @@
 				<th>Alternate Name</th>
 				<th>URL</th>
 				<th>Mangadex ID</th>
+				<th>Ongoing</th>
+				<th>Completed</th>
+				<th>Hiatus</th>
+				<th>Cancelled</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -52,6 +56,10 @@
 				<td>{{index . "alt_name"}}</td>
 				<td><a href="{{index . "url"}}" target="_blank">{{index . "url"}}</a></td>
 				<td>{{index . "mangadex_id"}}</td>
+				<td>{{index . "ongoing"}}</td>
+				<td>{{index . "completed"}}</td>
+				<td>{{index . "hiatus"}}</td>
+				<td>{{index . "cancelled"}}</td>
 			</tr>
 			{{end}}
 		</tbody>
