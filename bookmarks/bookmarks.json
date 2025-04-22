@@ -2,21 +2,21 @@
   {
     "title": {
       "connector": "MangaDex",
+      "manga": "A Divorced Crybaby Has Moved in Next Door"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "a892e04c-e20c-4fd3-9169-d620cee8dbd4"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
       "manga": "A Sharp-Eyed Classmate"
     },
     "key": {
       "connector": "mangadex",
       "manga": "e5f13b1a-eabd-4752-863a-cc3930a20d24"
-    }
-  },
-  {
-    "title": {
-      "connector": "MangaGeko",
-      "manga": "A story about a Dragon and the Rising of an Adventurer ~ A healer who was seen as useless and was kicked out from an S rank party, goes off to revive the strongest dragon in an abandoned area"
-    },
-    "key": {
-      "connector": "mangaraw",
-      "manga": "/manga/a-story-about-a-dragon-and-the-rising-of-an-adventurer-a-healer/"
     }
   },
   {
@@ -41,12 +41,12 @@
   },
   {
     "title": {
-      "connector": "MangaGeko",
+      "connector": "MangaDex",
       "manga": "Absolute Dominion"
     },
     "key": {
-      "connector": "mangaraw",
-      "manga": "/manga/absolute-dominion/"
+      "connector": "mangadex",
+      "manga": "1de0715a-ba15-4250-8eb9-0149be0ac76e"
     }
   },
   {
@@ -142,6 +142,16 @@
   {
     "title": {
       "connector": "MangaDex",
+      "manga": "Bijin Onna Joushi Takizawa-san"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "7dc3f66f-4d6e-4030-bd6c-6a4d699a7f06"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
       "manga": "Bocchi no Boku ni Kyousei Kanojo ga Yattekita"
     },
     "key": {
@@ -157,6 +167,16 @@
     "key": {
       "connector": "mangakakalot",
       "manga": "https://mangakakalot.com/manga/xb939785"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Boku no Kanojo wa Dekkawaii"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "b5351a0c-96af-49f7-898e-17914a082561"
     }
   },
   {
@@ -307,6 +327,16 @@
     "key": {
       "connector": "mangadex",
       "manga": "a34052d5-0057-4f33-a850-5f145cef5694"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Damedol to Sekai ni Hitori Dake no Fan"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "0976963e-c0b4-4bdc-abde-831e9cb29cc2"
     }
   },
   {
@@ -482,11 +512,31 @@
   {
     "title": {
       "connector": "MangaDex",
+      "manga": "Hanninmae no Koibito"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "4413d794-e0da-4a6e-b61a-afd5758914e6"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
       "manga": "Hazure Skill: The Guild Member with a Worthless Skill Is Actually a Legendary Assassin"
     },
     "key": {
       "connector": "mangadex",
       "manga": "cc121572-858e-4bd2-b5f3-ef505eca0081"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaGeko",
+      "manga": "Heavenly Sword’s Grand Saga"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/heavenly-swords-grand-saga/"
     }
   },
   {
@@ -527,6 +577,26 @@
     "key": {
       "connector": "mangadex",
       "manga": "182f72c5-1949-4b22-8335-a64cafd128cb"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Hikaeme ni Itte mo, Kore wa Ai"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "9e0c53c7-16bd-4f98-affe-de4408c4338e"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Hikagemono Demo Yarinaoshite Ii Desu ka?"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "290c8cbc-d3de-4fca-b7d6-8d72f3beb9b0"
     }
   },
   {
@@ -627,6 +697,16 @@
     "key": {
       "connector": "mangadex",
       "manga": "86c593d1-c1ab-4633-8c5e-bcc74eaa97ea"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaRead",
+      "manga": "Immortal Me and Eldritch Wife"
+    },
+    "key": {
+      "connector": "mangaread",
+      "manga": "https://www.mangaread.org/manga/immortal-me-and-eldritch-wife/"
     }
   },
   {
@@ -757,6 +837,16 @@
     "key": {
       "connector": "mangadex",
       "manga": "77bee52c-d2d6-44ad-a33a-1734c1fe696a"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Kanan-sama wa Akumade Choroi"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "0e2cb981-70c8-4229-aff7-6be966852b03"
     }
   },
   {
@@ -1142,6 +1232,16 @@
   {
     "title": {
       "connector": "MangaDex",
+      "manga": "Nankoufuraku no Maoujou e Youkoso: Debuff wa Fuyou to Yuusha Party o Oidasareta Kuro Madoushi, Maougun no Saikou Kanbu ni Mukaerareru"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "c26a8a56-7fa6-4efd-93a1-5289c36c3634"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
       "manga": "Negative Yuusha to Maou-gun Kanbu"
     },
     "key": {
@@ -1187,6 +1287,26 @@
     "key": {
       "connector": "mangadex",
       "manga": "9f5fe08c-c6d0-4b42-9cc6-f70cb1ed7411"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaGeko",
+      "manga": "Night of the Soulless Heathens"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/night-of-the-soulless-heathens/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Noa-senpai wa Tomodachi."
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "3169544f-4b87-4a14-917b-f73600941f55"
     }
   },
   {
@@ -1251,12 +1371,32 @@
   },
   {
     "title": {
+      "connector": "MangaDex",
+      "manga": "Otoko Girai na Bijin Shimai o Namae mo Tsugezu ni Tasuketara Ittai Dounaru?"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "81d75b43-c7bf-4102-86ae-d07b93cf074a"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaGeko",
       "manga": "Player Who Returned 10,000 Years Later"
     },
     "key": {
       "connector": "mangaraw",
       "manga": "/manga/player-who-returned-10000-years-later/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Pulseless Girlfriend"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "8afe7ca6-75d2-41cc-a565-9fbe0b830436"
     }
   },
   {
@@ -1277,6 +1417,16 @@
     "key": {
       "connector": "mangaraw",
       "manga": "/manga/radiance-of-tribulation-the-old-man-leads-the-way/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Reality Quest"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "d3de0128-f60b-4fd2-acc6-fa4735659a34"
     }
   },
   {
@@ -1361,12 +1511,32 @@
   },
   {
     "title": {
+      "connector": "MangaBuddy",
+      "manga": "Senpai is Mine"
+    },
+    "key": {
+      "connector": "mangabuddy",
+      "manga": "/senpai-is-mine"
+    }
+  },
+  {
+    "title": {
       "connector": "MangaGeko",
       "manga": "Shadow’s Resurgence"
     },
     "key": {
       "connector": "mangaraw",
       "manga": "/manga/shadows-resurgence/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Shinjiteita Nakamatachi ni Dungeon Okuchi de Korosarekaketa ga Gift \"Mugen Gacha\" de Level 9999 no Nakamatachi o Te ni Irete Moto Party Member to Sekai ni Fukushuu & \"Zamaa!\" Shimasu!"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "790f5f8d-0f9a-4f4b-92b3-9ac15f892b34"
     }
   },
   {
@@ -1422,6 +1592,16 @@
   {
     "title": {
       "connector": "MangaDex",
+      "manga": "Sono Akuyaku Kizoku, Mama Heroine ga Suki Sugiru ~Shinshi na Doryoku de Saikyou to Nari Fuguu na Oshi Chara Tasukemakuru~"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "8fb00aab-2cfa-4b46-883e-4584d5e9aa62"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
       "manga": "Souzou Renkinjutsushi wa Jiyuu wo Ouka suru: Kokyou wo Tsuihou saretara, Maou no Ohizamoto de Chouzetsu Kouka no Magic Item Tsukuri-houdai ni Narimashita"
     },
     "key": {
@@ -1447,6 +1627,26 @@
     "key": {
       "connector": "mangaraw",
       "manga": "/manga/my-cultivation-knows-no-limits/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Succubus ga Yattekita Ohanashi"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "b0ed1506-f76d-4d95-b9d2-77463be576c0"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Suufungo no Mirai ga Wakaru You ni Natta Kedo, Onnagokoro wa Wakaranai."
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "16c34950-954c-4f0d-808e-d8278a546339"
     }
   },
   {
@@ -1532,6 +1732,16 @@
   {
     "title": {
       "connector": "MangaGeko",
+      "manga": "The Blade Of Evolution-Walking Alone In The Dungeon"
+    },
+    "key": {
+      "connector": "mangaraw",
+      "manga": "/manga/the-blade-of-evolution-walking-alone-in-the-dungeon/"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaGeko",
       "manga": "The Boy raised by The Demon Queen and The Dragon Queen has no rival"
     },
     "key": {
@@ -1547,6 +1757,16 @@
     "key": {
       "connector": "mangakakalot",
       "manga": "https://mangakakalot.com/manga/wy929467"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "The Demon King's Daughter Is Way Too Easy"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "d3608ab4-fed0-4f65-856e-55466c931ebe"
     }
   },
   {
@@ -1597,6 +1817,16 @@
     "key": {
       "connector": "mangadex",
       "manga": "5af50da5-c3f6-4f67-9888-89df886757f6"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "The Hero Trained by the Worst Demon King Is Unrivaled in the School of Returnees From Another World"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "900b1790-4d86-4030-b410-00db69df4771"
     }
   },
   {
@@ -1672,11 +1902,31 @@
   {
     "title": {
       "connector": "MangaDex",
+      "manga": "The Onee-san Who Just Wanted To Say"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "92542740-1ed9-46e0-a04d-661c41f22331"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
       "manga": "The Secret of the Partner Next to You"
     },
     "key": {
       "connector": "mangadex",
       "manga": "ad9ac663-2d34-48cf-a458-a03f5370bf47"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "The Story of How The Horned Owl I Rescued Turned Into a Girl"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "e020429b-0692-4441-abb4-99b4978d9a00"
     }
   },
   {
@@ -1792,6 +2042,26 @@
   {
     "title": {
       "connector": "MangaDex",
+      "manga": "Tonari no Neko to Koi Shirazu"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "61830b36-1712-4b7b-9421-f671e9ced6d3"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Top 1 Fighting Tutoring"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "a0f5d36b-3af9-412a-ae65-8973bad10245"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
       "manga": "Tora wa Ryuu o Mada Tabenai."
     },
     "key": {
@@ -1812,6 +2082,16 @@
   {
     "title": {
       "connector": "MangaDex",
+      "manga": "Tsuihou Sareta Akuyaku Reijou to Tensei Danshaku no Slow de Fushigi na Kekkon Seikatsu"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "0ee2c2b4-05a8-44d5-a0cc-af64e49b6a71"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
       "manga": "Tsuihousareru Tabi ni Skill o Te ni Ireta Ore ga, 100 no Isekai de 2-shuume Musou"
     },
     "key": {
@@ -1827,6 +2107,16 @@
     "key": {
       "connector": "mangakakalot",
       "manga": "https://mangakakalot.com/manga/in929421"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Tsuyokute New Game na Love Come"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "591b6e03-c02b-4362-aa75-b9066e21f46e"
     }
   },
   {
@@ -1857,6 +2147,16 @@
     "key": {
       "connector": "mangadex",
       "manga": "101c7648-2599-4167-a4e8-5e1bc07fedae"
+    }
+  },
+  {
+    "title": {
+      "connector": "MangaDex",
+      "manga": "Vampire"
+    },
+    "key": {
+      "connector": "mangadex",
+      "manga": "a0423d9f-7fb4-437a-b0b8-4f9d60adeb55"
     }
   },
   {
@@ -1997,6 +2297,16 @@
     "key": {
       "connector": "mangadex",
       "manga": "751254d3-ba82-4f3d-9c3c-97c070469bff"
+    }
+  },
+  {
+    "title": {
+      "connector": "S2Manga",
+      "manga": "✔️ Read Manga | Everyone Else is A Returnee - S2Manga"
+    },
+    "key": {
+      "connector": "s2manga",
+      "manga": "https://s2manga.com/manga/everyone-else-is-a-returnee/"
     }
   }
 ]
