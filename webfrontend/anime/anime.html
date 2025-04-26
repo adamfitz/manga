@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+	<html>
+	<head>
+		<title>Anime - Database Query</title>
+	</head>
+	<body>
+        <center><h1><b><u>Anime - Database Search, Lookup and Update</u></b></h1></center>
+        <p>
+        <br>
+    <h1><b><u>Anime</u></b></h1>
+    <br>
+    <p>
+    <h2>Search Anime Name</h2>
+<form action="/searchAnime" method="post" form style="background-color:#dcdce0">
+    <label for="anime_name">Anime Name:</label>
+    <input type="text" id="anime_name" name="anime_name">
+
+    <label for="alternate_name">Alternate Name:</label>
+    <input type="text" id="alternate_name" name="alternate_name"><p></p>
+
+    <button type="submit">Submit Search</button>
+</form>
+<p>
+<hr>
+<p>
+    <h2>Lookup Anime</h2>
+    Only one of the fields is required. If you provide multiple fields, the query is performed in order as follows using only the single value:
+    <ol>
+        <li>Anime Name</li>
+        <li>Alternate Name</li>
+        <li>Databse Id</li>
+    </ol>
+    <p>
+<form action="/queryAnime" method="post" form style="background-color:#dcdce0">
+    <label for="anime_name">Anime Name:</label>
+    <input type="text" id="anime_name" name="anime_name">
+
+    <label for="alternate_name">Alternate Name:</label>
+    <input type="text" id="alternate_name" name="alternate_name">
+
+    <label for="id">Database ID:</label>
+    <input type="text" id="id" name="id"><p>
+
+    <button type="submit">Lookup Manga</button>
+</form>
+<p>
+<hr>
+<p>
+    <h2>Add Anime Entry</h2>
+<p>
+The Anime name field is the only required field, the rest are optional, however, URL is recommended.
+</p>
+<form method="POST" action="/addAnime" form style="background-color:#dcdce0">
+<label for="name">Anime Name:</label>
+<input type="text" id="name" name="anime_name" required>
+
+<label for="alt_name">Alternate Name:</label>
+<input type="text" id="alt_name" name="alternate_name">
+
+<label for="url">URL:</label>
+<input type="text" id="url" name="url">
+
+<label>
+    <input type="checkbox" name="completed"> Completed
+</label>
+<label>
+    <input type="checkbox" name="ongoing"> Ongoing
+</label>
+<br><br>
+
+<button type="submit">Add Entry</button>
+</form>
+</body>
+</html>

@@ -16,7 +16,7 @@ func StartServer(port string) {
 	http.HandleFunc("/", homePageHandler)
 	http.HandleFunc("/queryManga", mangaQueryHandler)
 	http.HandleFunc("/searchManga", mangaSearchHandler)
-	http.HandleFunc("/updateManga", mangaUpdateHandler)
+	//http.HandleFunc("/updateManga", mangaUpdateHandler)
 	http.HandleFunc("/addManga", addMangaEntryHandler)
 
 	log.Printf("Web server running at http://localhost:%s/", port)
@@ -194,6 +194,7 @@ func mangaSearchHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, data)
 }
 
+/*
 // Update handler
 func mangaUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -208,6 +209,7 @@ func mangaUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(result))
 }
+*/
 
 // Add Manga Entry Handler
 func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
