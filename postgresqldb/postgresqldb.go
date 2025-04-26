@@ -204,7 +204,7 @@ func LookupAllRows(db *sql.DB, tableName string) ([]map[string]interface{}, erro
 	return results, nil
 }
 
-func LookupByID(db *sql.DB, tableName string, id string) (map[string]interface{}, error) {
+func LookupByID(db *sql.DB, tableName string, id string) (map[string]any, error) {
 	/*
 		Query the table by the specified ID and return the entry as a map[string]interface{}.
 		This function is tailored to retrieve a single row by its ID.
@@ -241,8 +241,8 @@ func LookupByID(db *sql.DB, tableName string, id string) (map[string]interface{}
 	}
 
 	// Prepare storage for the row values
-	values := make([]interface{}, len(columns))
-	valuePtrs := make([]interface{}, len(columns))
+	values := make([]any, len(columns))
+	valuePtrs := make([]any, len(columns))
 	for i := range values {
 		valuePtrs[i] = &values[i]
 	}
@@ -258,7 +258,7 @@ func LookupByID(db *sql.DB, tableName string, id string) (map[string]interface{}
 	}
 
 	// Map the result
-	result := make(map[string]interface{})
+	result := make(map[string]any)
 	for i, col := range columns {
 		val := values[i]
 		if b, ok := val.([]byte); ok {
@@ -631,4 +631,24 @@ func AnimeSearchSubstring(db *sql.DB, tableName, columnName, subString string) (
 	}
 
 	return results, nil
+}
+
+// Add new row to anime TABLE
+func AddAnimeRow(db *sql.DB, name, altTitle, url string, completed, watched *bool) (int64, error) {
+	query := `
+		INSERT INTO anime (name, alt_name, url, completed, watched)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id
+	`
+
+	// Ensure all 5 parameters are passed, using `nil` for unchecked fields
+	var newID int64
+	err := db.QueryRow(query, name, altTitle, url,
+		nullableBool(completed), nullableBool(watched)).Scan(&newID)
+	if err != nil {
+		log.Printf("PG AddAnimeRow - failed to insert new row entry %v", err)
+		return 0, fmt.Errorf("failed to insert new row entry: %w", err)
+	}
+
+	return newID, nil
 }

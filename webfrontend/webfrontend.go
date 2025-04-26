@@ -29,7 +29,8 @@ func StartServer(port string) {
 
 	//anime actions
 	http.HandleFunc("/queryAnime", animeQueryHandler)   // this is the DB lookup, must be exact match
-	http.HandleFunc("/searchAnime", animeSearchHandler) // this is the DB lookup, must be exact match
+	http.HandleFunc("/searchAnime", animeSearchHandler) // substring seatch case insensitive
+	http.HandleFunc("/addAnime", addAnimeEntryHandler)
 
 	log.Printf("Web server running at http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
@@ -515,6 +516,88 @@ func animeSearchHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error loading template:", err)
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
+	}
+
+	// Send the response to the user
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, data)
+}
+
+// Add Anime Entry Handler
+func addAnimeEntryHandler(w http.ResponseWriter, r *http.Request) {
+	// Load config
+	config, _ := auth.LoadConfig()
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract and clean input variables
+	animeName := strings.TrimSpace(r.FormValue("anime_name"))
+	alternateName := strings.TrimSpace(r.FormValue("alternate_name"))
+	url := strings.TrimSpace(r.FormValue("url"))
+
+	// Extract boolean fields (use pointers so NULL can be stored)
+	var completed, watched *bool
+
+	if r.FormValue("completed") == "on" {
+		val := true
+		completed = &val
+	}
+	if r.FormValue("watched") == "on" {
+		val := true
+		watched = &val
+	}
+
+	// Validate input (ensure animeName is provided)
+	if animeName == "" {
+		http.Error(w, "Anime name is required", http.StatusBadRequest)
+		return
+	}
+
+	// Open database connection
+	dbConnection, err := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
+	if err != nil {
+		http.Error(w, "Error connecting to the database", http.StatusInternalServerError)
+		log.Println("Database connection error:", err)
+		return
+	}
+	defer dbConnection.Close()
+
+	// Add entry to the database and get the new ID
+	newID, err := postgresqldb.AddAnimeRow(dbConnection, animeName, alternateName, url, completed, watched)
+	if err != nil {
+		http.Error(w, "Error adding anime entry to the database", http.StatusInternalServerError)
+		log.Println("Error adding entry:", err)
+		return
+	}
+	fmt.Printf("New entry added with ID: %d\n", newID)
+
+	// Query the database using the new ID
+	newEntry, err := postgresqldb.LookupByID(dbConnection, "anime", fmt.Sprintf("%d", newID))
+	if err != nil {
+		http.Error(w, "Error retrieving the added anime entry from the database", http.StatusInternalServerError)
+		log.Println("Error querying for added entry:", err)
+		return
+	}
+
+	// Load the add anime db entry result.html template
+	tmpl, err := template.ParseFiles("./webfrontend/anime/animeAddDbEntryResult.html")
+	if err != nil {
+		log.Println("Error loading template:", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare data for the template
+	data := struct {
+		Message string
+		Entry   map[string]any
+	}{
+		Message: fmt.Sprintf("Anime entry '%s' was added successfully!", animeName),
+		Entry:   newEntry,
 	}
 
 	// Send the response to the user
