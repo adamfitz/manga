@@ -13,15 +13,26 @@ import (
 
 // StartServer initializes and starts the web server on the given port.
 func StartServer(port string) {
+	// define page handlers
 	http.HandleFunc("/", homePageHandler)
-	http.HandleFunc("/query", queryHandler)
-	http.HandleFunc("/search", searchHandler)
-	http.HandleFunc("/update", updateHandler)
-	http.HandleFunc("/add", addMangaEntryHandler)
+	http.HandleFunc("/manga", mangaPageHandler)
+	http.HandleFunc("/anime", animePageHandler)
+	http.HandleFunc("/lightnovel", lightNovelPageHandler)
+	http.HandleFunc("/webnovel", webNovelPageHandler)
+
+
+	// define action handlers
+	http.HandleFunc("/queryManga", mangaQueryHandler)
+	http.HandleFunc("/searchManga", mangaSearchHandler)
+	//http.HandleFunc("/updateManga", mangaUpdateHandler)
+	http.HandleFunc("/addManga", addMangaEntryHandler)
 
 	log.Printf("Web server running at http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
+
+
+// PAGE HANDLERS
 
 func homePageHandler(w http.ResponseWriter, r *http.Request) {
 	tmplParsed, err := template.ParseFiles("./webfrontend/index.html")
@@ -37,7 +48,67 @@ func homePageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func queryHandler(w http.ResponseWriter, r *http.Request) {
+func mangaPageHandler(w http.ResponseWriter, r *http.Request) {
+	tmplParsed, err := template.ParseFiles("./webfrontend/manga/manga.html")
+	if err != nil {
+		http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error parsing template: %v", err)
+		return
+	}
+
+	if err := tmplParsed.Execute(w, nil); err != nil {
+		http.Error(w, "Error rendering template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error executing template: %v", err)
+	}
+}
+
+func animePageHandler(w http.ResponseWriter, r *http.Request) {
+	tmplParsed, err := template.ParseFiles("./webfrontend/anime/anime.html")
+	if err != nil {
+		http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error parsing template: %v", err)
+		return
+	}
+
+	if err := tmplParsed.Execute(w, nil); err != nil {
+		http.Error(w, "Error rendering template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error executing template: %v", err)
+	}
+}
+
+func lightNovelPageHandler(w http.ResponseWriter, r *http.Request) {
+	tmplParsed, err := template.ParseFiles("./webfrontend/lightnovel/lightnovel.html")
+	if err != nil {
+		http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error parsing template: %v", err)
+		return
+	}
+
+	if err := tmplParsed.Execute(w, nil); err != nil {
+		http.Error(w, "Error rendering template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error executing template: %v", err)
+	}
+}
+
+func webNovelPageHandler(w http.ResponseWriter, r *http.Request) {
+	tmplParsed, err := template.ParseFiles("./webfrontend/webnovel/webnovel.html")
+	if err != nil {
+		http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error parsing template: %v", err)
+		return
+	}
+
+	if err := tmplParsed.Execute(w, nil); err != nil {
+		http.Error(w, "Error rendering template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error executing template: %v", err)
+	}
+}
+
+
+
+// ACTION HANDLERS
+
+func mangaQueryHandler(w http.ResponseWriter, r *http.Request) {
 	// Load config
 	config, _ := auth.LoadConfig()
 
@@ -111,7 +182,7 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Load the queryresult page template with the requested data
-	tmpl, err := template.ParseFiles("./webfrontend/queryresult.html")
+	tmpl, err := template.ParseFiles("./webfrontend/manga/mangaQueryResult.html")
 	if err != nil {
 		// Print the error to the server logs for debugging
 		log.Println("Error loading template:", err)
@@ -126,7 +197,7 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Column substring search handler
-func searchHandler(w http.ResponseWriter, r *http.Request) {
+func mangaSearchHandler(w http.ResponseWriter, r *http.Request) {
 	// Load config
 	config, _ := auth.LoadConfig()
 
@@ -180,7 +251,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Load the searchresult page template with the requested data
-	tmpl, err := template.ParseFiles("./webfrontend/searchresult.html")
+	tmpl, err := template.ParseFiles("./webfrontend/manga/mangaSearchResult.html")
 	if err != nil {
 		// Print the error to the server logs for debugging
 		log.Println("Error loading template:", err)
@@ -194,8 +265,9 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, data)
 }
 
+/*
 // Update handler
-func updateHandler(w http.ResponseWriter, r *http.Request) {
+func mangaUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -208,6 +280,7 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(result))
 }
+*/
 
 // Add Manga Entry Handler
 func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
@@ -278,7 +351,7 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Load the addmangaentryresult.html template
-	tmpl, err := template.ParseFiles("./webfrontend/adddbentryresult.html")
+	tmpl, err := template.ParseFiles("./webfrontend/manga/mangaAddDbEntryResult.html")
 	if err != nil {
 		log.Println("Error loading template:", err)
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)

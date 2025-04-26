@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+	<html>
+	<head>
+		<title>Web Novel - Database Query</title>
+	</head>
+	<body>
+        <center><h1><b><u>Web Novel</u></b></h1></center>
+        <p>
+		<h2>Search Web Novel Name</h2>
+        Only one of the fields is required. If you provide multiple fields, the search is performed in order as follows using only the single value:
+		<ol>
+			<li>Web Novel Name</li>
+			<li>Alternate Name</li>
+		</ol>
+        <p>
+	<form action="/searchWebNovel" method="post">
+		<label for="wn_name">Web Novel Name:</label>
+		<input type="text" id="wn_name" name="wn_name">
+
+		<label for="wn_alternate_name">Alternate Name:</label>
+		<input type="text" id="wn_alternate_name" name="wn_alternate_name"><p></p>
+
+		<button type="submit">Submit Search</button>
+	</form>
+	<p>
+	<hr>
+	<p>
+		<h2>Lookup Web Novel</h2>
+        Only one of the fields is required. If you provide multiple fields, the query is performed in order as follows using only the single value:
+		<ol>
+			<li>Web Novel Name</li>
+			<li>Alternate Name</li>
+			<li>Databse Id</li>
+		</ol>
+        <p>
+        NOTE: One of the provided fields must be an exact match or null value is returned.
+    <form action="/queryWebNovel" method="post">
+        <label for="wn_name">Web Novel Name:</label>
+        <input type="text" id="wn_name" name="wn_name">
+
+        <label for="wn_alternate_name">Alternate Name:</label>
+        <input type="text" id="wn_alternate_name" name="wn_alternate_name">
+
+        <label for="id">Database ID:</label>
+        <input type="text" id="id" name="id"><p>
+
+        <button type="submit">Lookup Web Novel</button>
+    </form>
+	<p>
+	<hr>
+	<p>
+		<h2>Add Web Novel Entry</h2>
+<p>
+    The Web Novel name field is the only required field, the rest are optional.
+</p>
+<form method="POST" action="/addWebNovel">
+    <label for="wn_name">Web Novel Name:</label>
+    <input type="text" id="wn_name" name="wn_name" required>
+
+    <label for="wn_altname">Alternate Name:</label>
+    <input type="text" id="wn_altname" name="wn_alternate_name">
+
+    <label for="url">URL:</label>
+    <input type="text" id="url" name="url">
+    <p>
+    <label>
+        <input type="checkbox" name="completed"> Completed
+    </label>
+    <p>
+    <button type="submit">Add Entry</button>
+</form>
+<br>
+<center><button onclick="window.location.href='/';">Homepage</button></center>
+</body>
+</html>

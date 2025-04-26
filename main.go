@@ -27,7 +27,7 @@ func init() {
 
 func main() {
 
-	//MangaAttributes()
+	//MangaStatusAttributes()
 	//NewMangaDbUpdate()
 	//CheckIfBookmarkInDb()
 	//CompareNames()
@@ -236,7 +236,7 @@ func CompareNames() {
 
 }
 
-func MangaAttributes() {
+func MangaStatusAttributes() {
 
 	//load db connection config
 	config, _ := auth.LoadConfig()
