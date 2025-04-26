@@ -698,3 +698,22 @@ func LightNovelSearchSubstring(db *sql.DB, tableName, columnName, subString stri
 
 	return results, nil
 }
+
+// Add new row to lightnovel TABLE
+func AddLightNovelRow(db *sql.DB, name, altTitle, url string, volumes int, completed *bool) (int64, error) {
+	query := `
+		INSERT INTO lightnovel (name, alt_name, url, volumes, completed)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING id
+	`
+
+	// Ensure all 6 parameters are passed, using `nil` for unchecked fields
+	var newID int64
+	err := db.QueryRow(query, name, altTitle, url, volumes, nullableBool(completed)).Scan(&newID)
+	if err != nil {
+		log.Printf("PG AddLightNovelRow - failed to insert new row entry %v", err)
+		return 0, fmt.Errorf("failed to insert new row entry: %w", err)
+	}
+
+	return newID, nil
+}

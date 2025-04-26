@@ -8,6 +8,7 @@ import (
 	"main/auth"
 	"main/postgresqldb"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -35,6 +36,7 @@ func StartServer(port string) {
 	// light novel actions
 	http.HandleFunc("/queryLightNovel", lightNovelQueryHandler)   // this is the DB lookup, must be exact match
 	http.HandleFunc("/searchLightNovel", lightNovelSearchHandler) // substring search case insensitive
+	http.HandleFunc("/addLightNovel", addLightNovelEntryHandler)
 
 	log.Printf("Web server running at http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
@@ -749,6 +751,93 @@ func lightNovelSearchHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Error loading template:", err)
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
+	}
+
+	// Send the response to the user
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, data)
+}
+
+// Add Light Novel Entry Handler
+func addLightNovelEntryHandler(w http.ResponseWriter, r *http.Request) {
+	// Load config
+	config, _ := auth.LoadConfig()
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract and clean input variables
+	lightNovelName := strings.TrimSpace(r.FormValue("ln_name"))
+	alternateName := strings.TrimSpace(r.FormValue("ln_alt_name"))
+	url := strings.TrimSpace(r.FormValue("url"))
+
+	// typecast the value of the volumes field to an integer
+	// the field type is a javescript number (string)
+	volumesStr := r.FormValue("volumes")
+	volumes, err := strconv.Atoi(volumesStr)
+	if err != nil {
+		http.Error(w, "addLightNovelEntryHandler - Invalid convesion of volumes value to integer, must be a number", http.StatusBadRequest)
+		return
+	}
+
+	// Extract boolean fields (use pointers so NULL can be stored)
+	var completed *bool
+
+	if r.FormValue("completed") == "on" {
+		val := true
+		completed = &val
+	}
+
+	// Validate input (ensure lightNovelName is provided)
+	if lightNovelName == "" {
+		http.Error(w, "Light Novel name is required", http.StatusBadRequest)
+		return
+	}
+
+	// Open database connection
+	dbConnection, err := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
+	if err != nil {
+		http.Error(w, "Error connecting to the database", http.StatusInternalServerError)
+		log.Println("Database connection error:", err)
+		return
+	}
+	defer dbConnection.Close()
+
+	// Add entry to the database and get the new ID
+	newID, err := postgresqldb.AddLightNovelRow(dbConnection, lightNovelName, alternateName, url, volumes, completed)
+	if err != nil {
+		http.Error(w, "Error adding light novel entry to the database", http.StatusInternalServerError)
+		log.Println("Error adding entry:", err)
+		return
+	}
+	fmt.Printf("New entry added with ID: %d\n", newID)
+
+	// Query the database using the new ID
+	newEntry, err := postgresqldb.LookupByID(dbConnection, "lightnovel", fmt.Sprintf("%d", newID))
+	if err != nil {
+		http.Error(w, "Error retrieving the added light novel entry from the database", http.StatusInternalServerError)
+		log.Println("Error querying for added entry:", err)
+		return
+	}
+
+	// Load the add anime db entry result.html template
+	tmpl, err := template.ParseFiles("./webfrontend/lightnovel/lighnovelAddDbEntryResult.html")
+	if err != nil {
+		log.Println("Error loading template:", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare data for the template
+	data := struct {
+		Message string
+		Entry   map[string]any
+	}{
+		Message: fmt.Sprintf("Light Novel entry '%s' was added successfully!", lightNovelName),
+		Entry:   newEntry,
 	}
 
 	// Send the response to the user
