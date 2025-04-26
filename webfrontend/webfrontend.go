@@ -20,7 +20,6 @@ func StartServer(port string) {
 	http.HandleFunc("/lightnovel", lightNovelPageHandler)
 	http.HandleFunc("/webnovel", webNovelPageHandler)
 
-
 	// define action handlers
 	// manga actions
 	http.HandleFunc("/queryManga", mangaQueryHandler) // this is the DB lookup, must be exact match
@@ -29,13 +28,12 @@ func StartServer(port string) {
 	http.HandleFunc("/addManga", addMangaEntryHandler)
 
 	//anime actions
-	http.HandleFunc("/queryAnime", animeQueryHandler) // this is the DB lookup, must be exact match
-	//http.HandleFunc("/searchAnime", animeSearchHandler) // this is the DB lookup, must be exact match
+	http.HandleFunc("/queryAnime", animeQueryHandler)   // this is the DB lookup, must be exact match
+	http.HandleFunc("/searchAnime", animeSearchHandler) // this is the DB lookup, must be exact match
 
 	log.Printf("Web server running at http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
-
 
 // PAGE HANDLERS
 
@@ -108,8 +106,6 @@ func webNovelPageHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error executing template: %v", err)
 	}
 }
-
-
 
 // ACTION HANDLERS
 
@@ -380,10 +376,7 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, data)
 }
 
-
 // ANIME ACTION HANDLERS
-
-
 
 // Anime Lookup Handler (query for exact match)
 func animeQueryHandler(w http.ResponseWriter, r *http.Request) {
@@ -448,6 +441,75 @@ func animeQueryHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Load the queryresult page template with the requested data
 	tmpl, err := template.ParseFiles("./webfrontend/anime/animeQueryResult.html")
+	if err != nil {
+		// Print the error to the server logs for debugging
+		log.Println("Error loading template:", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+	// Send the response to the user
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, data)
+}
+
+// search specified colmun for substring
+func animeSearchHandler(w http.ResponseWriter, r *http.Request) {
+	// Load config
+	config, _ := auth.LoadConfig()
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract and clean input variables
+	animeName := strings.TrimSpace(r.FormValue("anime_name"))
+	alternateName := strings.TrimSpace(r.FormValue("alternate_name"))
+
+	// If empty, set to "Null"
+	if animeName == "" {
+		animeName = "Null"
+	}
+	if alternateName == "" {
+		alternateName = "Null"
+	}
+
+	// Open database connection
+	dbConnection, _ := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
+
+	// Prepare the response
+	var result string
+	var searchResult []map[string]any
+
+	// Declare error variable
+	var err error
+
+	// Query by animeName or alternateName
+	if animeName != "Null" {
+		searchResult, err = postgresqldb.AnimeSearchSubstring(dbConnection, "anime", "name", animeName)
+		result = fmt.Sprintf("Search Result for Anime Name: %s", animeName)
+	} else if alternateName != "Null" {
+		searchResult, err = postgresqldb.AnimeSearchSubstring(dbConnection, "anime", "alt_name", alternateName)
+		result = fmt.Sprintf("Search Result for Anime Alternate Name: %s", alternateName)
+	}
+	if err != nil {
+		http.Error(w, "Error querying database", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare data for the template
+	data := struct {
+		Result       string
+		SearchResult []map[string]any
+	}{
+		Result:       result,
+		SearchResult: searchResult,
+	}
+
+	// Load the searchresult page template with the requested data
+	tmpl, err := template.ParseFiles("./webfrontend/anime/animeSearchResult.html")
 	if err != nil {
 		// Print the error to the server logs for debugging
 		log.Println("Error loading template:", err)
