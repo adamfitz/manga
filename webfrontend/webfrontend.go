@@ -35,7 +35,7 @@ func StartServer(port string) {
 // PAGE HANDLERS
 
 func homePageHandler(w http.ResponseWriter, r *http.Request) {
-	tmplParsed, err := template.ParseFiles("./webfrontend/home.html")
+	tmplParsed, err := template.ParseFiles("./webfrontend/index.html")
 	if err != nil {
 		http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
 		log.Printf("Error parsing template: %v", err)
@@ -182,7 +182,7 @@ func mangaQueryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Load the queryresult page template with the requested data
-	tmpl, err := template.ParseFiles("./webfrontend/queryresult.html")
+	tmpl, err := template.ParseFiles("./webfrontend/manga/mangaQueryResult.html")
 	if err != nil {
 		// Print the error to the server logs for debugging
 		log.Println("Error loading template:", err)
@@ -251,7 +251,7 @@ func mangaSearchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Load the searchresult page template with the requested data
-	tmpl, err := template.ParseFiles("./webfrontend/searchresult.html")
+	tmpl, err := template.ParseFiles("./webfrontend/manga/mangaSearchResult.html")
 	if err != nil {
 		// Print the error to the server logs for debugging
 		log.Println("Error loading template:", err)
@@ -351,7 +351,7 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Load the addmangaentryresult.html template
-	tmpl, err := template.ParseFiles("./webfrontend/adddbentryresult.html")
+	tmpl, err := template.ParseFiles("./webfrontend/manga/mangaAddDbEntryResult.html")
 	if err != nil {
 		log.Println("Error loading template:", err)
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
