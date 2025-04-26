@@ -22,10 +22,15 @@ func StartServer(port string) {
 
 
 	// define action handlers
-	http.HandleFunc("/queryManga", mangaQueryHandler)
+	// manga actions
+	http.HandleFunc("/queryManga", mangaQueryHandler) // this is the DB lookup, must be exact match
 	http.HandleFunc("/searchManga", mangaSearchHandler)
 	//http.HandleFunc("/updateManga", mangaUpdateHandler)
 	http.HandleFunc("/addManga", addMangaEntryHandler)
+
+	//anime actions
+	http.HandleFunc("/queryAnime", animeQueryHandler) // this is the DB lookup, must be exact match
+	//http.HandleFunc("/searchAnime", animeSearchHandler) // this is the DB lookup, must be exact match
 
 	log.Printf("Web server running at http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
@@ -107,6 +112,8 @@ func webNovelPageHandler(w http.ResponseWriter, r *http.Request) {
 
 
 // ACTION HANDLERS
+
+// MANGA ACTION HANDLERS
 
 func mangaQueryHandler(w http.ResponseWriter, r *http.Request) {
 	// Load config
@@ -365,6 +372,87 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	}{
 		Message: fmt.Sprintf("Manga entry '%s' was added successfully!", mangaName),
 		Entry:   newEntry,
+	}
+
+	// Send the response to the user
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, data)
+}
+
+
+// ANIME ACTION HANDLERS
+
+
+
+// Anime Lookup Handler (query for exact match)
+func animeQueryHandler(w http.ResponseWriter, r *http.Request) {
+	// Load config
+	config, _ := auth.LoadConfig()
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract and clean input variables
+	animeName := strings.TrimSpace(r.FormValue("anime_name"))
+	alternateName := strings.TrimSpace(r.FormValue("alternate_name"))
+	dbId := strings.TrimSpace(r.FormValue("id"))
+
+	// If empty, set to "Null"
+	if animeName == "" {
+		animeName = "Null"
+	}
+	if alternateName == "" {
+		alternateName = "Null"
+	}
+	if dbId == "" {
+		dbId = "Null"
+	}
+
+	// Open database connection
+	dbConnection, _ := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
+
+	// Prepare the response
+	var result string
+	var queryResult map[string]any
+
+	// Query by animeName
+	if animeName != "Null" {
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "anime", "name", animeName)
+		result = fmt.Sprintf("Query Result for Anime Name: %s", animeName)
+	} else if alternateName != "Null" {
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "anime", "alt_name", alternateName)
+		result = fmt.Sprintf("Query Result for Anime Alternate name: %s", alternateName)
+	} else if dbId != "Null" {
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "anime", "id", dbId)
+		result = fmt.Sprintf("Query Result for Anime ID: %s", dbId)
+	}
+
+	// Marshal queryResult to pretty-printed JSON
+	queryResultJSON, err := json.MarshalIndent(queryResult, "", "    ")
+	if err != nil {
+		http.Error(w, "Error marshaling query result", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare data for the template
+	data := struct {
+		Result      string
+		QueryResult string
+	}{
+		Result:      result,
+		QueryResult: string(queryResultJSON),
+	}
+
+	// Load the queryresult page template with the requested data
+	tmpl, err := template.ParseFiles("./webfrontend/anime/animeQueryResult.html")
+	if err != nil {
+		// Print the error to the server logs for debugging
+		log.Println("Error loading template:", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
 	}
 
 	// Send the response to the user

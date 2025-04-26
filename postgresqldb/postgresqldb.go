@@ -272,7 +272,7 @@ func LookupByID(db *sql.DB, tableName string, id string) (map[string]interface{}
 }
 
 // Query with condition
-func QueryWithCondition(db *sql.DB, tableName, columnName, condition string) (map[string]interface{}, error) {
+func QueryWithCondition(db *sql.DB, tableName, columnName, condition string) (map[string]any, error) {
 	/*
 		Perform a gerneric DB lookup for specific row and return the result as a map, based on the provided column name
 		and condition eg: name
