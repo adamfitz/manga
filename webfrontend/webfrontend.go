@@ -13,7 +13,15 @@ import (
 
 // StartServer initializes and starts the web server on the given port.
 func StartServer(port string) {
+	// define page handlers
 	http.HandleFunc("/", homePageHandler)
+	http.HandleFunc("/manga", mangaPageHandler)
+	http.HandleFunc("/anime", animePageHandler)
+	http.HandleFunc("/lightnovel", lightNovelPageHandler)
+	http.HandleFunc("/webnovel", webNovelPageHandler)
+
+
+	// define action handlers
 	http.HandleFunc("/queryManga", mangaQueryHandler)
 	http.HandleFunc("/searchManga", mangaSearchHandler)
 	//http.HandleFunc("/updateManga", mangaUpdateHandler)
@@ -23,7 +31,24 @@ func StartServer(port string) {
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
+
+// PAGE HANDLERS
+
 func homePageHandler(w http.ResponseWriter, r *http.Request) {
+	tmplParsed, err := template.ParseFiles("./webfrontend/home.html")
+	if err != nil {
+		http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error parsing template: %v", err)
+		return
+	}
+
+	if err := tmplParsed.Execute(w, nil); err != nil {
+		http.Error(w, "Error rendering template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error executing template: %v", err)
+	}
+}
+
+func mangaPageHandler(w http.ResponseWriter, r *http.Request) {
 	tmplParsed, err := template.ParseFiles("./webfrontend/manga/manga.html")
 	if err != nil {
 		http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
@@ -36,6 +61,52 @@ func homePageHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Error executing template: %v", err)
 	}
 }
+
+func animePageHandler(w http.ResponseWriter, r *http.Request) {
+	tmplParsed, err := template.ParseFiles("./webfrontend/anime/anime.html")
+	if err != nil {
+		http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error parsing template: %v", err)
+		return
+	}
+
+	if err := tmplParsed.Execute(w, nil); err != nil {
+		http.Error(w, "Error rendering template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error executing template: %v", err)
+	}
+}
+
+func lightNovelPageHandler(w http.ResponseWriter, r *http.Request) {
+	tmplParsed, err := template.ParseFiles("./webfrontend/lightnovel/lightnovel.html")
+	if err != nil {
+		http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error parsing template: %v", err)
+		return
+	}
+
+	if err := tmplParsed.Execute(w, nil); err != nil {
+		http.Error(w, "Error rendering template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error executing template: %v", err)
+	}
+}
+
+func webNovelPageHandler(w http.ResponseWriter, r *http.Request) {
+	tmplParsed, err := template.ParseFiles("./webfrontend/webnovel/webnovel.html")
+	if err != nil {
+		http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error parsing template: %v", err)
+		return
+	}
+
+	if err := tmplParsed.Execute(w, nil); err != nil {
+		http.Error(w, "Error rendering template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error executing template: %v", err)
+	}
+}
+
+
+
+// ACTION HANDLERS
 
 func mangaQueryHandler(w http.ResponseWriter, r *http.Request) {
 	// Load config

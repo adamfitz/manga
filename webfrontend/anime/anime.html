@@ -4,14 +4,10 @@
 		<title>Anime - Database Query</title>
 	</head>
 	<body>
-        <center><h1><b><u>Anime - Database Search, Lookup and Update</u></b></h1></center>
-        <p>
-        <br>
-    <h1><b><u>Anime</u></b></h1>
-    <br>
+    <center><h1><b><u>Anime</u></b></h1></center>
     <p>
     <h2>Search Anime Name</h2>
-<form action="/searchAnime" method="post" form style="background-color:#dcdce0">
+<form action="/searchAnime" method="post">
     <label for="anime_name">Anime Name:</label>
     <input type="text" id="anime_name" name="anime_name">
 
@@ -31,7 +27,7 @@
         <li>Databse Id</li>
     </ol>
     <p>
-<form action="/queryAnime" method="post" form style="background-color:#dcdce0">
+<form action="/queryAnime" method="post">
     <label for="anime_name">Anime Name:</label>
     <input type="text" id="anime_name" name="anime_name">
 
@@ -50,7 +46,7 @@
 <p>
 The Anime name field is the only required field, the rest are optional, however, URL is recommended.
 </p>
-<form method="POST" action="/addAnime" form style="background-color:#dcdce0">
+<form method="POST" action="/addAnime">>
 <label for="name">Anime Name:</label>
 <input type="text" id="name" name="anime_name" required>
 
@@ -59,16 +55,17 @@ The Anime name field is the only required field, the rest are optional, however,
 
 <label for="url">URL:</label>
 <input type="text" id="url" name="url">
-
+<p>
 <label>
     <input type="checkbox" name="completed"> Completed
 </label>
 <label>
     <input type="checkbox" name="ongoing"> Ongoing
 </label>
-<br><br>
-
+<p>
 <button type="submit">Add Entry</button>
 </form>
+<br>
+<center><button onclick="window.location.href='/';">Homepage</button></center>
 </body>
 </html>
