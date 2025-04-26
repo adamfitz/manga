@@ -14,17 +14,17 @@ import (
 // StartServer initializes and starts the web server on the given port.
 func StartServer(port string) {
 	http.HandleFunc("/", homePageHandler)
-	http.HandleFunc("/query", queryHandler)
-	http.HandleFunc("/search", searchHandler)
-	http.HandleFunc("/update", updateHandler)
-	http.HandleFunc("/add", addMangaEntryHandler)
+	http.HandleFunc("/queryManga", mangaQueryHandler)
+	http.HandleFunc("/searchManga", mangaSearchHandler)
+	http.HandleFunc("/updateManga", mangaUpdateHandler)
+	http.HandleFunc("/addManga", addMangaEntryHandler)
 
 	log.Printf("Web server running at http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
 func homePageHandler(w http.ResponseWriter, r *http.Request) {
-	tmplParsed, err := template.ParseFiles("./webfrontend/index.html")
+	tmplParsed, err := template.ParseFiles("./webfrontend/manga/manga.html")
 	if err != nil {
 		http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
 		log.Printf("Error parsing template: %v", err)
@@ -37,7 +37,7 @@ func homePageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func queryHandler(w http.ResponseWriter, r *http.Request) {
+func mangaQueryHandler(w http.ResponseWriter, r *http.Request) {
 	// Load config
 	config, _ := auth.LoadConfig()
 
@@ -126,7 +126,7 @@ func queryHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Column substring search handler
-func searchHandler(w http.ResponseWriter, r *http.Request) {
+func mangaSearchHandler(w http.ResponseWriter, r *http.Request) {
 	// Load config
 	config, _ := auth.LoadConfig()
 
@@ -195,7 +195,7 @@ func searchHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Update handler
-func updateHandler(w http.ResponseWriter, r *http.Request) {
+func mangaUpdateHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
