@@ -20,6 +20,7 @@ func StartServer(port string) {
 	http.HandleFunc("/anime", animePageHandler)
 	http.HandleFunc("/lightnovel", lightNovelPageHandler)
 	http.HandleFunc("/webnovel", webNovelPageHandler)
+	http.HandleFunc("/webtoons", webtoonPageHandler)
 
 	// define action handlers
 	// manga actions
@@ -37,6 +38,11 @@ func StartServer(port string) {
 	http.HandleFunc("/queryLightNovel", lightNovelQueryHandler)   // this is the DB lookup, must be exact match
 	http.HandleFunc("/searchLightNovel", lightNovelSearchHandler) // substring search case insensitive
 	http.HandleFunc("/addLightNovel", addLightNovelEntryHandler)
+
+	// webtoons actions
+	http.HandleFunc("/queryWebtoon", webtoonQueryHandler)   // this is the DB lookup, must be exact match
+	http.HandleFunc("/searchWebtoon", webtoonSearchHandler) // substring search case insensitive
+	http.HandleFunc("/addWebtoon", addWebtoonEntryHandler)
 
 	log.Printf("Web server running at http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
@@ -102,6 +108,20 @@ func lightNovelPageHandler(w http.ResponseWriter, r *http.Request) {
 
 func webNovelPageHandler(w http.ResponseWriter, r *http.Request) {
 	tmplParsed, err := template.ParseFiles("./webfrontend/webnovel/webnovel.html")
+	if err != nil {
+		http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error parsing template: %v", err)
+		return
+	}
+
+	if err := tmplParsed.Execute(w, nil); err != nil {
+		http.Error(w, "Error rendering template: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("Error executing template: %v", err)
+	}
+}
+
+func webtoonPageHandler(w http.ResponseWriter, r *http.Request) {
+	tmplParsed, err := template.ParseFiles("./webfrontend/webtoons/webtoons.html")
 	if err != nil {
 		http.Error(w, "Error loading template: "+err.Error(), http.StatusInternalServerError)
 		log.Printf("Error parsing template: %v", err)
@@ -837,6 +857,231 @@ func addLightNovelEntryHandler(w http.ResponseWriter, r *http.Request) {
 		Entry   map[string]any
 	}{
 		Message: fmt.Sprintf("Light Novel entry '%s' was added successfully!", lightNovelName),
+		Entry:   newEntry,
+	}
+
+	// Send the response to the user
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, data)
+}
+
+////////////// WEBTOONS ACTION HANDLERS
+
+// Webtoons Lookup Handler (query for exact match)
+func webtoonQueryHandler(w http.ResponseWriter, r *http.Request) {
+	// Load config
+	config, _ := auth.LoadConfig()
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract and clean input variables
+	webtoonName := strings.TrimSpace(r.FormValue("wt_name"))
+	alternateName := strings.TrimSpace(r.FormValue("wt_alternate_name"))
+	dbId := strings.TrimSpace(r.FormValue("id"))
+
+	// If empty, set to "Null"
+	if webtoonName == "" {
+		webtoonName = "Null"
+	}
+	if alternateName == "" {
+		alternateName = "Null"
+	}
+	if dbId == "" {
+		dbId = "Null"
+	}
+
+	// Open database connection
+	dbConnection, _ := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
+
+	// Prepare the response
+	var result string
+	var queryResult map[string]any
+
+	// Query by webtoons
+	if webtoonName != "Null" {
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "webtoons", "name", webtoonName)
+		result = fmt.Sprintf("Query Result for Webtoon Name: %s", webtoonName)
+	} else if alternateName != "Null" {
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "webtoons", "wt_alternate_name", alternateName)
+		result = fmt.Sprintf("Query Result for Webtoon Alternate name: %s", alternateName)
+	} else if dbId != "Null" {
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "webtoons", "id", dbId)
+		result = fmt.Sprintf("Query Result for Webtoon ID: %s", dbId)
+	}
+
+	// Marshal queryResult to pretty-printed JSON
+	queryResultJSON, err := json.MarshalIndent(queryResult, "", "    ")
+	if err != nil {
+		http.Error(w, "Error marshaling query result", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare data for the template
+	data := struct {
+		Result      string
+		QueryResult string
+	}{
+		Result:      result,
+		QueryResult: string(queryResultJSON),
+	}
+
+	// Load the queryresult page template with the requested data
+	tmpl, err := template.ParseFiles("./webfrontend/webtoons/webtoonsQueryResult.html")
+	if err != nil {
+		// Print the error to the server logs for debugging
+		log.Println("Error loading template:", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+	// Send the response to the user
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, data)
+}
+
+// webtoon search specified colmun for substring
+func webtoonSearchHandler(w http.ResponseWriter, r *http.Request) {
+	// Load config
+	config, _ := auth.LoadConfig()
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract and clean input variables
+	webtoonName := strings.TrimSpace(r.FormValue("wt_name"))
+	alternateName := strings.TrimSpace(r.FormValue("wt_alternate_name"))
+
+	// If empty, set to "Null"
+	if webtoonName == "" {
+		webtoonName = "Null"
+	}
+	if alternateName == "" {
+		alternateName = "Null"
+	}
+
+	// Open database connection
+	dbConnection, _ := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
+
+	// Prepare the response
+	var result string
+	var searchResult []map[string]any
+
+	// Declare error variable
+	var err error
+
+	// Search by lightNovelName or alternateName
+	if webtoonName != "Null" {
+		searchResult, err = postgresqldb.WebtoonSearchSubstring(dbConnection, "webtoons", "name", webtoonName)
+		result = fmt.Sprintf("Search Result for Webtoon Name: %s", webtoonName)
+	} else if alternateName != "Null" {
+		searchResult, err = postgresqldb.WebtoonSearchSubstring(dbConnection, "webtoons", "alt_name", alternateName)
+		result = fmt.Sprintf("Search Result for Webtoon Alternate Name: %s", alternateName)
+	}
+	if err != nil {
+		http.Error(w, "Error querying database", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare data for the template
+	data := struct {
+		Result       string
+		SearchResult []map[string]any
+	}{
+		Result:       result,
+		SearchResult: searchResult,
+	}
+
+	// Load the searchresult page template with the requested data
+	tmpl, err := template.ParseFiles("./webfrontend/webtoons/webtoonsSearchResult.html")
+	if err != nil {
+		// Print the error to the server logs for debugging
+		log.Println("Error loading template:", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+	// Send the response to the user
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, data)
+}
+
+// Add webtoon Entry Handler
+func addWebtoonEntryHandler(w http.ResponseWriter, r *http.Request) {
+	// Load config
+	config, _ := auth.LoadConfig()
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract and clean input variables
+	webtoonName := strings.TrimSpace(r.FormValue("wt_name"))
+	alternateName := strings.TrimSpace(r.FormValue("wt_alternate_name"))
+	url := strings.TrimSpace(r.FormValue("url"))
+
+	// Extract boolean fields (use pointers so NULL can be stored)
+	var completed *bool
+
+	if r.FormValue("completed") == "on" {
+		val := true
+		completed = &val
+	}
+
+	// Validate input (ensure lightNovelName is provided)
+	if webtoonName == "" {
+		http.Error(w, "Webtoon name is required", http.StatusBadRequest)
+		return
+	}
+
+	// Open database connection
+	dbConnection, err := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
+	if err != nil {
+		http.Error(w, "Error connecting to the database", http.StatusInternalServerError)
+		log.Println("Database connection error:", err)
+		return
+	}
+	defer dbConnection.Close()
+
+	// Add entry to the database and get the new ID
+	newID, err := postgresqldb.AddWebtoonRow(dbConnection, webtoonName, alternateName, url, completed)
+	if err != nil {
+		http.Error(w, "Error adding webtoon entry to the database", http.StatusInternalServerError)
+		log.Println("Error adding entry:", err)
+		return
+	}
+	fmt.Printf("New entry added with ID: %d\n", newID)
+
+	// Query the database using the new ID
+	newEntry, err := postgresqldb.LookupByID(dbConnection, "webtoons", fmt.Sprintf("%d", newID))
+	if err != nil {
+		http.Error(w, "Error retrieving the added webtoon entry from the database", http.StatusInternalServerError)
+		log.Println("Error querying for added entry:", err)
+		return
+	}
+
+	// Load the add anime db entry result.html template
+	tmpl, err := template.ParseFiles("./webfrontend/webtoons/webtoonsAddDbEntryResult.html")
+	if err != nil {
+		log.Println("Error loading template:", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare data for the template
+	data := struct {
+		Message string
+		Entry   map[string]any
+	}{
+		Message: fmt.Sprintf("Webtoon entry '%s' was added successfully!", webtoonName),
 		Entry:   newEntry,
 	}
 
