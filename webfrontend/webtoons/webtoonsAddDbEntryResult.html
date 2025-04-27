@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Add Webtoon Entry Result</title>
+	<style>
+		table {
+			width: 100%;
+			border-collapse: collapse;
+		}
+		th, td {
+			border: 1px solid #ddd;
+			padding: 8px;
+			text-align: left;
+		}
+		th {
+			background-color: #f2f2f2;
+		}
+		tr:nth-child(even) {
+			background-color: #f9f9f9;
+		}
+		tr:hover {
+			background-color: #f1f1f1;
+		}
+	</style>
+</head>
+<body>
+	<h1>{{.Message}}</h1>
+	<p>The following entry has been added to the database:</p>
+	<table>
+		<thead>
+			<tr>
+				<th>Database ID</th>
+				<th>Name</th>
+				<th>Alternate Name</th>
+				<th>URL</th>
+                <th>Completed</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td>{{index .Entry "id"}}</td>
+				<td>{{index .Entry "name"}}</td>
+				<td>{{index .Entry "alt_name"}}</td>
+				<td><a href="{{index .Entry "url"}}" target="_blank">{{index .Entry "url"}}</a></td>
+				<td>{{index .Entry "completed"}}</td>
+			</tr>
+		</tbody>
+	</table>
+	<p>
+		<button onclick="window.location.href='/webtoons';">Back to Webtoons</button>
+	</p>
+</body>
+</html>
