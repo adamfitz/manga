@@ -44,6 +44,11 @@ func StartServer(port string) {
 	http.HandleFunc("/searchWebtoon", webtoonSearchHandler) // substring search case insensitive
 	http.HandleFunc("/addWebtoon", addWebtoonEntryHandler)
 
+	// webnovel actions
+	http.HandleFunc("/queryWebNovel", webNovelQueryHandler) // this is the DB lookup, must be exact match
+	//http.HandleFunc("/searchWebNovel", webNovelSearchHandler) // substring search case insensitive
+	//http.HandleFunc("/addWebNovel", addWebNovelEntryHandler)
+
 	log.Printf("Web server running at http://localhost:%s/", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
@@ -906,7 +911,7 @@ func webtoonQueryHandler(w http.ResponseWriter, r *http.Request) {
 		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "webtoons", "name", webtoonName)
 		result = fmt.Sprintf("Query Result for Webtoon Name: %s", webtoonName)
 	} else if alternateName != "Null" {
-		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "webtoons", "wt_alternate_name", alternateName)
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "webtoons", "alt_name", alternateName)
 		result = fmt.Sprintf("Query Result for Webtoon Alternate name: %s", alternateName)
 	} else if dbId != "Null" {
 		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "webtoons", "id", dbId)
@@ -1083,6 +1088,84 @@ func addWebtoonEntryHandler(w http.ResponseWriter, r *http.Request) {
 	}{
 		Message: fmt.Sprintf("Webtoon entry '%s' was added successfully!", webtoonName),
 		Entry:   newEntry,
+	}
+
+	// Send the response to the user
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, data)
+}
+
+////////////// WEBNOVEL ACTION HANDLERS
+
+// webnovel Lookup Handler (query for exact match)
+func webNovelQueryHandler(w http.ResponseWriter, r *http.Request) {
+	// Load config
+	config, _ := auth.LoadConfig()
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract and clean input variables
+	webnovelName := strings.TrimSpace(r.FormValue("wn_name"))
+	alternateName := strings.TrimSpace(r.FormValue("wn_alternate_name"))
+	dbId := strings.TrimSpace(r.FormValue("id"))
+
+	// If empty, set to "Null"
+	if webnovelName == "" {
+		webnovelName = "Null"
+	}
+	if alternateName == "" {
+		alternateName = "Null"
+	}
+	if dbId == "" {
+		dbId = "Null"
+	}
+
+	// Open database connection
+	dbConnection, _ := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
+
+	// Prepare the response
+	var result string
+	var queryResult map[string]any
+
+	// Query by webtoons
+	if webnovelName != "Null" {
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "webnovel", "name", webnovelName)
+		result = fmt.Sprintf("Query Result for Webtoon Name: %s", webnovelName)
+	} else if alternateName != "Null" {
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "webnovel", "alt_name", alternateName)
+		result = fmt.Sprintf("Query Result for Webtoon Alternate name: %s", alternateName)
+	} else if dbId != "Null" {
+		queryResult, _ = postgresqldb.QueryWithCondition(dbConnection, "webnovel", "id", dbId)
+		result = fmt.Sprintf("Query Result for Webtoon ID: %s", dbId)
+	}
+
+	// Marshal queryResult to pretty-printed JSON
+	queryResultJSON, err := json.MarshalIndent(queryResult, "", "    ")
+	if err != nil {
+		http.Error(w, "Error marshaling query result", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare data for the template
+	data := struct {
+		Result      string
+		QueryResult string
+	}{
+		Result:      result,
+		QueryResult: string(queryResultJSON),
+	}
+
+	// Load the queryresult page template with the requested data
+	tmpl, err := template.ParseFiles("./webfrontend/webnovel/webnovelQueryResult.html")
+	if err != nil {
+		// Print the error to the server logs for debugging
+		log.Println("Error loading template:", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
 	}
 
 	// Send the response to the user
