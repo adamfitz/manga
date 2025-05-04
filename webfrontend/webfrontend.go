@@ -45,8 +45,8 @@ func StartServer(port string) {
 	http.HandleFunc("/addWebtoon", addWebtoonEntryHandler)
 
 	// webnovel actions
-	http.HandleFunc("/queryWebNovel", webNovelQueryHandler) // this is the DB lookup, must be exact match
-	//http.HandleFunc("/searchWebNovel", webNovelSearchHandler) // substring search case insensitive
+	http.HandleFunc("/queryWebNovel", webNovelQueryHandler)   // this is the DB lookup, must be exact match
+	http.HandleFunc("/searchWebNovel", webNovelSearchHandler) // substring search case insensitive
 	//http.HandleFunc("/addWebNovel", addWebNovelEntryHandler)
 
 	log.Printf("Web server running at http://localhost:%s/", port)
@@ -1161,6 +1161,74 @@ func webNovelQueryHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Load the queryresult page template with the requested data
 	tmpl, err := template.ParseFiles("./webfrontend/webnovel/webnovelQueryResult.html")
+	if err != nil {
+		// Print the error to the server logs for debugging
+		log.Println("Error loading template:", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+	// Send the response to the user
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, data)
+}
+
+func webNovelSearchHandler(w http.ResponseWriter, r *http.Request) {
+	// Load config
+	config, _ := auth.LoadConfig()
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract and clean input variables
+	webnovelName := strings.TrimSpace(r.FormValue("wn_name"))
+	alternateName := strings.TrimSpace(r.FormValue("wn_alternate_name"))
+
+	// If empty, set to "Null"
+	if webnovelName == "" {
+		webnovelName = "Null"
+	}
+	if alternateName == "" {
+		alternateName = "Null"
+	}
+
+	// Open database connection
+	dbConnection, _ := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
+
+	// Prepare the response
+	var result string
+	var searchResult []map[string]any
+
+	// Declare error variable
+	var err error
+
+	// Search by lightNovelName or alternateName
+	if webnovelName != "Null" {
+		searchResult, err = postgresqldb.WebtoonSearchSubstring(dbConnection, "webnovel", "name", webnovelName)
+		result = fmt.Sprintf("Search Result for Webtoon Name: %s", webnovelName)
+	} else if alternateName != "Null" {
+		searchResult, err = postgresqldb.WebtoonSearchSubstring(dbConnection, "webnovel", "alt_name", alternateName)
+		result = fmt.Sprintf("Search Result for Webtoon Alternate Name: %s", alternateName)
+	}
+	if err != nil {
+		http.Error(w, "Error querying database", http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare data for the template
+	data := struct {
+		Result       string
+		SearchResult []map[string]any
+	}{
+		Result:       result,
+		SearchResult: searchResult,
+	}
+
+	// Load the searchresult page template with the requested data
+	tmpl, err := template.ParseFiles("./webfrontend/webnovel/webnovelSearchResult.html")
 	if err != nil {
 		// Print the error to the server logs for debugging
 		log.Println("Error loading template:", err)
