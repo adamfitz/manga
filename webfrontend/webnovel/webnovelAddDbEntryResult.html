@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Webtoons Search Result</title>
+	<title>Add Webnovel Entry Result</title>
 	<style>
 		table {
 			width: 100%;
@@ -23,17 +23,11 @@
 		tr:hover {
 			background-color: #f1f1f1;
 		}
-		/* Adjust the size of the "Database ID" column */
-		th:nth-child(1), td:nth-child(1) {
-			width: 5%;
-		}
 	</style>
 </head>
 <body>
-	<h1>{{.Result}}</h1>
-	<p>
-	<button onclick="window.location.href='/webtoons';">Back to Webtoons</button>
-	</p>
+	<h1>{{.Message}}</h1>
+	<p>The following entry has been added to the database:</p>
 	<table>
 		<thead>
 			<tr>
@@ -45,19 +39,17 @@
 			</tr>
 		</thead>
 		<tbody>
-			{{range .SearchResult}}
 			<tr>
-				<td>{{index . "id"}}</td>
-				<td>{{index . "name"}}</td>
-				<td>{{index . "alt_name"}}</td>
-				<td><a href="{{index . "url"}}" target="_blank">{{index . "url"}}</a></td>
-				<td>{{index . "completed"}}</td>
+				<td>{{index .Entry "id"}}</td>
+				<td>{{index .Entry "name"}}</td>
+				<td>{{index .Entry "alt_name"}}</td>
+				<td><a href="{{index .Entry "url"}}" target="_blank">{{index .Entry "url"}}</a></td>
+				<td>{{index .Entry "completed"}}</td>
 			</tr>
-			{{end}}
 		</tbody>
 	</table>
 	<p>
-	<button onclick="window.location.href='/webtoons';">Back to Webtoons</button>
+		<button onclick="window.location.href='/webnovel';">Back to Webnovels</button>
 	</p>
 </body>
 </html>
