@@ -287,10 +287,10 @@ func ChaptersSorted(mangaId string) (string, error) {
 	return string(jsonArray), nil
 }
 
+/*
 func ChapterPages(chapterID string) (*ChapterPageData, error) {
-	/*
-		func returns a list of all pages and page information for a specific chapter
-	*/
+
+	//	func returns a list of all pages and page information for a specific chapter
 	// Make the HTTP GET request
 	response, err := http.Get(fmt.Sprintf("%s/at-home/server/%s", mangadexApiBaseUri, chapterID))
 	if err != nil {
@@ -313,6 +313,7 @@ func ChapterPages(chapterID string) (*ChapterPageData, error) {
 
 	return &chapterPageData, nil
 }
+*/
 
 func TitleSearch(name string) (string, error) {
 	/*
@@ -456,3 +457,119 @@ func CreateCbzFile(sourceDir string, outputFileName string) {
 
 }
 */
+
+func ChaptersWithDetails(mangaId string) ([]map[string]any, error) {
+	const limit = 100
+	baseURL := fmt.Sprintf("%s/manga/%s/feed", mangadexApiBaseUri, mangaId)
+
+	chapterMap := make(map[string]map[string]any) // key = chapter number (string)
+	offset := 0
+
+	for {
+		// Construct URL with pagination parameters
+		url := fmt.Sprintf("%s?limit=%d&offset=%d&translatedLanguage[]=en", baseURL, limit, offset)
+
+		resp, err := http.Get(url)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch chapters: %w", err)
+		}
+		defer resp.Body.Close()
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read response: %w", err)
+		}
+
+		var result map[string]any
+		if err := json.Unmarshal(body, &result); err != nil {
+			return nil, fmt.Errorf("failed to parse JSON: %w", err)
+		}
+
+		dataArray, ok := result["data"].([]any)
+		if !ok {
+			break
+		}
+
+		for _, item := range dataArray {
+			itemMap, ok := item.(map[string]any)
+			if !ok {
+				continue
+			}
+
+			// Extract chapter ID and attributes
+			id, _ := itemMap["id"].(string)
+			attr, ok := itemMap["attributes"].(map[string]any)
+			if !ok {
+				continue
+			}
+
+			chapterStr := fmt.Sprintf("%v", attr["chapter"])
+			versionFloat, _ := attr["version"].(float64)
+			version := int(versionFloat)
+
+			// Build final chapter entry
+			chapterEntry := map[string]any{"id": id}
+			for k, v := range attr {
+				chapterEntry[k] = v
+			}
+
+			// Deduplication logic: keep highest version per chapter
+			if existing, exists := chapterMap[chapterStr]; exists {
+				existingVersion := int(existing["version"].(float64))
+				if version > existingVersion {
+					chapterMap[chapterStr] = chapterEntry
+				}
+			} else {
+				chapterMap[chapterStr] = chapterEntry
+			}
+		}
+
+		if len(dataArray) < limit {
+			break
+		}
+		offset += limit
+	}
+
+	// Convert map to slice
+	var chapters []map[string]any
+	for _, chapter := range chapterMap {
+		chapters = append(chapters, chapter)
+	}
+
+	// Optional: sort by chapter number
+	sort.Slice(chapters, func(i, j int) bool {
+		chI, _ := strconv.ParseFloat(fmt.Sprintf("%v", chapters[i]["chapter"]), 64)
+		chJ, _ := strconv.ParseFloat(fmt.Sprintf("%v", chapters[j]["chapter"]), 64)
+		return chI < chJ
+	})
+
+	return chapters, nil
+}
+
+func ChapterPages(chapterID string) (map[string]any, error) {
+	/*
+		Returns a map of all page and server information for a specific chapter
+	*/
+
+	// Make the HTTP GET request
+	response, err := http.Get(fmt.Sprintf("%s/at-home/server/%s", mangadexApiBaseUri, chapterID))
+	if err != nil {
+		return nil, fmt.Errorf("error making HTTP request for chapter page information: %s", err)
+	}
+	defer response.Body.Close()
+
+	// Read the response body
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body for chapter page information: %s", err)
+	}
+
+	// Decode JSON into a map
+	var data map[string]any
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return nil, fmt.Errorf("error unmarshalling JSON for chapter page information: %s", err)
+	}
+
+	return data, nil
+}
