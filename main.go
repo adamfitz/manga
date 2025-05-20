@@ -37,7 +37,7 @@ func main() {
 	//webfrontend.StartServer("8080")
 	//DumpPostgressDb()
 	//PgQueryByID("21")
-	MangadexChapterList("At First Glance, Shinoda-san Seems Cool but Is Actually Adorable!", "5187376e-3b32-4c8c-9fff-e95aca386463")
+	DownloadChapters("At First Glance, Shinoda-san Seems Cool but Is Actually Adorable!", "5187376e-3b32-4c8c-9fff-e95aca386463")
 }
 
 /*
@@ -451,44 +451,41 @@ func PgQueryByID(id string) {
 	}
 }
 
-func MangadexChapterList(mangaName, mangadexId string) {
-
+func DownloadChapters(mangaName, mangadexId string) {
 	chapters, err := mangadex.ChaptersWithDetails(mangadexId)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, c := range chapters {
-		fmt.Printf("Chapter: %v | ID: %v | Volume: %v | Version: %v\n", c["chapter"], c["id"], c["volume"], c["version"])
+		fmt.Printf("Chapter: %v | ID: %v\n", c["chapter"], c["id"])
+		id := c["id"].(string)
+		chapter := c["chapter"].(string)
 
-		// convert the returned chapter id as a string
-		id, ok := c["id"].(string)
-		if !ok {
-			log.Fatalf("Error: 'id' is not a string")
-		}
-
-		chapterPages, err := mangadex.ChapterPages(id)
-		if err != nil {
-			log.Fatalf("Failed to fetch chapter pages: %v", err)
-		}
-
-		// Access the "chapter" section of the response
-		chapterData, ok := chapterPages["chapter"].(map[string]any)
-		if !ok {
-			log.Fatalf("Unexpected structure for 'chapter' data")
-		}
-
-		pages, ok := chapterData["data"].([]any)
-		if !ok {
-			log.Fatalf("Unexpected structure for 'data' (page list)")
-		}
+		chapterPages, _ := mangadex.ChapterPages(id)
 
 		baseUrl := chapterPages["baseUrl"].(string)
+		chapterData := chapterPages["chapter"].(map[string]any)
 		hash := chapterData["hash"].(string)
+		pages := chapterData["data"].([]any)
+
+		tempDir, _ := os.MkdirTemp("", "mangadex_pages_*")
+
 		for _, p := range pages {
 			page := p.(string)
-			fullUrl := fmt.Sprintf("%s/data/%s/%s", baseUrl, hash, page)
-			fmt.Println(fullUrl)
+			err := mangadex.DownloadPage(baseUrl, hash, page, tempDir)
+			if err != nil {
+				log.Println("Failed to download page:", page, err)
+			}
 		}
+
+		cbzPath, err := mangadex.CreateCBZ(tempDir, mangaName, "Ch"+chapter)
+		if err != nil {
+			log.Println("Failed to create CBZ:", err)
+		} else {
+			fmt.Println("Saved:", cbzPath)
+		}
+
+		os.RemoveAll(tempDir) // Clean up
 	}
 }

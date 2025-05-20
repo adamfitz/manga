@@ -1,6 +1,7 @@
 package mangadex
 
 import (
+	"archive/zip"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,6 +9,8 @@ import (
 	"main/parser"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 )
@@ -572,4 +575,74 @@ func ChapterPages(chapterID string) (map[string]any, error) {
 	}
 
 	return data, nil
+}
+
+// DownloadPage downloads a single image page and saves it to targetDir
+func DownloadPage(baseUrl, hash, pageName, targetDir string) error {
+	url := fmt.Sprintf("%s/data/%s/%s", baseUrl, hash, pageName)
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("failed to download page %s: %w", pageName, err)
+	}
+	defer resp.Body.Close()
+
+	outPath := filepath.Join(targetDir, pageName)
+	outFile, err := os.Create(outPath)
+	if err != nil {
+		return fmt.Errorf("failed to create file %s: %w", outPath, err)
+	}
+	defer outFile.Close()
+
+	_, err = io.Copy(outFile, resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to write image %s: %w", pageName, err)
+	}
+
+	return nil
+}
+
+// CreateCBZ zips the files in tempDir and stores the archive in ./<mangaName>/<chapter>.cbz
+func CreateCBZ(tempDir, mangaName, chapter string) (string, error) {
+	destDir := filepath.Join(".", mangaName)
+	err := os.MkdirAll(destDir, os.ModePerm)
+	if err != nil {
+		return "", err
+	}
+
+	cbzPath := filepath.Join(destDir, chapter+".cbz")
+	zipFile, err := os.Create(cbzPath)
+	if err != nil {
+		return "", err
+	}
+	defer zipFile.Close()
+
+	zipWriter := zip.NewWriter(zipFile)
+	defer zipWriter.Close()
+
+	err = filepath.Walk(tempDir, func(path string, info os.FileInfo, err error) error {
+		if !info.Mode().IsRegular() {
+			return nil
+		}
+
+		relPath := filepath.Base(path)
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+
+		writer, err := zipWriter.Create(relPath)
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(writer, file)
+		return err
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return cbzPath, nil
 }
