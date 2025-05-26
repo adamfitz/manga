@@ -75,14 +75,14 @@ func InsertRow(pgDB *sql.DB, tableName string, rows []map[string]interface{}) er
 }
 
 // Lookup and return row from database
-func LookupRow(pgDB *sql.DB, tableName string, conditions map[string]interface{}) ([]byte, error) {
+func LookupRow(pgDB *sql.DB, tableName string, conditions map[string]any) ([]byte, error) {
 	if len(conditions) == 0 {
 		return nil, errors.New("no conditions provided for query")
 	}
 
 	// Build query condition string
 	conditionClauses := make([]string, 0, len(conditions))
-	values := make([]interface{}, 0, len(conditions))
+	values := make([]any, 0, len(conditions))
 	i := 1
 
 	for col, val := range conditions {
@@ -446,7 +446,7 @@ func AddMangadexRow(db *sql.DB, name, altTitle, url, mangadexID string, complete
 }
 
 // Helper function to handle *bool -> SQL NULL conversion
-func nullableBool(b *bool) interface{} {
+func nullableBool(b *bool) any {
 	if b == nil {
 		return nil // Store as NULL in database
 	}
@@ -842,4 +842,113 @@ func WebnovelSearchSubstring(db *sql.DB, tableName, columnName, subString string
 	}
 
 	return results, nil
+}
+
+// DB Lookup by manga status
+func LookupByStatus(db *sql.DB, tableName string, statusColumn string) ([]map[string]any, error) {
+	// Allowlist of valid status columns
+	validColumns := map[string]bool{
+		"completed": true,
+		"hiatus":    true,
+		"ongoing":   true,
+		"cancelled": true,
+	}
+
+	if !validColumns[statusColumn] {
+		return nil, fmt.Errorf("invalid status column: %s", statusColumn)
+	}
+
+	// Construct the query safely
+	query := fmt.Sprintf(`SELECT name, alt_name, mangadex_id FROM %s WHERE %s = TRUE`, tableName, statusColumn)
+
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Printf("PG LookupByStatus - query execution failed: %v", err)
+		return nil, fmt.Errorf("query execution failed: %v", err)
+	}
+	defer rows.Close()
+
+	var results []map[string]any
+
+	for rows.Next() {
+		var name, altName, mangadexID sql.NullString
+		if err := rows.Scan(&name, &altName, &mangadexID); err != nil {
+			log.Printf("PG LookupByStatus - row scan failed: %v", err)
+			return nil, fmt.Errorf("row scan failed: %v", err)
+		}
+
+		entry := map[string]any{
+			"name":        name.String,
+			"alt_name":    altName.String,
+			"mangadex_id": mangadexID.String,
+		}
+		results = append(results, entry)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Printf("PG LookupByStatus - rows iteration error: %v", err)
+		return nil, fmt.Errorf("rows iteration error: %v", err)
+	}
+
+	return results, nil
+}
+
+// func performs DB lookup by name or alt_name and returns the status of the manga eg: goingoing, completed, hiatus or cancelled
+func LookupByNameOrAltName(db *sql.DB, tableName string, searchColumn string, value string) (map[string]any, error) {
+	// Allowlist to prevent SQL injection
+	validColumns := map[string]bool{
+		"name":     true,
+		"alt_name": true,
+	}
+
+	if !validColumns[searchColumn] {
+		return nil, fmt.Errorf("invalid search column: %s", searchColumn)
+	}
+
+	// Query to select needed fields
+	query := fmt.Sprintf(`
+		SELECT name, alt_name, mangadex_id, completed, ongoing, hiatus, cancelled
+		FROM %s
+		WHERE %s = $1
+		LIMIT 1
+	`, tableName, searchColumn)
+
+	row := db.QueryRow(query, value)
+
+	// Fields for scanning
+	var name, altName, mangadexID sql.NullString
+	var completed, ongoing, hiatus, cancelled sql.NullBool
+
+	err := row.Scan(&name, &altName, &mangadexID, &completed, &ongoing, &hiatus, &cancelled)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("no record found where %s = '%s'", searchColumn, value)
+		}
+		return nil, fmt.Errorf("failed to scan row: %v", err)
+	}
+
+	// Determine the status from the boolean flags
+	status := ""
+	switch {
+	case completed.Valid && completed.Bool:
+		status = "completed"
+	case ongoing.Valid && ongoing.Bool:
+		status = "ongoing"
+	case hiatus.Valid && hiatus.Bool:
+		status = "hiatus"
+	case cancelled.Valid && cancelled.Bool:
+		status = "cancelled"
+	default:
+		status = "unknown"
+	}
+
+	// Build result map
+	result := map[string]any{
+		"name":        name.String,
+		"alt_name":    altName.String,
+		"mangadex_id": mangadexID.String,
+		"status":      status,
+	}
+
+	return result, nil
 }

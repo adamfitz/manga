@@ -3,17 +3,22 @@ package main
 import (
 	//"encoding/json"
 	"fmt"
+	"strings"
 	//"strings"
 	"log"
 	"main/auth"
 	"main/bookmarks"
 	"main/mangadex"
+
 	//"main/compare"
 	//"main/mangadex"
 	"main/postgresqldb"
 	//"main/sqlitedb"
-	//"main/webfrontend"
+	"flag"
+	"main/parser"
+	"main/webfrontend"
 	"os"
+	"path/filepath"
 	"sort"
 )
 
@@ -27,17 +32,26 @@ func init() {
 
 func main() {
 
-	//MangaStatusAttributes()
-	//NewMangaDbUpdate()
-	//CheckIfBookmarkInDb()
-	//CompareNames()
-	//BlanketUpdateDb()
-	//ExtractMangasWithoutChapterList()
-	//UpdateMangasWithoutChapterList()
-	//webfrontend.StartServer("8080")
-	//DumpPostgressDb()
-	//PgQueryByID("21")
-	DownloadChapters("At First Glance, Shinoda-san Seems Cool but Is Actually Adorable!", "5187376e-3b32-4c8c-9fff-e95aca386463")
+	startWeb := flag.Bool("w", false, "Start web server")
+	flag.Parse()
+
+	if *startWeb {
+		webfrontend.StartServer("8080")
+	} else {
+		copyDirs("completed", "/mnt/manga", "/mnt/manga/completed")
+		//MangaStatusAttributes()
+		//NewMangaDbUpdate()
+		//CheckIfBookmarkInDb()
+		//CompareNames()
+		//BlanketUpdateDb()
+		//ExtractMangasWithoutChapterList()
+		//UpdateMangasWithoutChapterList()
+		//DumpPostgressDb()
+		//PgQueryByID("21")
+		//DownloadChapters("At First Glance, Shinoda-san Seems Cool but Is Actually Adorable!", "5187376e-3b32-4c8c-9fff-e95aca386463")
+		//GetDirList("/mnt/manga")
+		//ListManagdexMangaStatus("completed")
+	}
 }
 
 /*
@@ -488,4 +502,112 @@ func DownloadChapters(mangaName, mangadexId string) {
 
 		os.RemoveAll(tempDir) // Clean up
 	}
+}
+
+func GetDirList(rootDir string) {
+	/*
+		Get a list of all directories from teh provided rootDir
+	*/
+
+	dirListing, err := parser.DirList(rootDir)
+	if err != nil {
+		log.Fatalf("Error getting directory list: %v", err)
+	}
+	for _, dir := range dirListing {
+		fmt.Println(dir)
+	}
+}
+
+func ListManagdexMangaStatus(status string) {
+	// Load the configuration
+	config, err := auth.LoadConfig()
+	if err != nil {
+		log.Fatalf("Error loading config: %v", err)
+	}
+
+	// Connect to the PostgreSQL database
+	pgDb, err := postgresqldb.OpenDatabase(
+		config.PgServer,
+		config.PgPort,
+		config.PgUser,
+		config.PgPassword,
+		config.PgDbName)
+	if err != nil {
+		log.Fatalf("Error opening database: %v", err)
+	}
+	defer pgDb.Close()
+
+	// Query for completed manga
+	completedManga, err := postgresqldb.LookupByStatus(pgDb, "mangadex", status)
+	if err != nil {
+		log.Fatalf("Error querying completed manga: %v", err)
+	}
+
+	for _, manga := range completedManga {
+		fmt.Println(manga["name"])
+	}
+}
+
+func copyDirs(status, srcDir, destDir string) {
+
+	// Load the configuration
+	config, err := auth.LoadConfig()
+	if err != nil {
+		log.Fatalf("Error loading config: %v", err)
+	}
+
+	// Connect to the PostgreSQL database
+	pgDb, err := postgresqldb.OpenDatabase(
+		config.PgServer,
+		config.PgPort,
+		config.PgUser,
+		config.PgPassword,
+		config.PgDbName)
+	if err != nil {
+		log.Fatalf("Error opening database: %v", err)
+	}
+	defer pgDb.Close()
+
+	// Query for completed manga
+	completedManga, err := postgresqldb.LookupByStatus(pgDb, "mangadex", status)
+	if err != nil {
+		log.Fatalf("Error querying completed manga: %v", err)
+	}
+
+	// Copy directories from source to destination
+	for _, dirEntry := range completedManga {
+		// typecast to string
+		name, ok := dirEntry["name"].(string)
+		if !ok {
+			log.Fatalf("Expected string for 'name', but got: %T", dirEntry["name"])
+		}
+
+		name = strings.TrimSpace(name)
+		srcPath := filepath.Join(srcDir, name)
+		dstPath := filepath.Join(destDir, name)
+
+		// Check if destination exists and is up-to-date
+		same, err := parser.DirsAreEqual(srcPath, dstPath)
+		if err != nil {
+			log.Printf("Error comparing directories %s and %s: %v", srcPath, dstPath, err)
+		}
+		if same {
+			fmt.Printf("Skipping copy of %s; already exists and is identical\n", name)
+			continue
+		}
+
+		if _, err := os.Stat(srcPath); err != nil {
+			log.Printf("Directory not found: %s (from db: %q)", srcPath, name)
+			continue
+		}
+
+		err = parser.CopyDir(srcPath, dstPath)
+		if err != nil {
+			log.Fatalf("Error copying directory %s:  %v", name, err)
+		} else {
+			fmt.Printf("Directory copied from %s to %s\n", srcPath, dstPath)
+		}
+	}
+	// List the directories in the destination
+	GetDirList(destDir)
 }
