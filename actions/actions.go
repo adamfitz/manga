@@ -5,6 +5,7 @@ import (
 	"log"
 	"main/auth"
 	"main/bookmarks"
+	"main/parser"
 	"main/postgresqldb"
 	"sort"
 )
@@ -137,5 +138,19 @@ func DumpPostgressTable(tableName string, columns []string) {
 			fmt.Printf("\n%s:\t%v", key, row[key])
 		}
 		fmt.Println("\n----------------------------------------")
+	}
+}
+
+func GetDirList(rootDir string, exclusionList ...string) {
+	/*
+		Get a list of all directories from the provided rootDir.
+	*/
+
+	dirListing, err := parser.DirList(rootDir, exclusionList...) // Exclusion list is optional, indicated by the variadic parameter
+	if err != nil {
+		log.Fatalf("Error getting directory list: %v", err)
+	}
+	for _, dir := range dirListing {
+		fmt.Println(dir)
 	}
 }

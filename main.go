@@ -36,6 +36,7 @@ func main() {
 	if *startWeb {
 		webfrontend.StartServer("8080")
 	} else {
+		var exclusionList = []string{"Completed"}
 		//copyDirs("completed", "/mnt/manga", "/mnt/manga/completed")
 		//MangaStatusAttributes()
 		//NewMangaDbUpdate()
@@ -44,10 +45,10 @@ func main() {
 		//BlanketUpdateDb()
 		//ExtractMangasWithoutChapterList()
 		//UpdateMangasWithoutChapterList()
-		actions.DumpPostgressTable("manga", []string{"name", "url"})
+		//actions.DumpPostgressTable("manga", []string{"name", "url"})
 		//PgQueryByID("21")
 		//DownloadChapters("At First Glance, Shinoda-san Seems Cool but Is Actually Adorable!", "5187376e-3b32-4c8c-9fff-e95aca386463")
-		//GetDirList("/mnt/manga")
+		actions.GetDirList("/mnt/manga", exclusionList...)
 		//ListManagdexMangaStatus("completed")
 	}
 }
@@ -119,20 +120,6 @@ func DownloadChapters(mangaName, mangadexId string) {
 		}
 
 		os.RemoveAll(tempDir) // Clean up
-	}
-}
-
-func GetDirList(rootDir string) {
-	/*
-		Get a list of all directories from teh provided rootDir
-	*/
-
-	dirListing, err := parser.DirList(rootDir)
-	if err != nil {
-		log.Fatalf("Error getting directory list: %v", err)
-	}
-	for _, dir := range dirListing {
-		fmt.Println(dir)
 	}
 }
 
@@ -227,5 +214,5 @@ func copyDirs(status, srcDir, destDir string) {
 		}
 	}
 	// List the directories in the destination
-	GetDirList(destDir)
+	actions.GetDirList(destDir)
 }

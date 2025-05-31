@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"log"
+	//"log"
 	"os"
 	"path/filepath"
 )
@@ -34,17 +34,32 @@ func NestedMapValue(m map[string]any, keys ...string) (any, error) {
 }
 
 // return a list of strings representing the subdirectories of the rootDir
-func DirList(rootDir string) ([]string, error) {
+func DirList(rootDir string, exclusionList ...string) ([]string, error) {
+
+	/*
+		Get a list of all directories from the provided rootDir.
+		Optionally pass an exclusion list to skip certain directories, the slice is optional indicated by the variadic parameter.
+	*/
+
+	// Convert exclusionList slice to a map for fast lookup
+	exclusions := make(map[string]struct{}, len(exclusionList))
+	for _, name := range exclusionList {
+		exclusions[name] = struct{}{}
+	}
 
 	dirList := make([]string, 0)
 
 	entries, err := os.ReadDir(rootDir)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	for _, entry := range entries {
-		dirList = append(dirList, entry.Name())
+		if entry.IsDir() {
+			if _, skip := exclusions[entry.Name()]; !skip {
+				dirList = append(dirList, entry.Name())
+			}
+		}
 	}
 
 	return dirList, nil
