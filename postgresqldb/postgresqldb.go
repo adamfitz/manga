@@ -445,6 +445,28 @@ func AddMangadexRow(db *sql.DB, name, altTitle, url, mangadexID string, complete
 	return newID, nil
 }
 
+
+// Add new row to MANGADEX TABLE
+func AddMangaRow(db *sql.DB, name, altTitle, url, mangadexID string, completed, ongoing, hiatus, cancelled *bool) (int64, error) {
+	query := `
+		INSERT INTO manga (name, alt_name, url, mangadex_id, completed, ongoing, hiatus, cancelled)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		RETURNING id
+	`
+
+	// Ensure all 8 parameters are passed, using `nil` for unchecked fields
+	var newID int64
+	err := db.QueryRow(query, name, altTitle, url, mangadexID,
+		nullableBool(completed), nullableBool(ongoing), nullableBool(hiatus), nullableBool(cancelled),
+	).Scan(&newID)
+	if err != nil {
+		log.Printf("PG AddMangaRow - failed to insert new row entry %v", err)
+		return 0, fmt.Errorf("failed to insert new row entry: %w", err)
+	}
+
+	return newID, nil
+}
+
 // Helper function to handle *bool -> SQL NULL conversion
 func nullableBool(b *bool) any {
 	if b == nil {
@@ -453,10 +475,10 @@ func nullableBool(b *bool) any {
 	return *b // Store TRUE if checked
 }
 
+/*
+	Perform a lookup for a specific column value based on the provided condition.
+*/
 func LookupColumnValues(db *sql.DB, tableName, columnName string) ([]string, error) {
-	/*
-		Perform a lookup for a specific column value based on the provided condition.
-	*/
 
 	// Validate the table name (exists in allowed tables)
 	if !allowedTables[tableName] {
@@ -522,10 +544,10 @@ func InsertMangaStatus(pgDB *sql.DB, tableName, status, mangadexId string) error
 }
 
 // Extract values from multiple columns at the same time
+/*
+	Perform a lookup for multiple column values and return each row as a string.
+*/
 func LookupMultipleColumnValues(db *sql.DB, tableName string, columnNames ...string) ([]string, error) {
-	/*
-		Perform a lookup for multiple column values and return each row as a string.
-	*/
 
 	// Validate the table name (exists in allowed tables)
 	if !allowedTables[tableName] {

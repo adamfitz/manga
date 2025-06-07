@@ -9,11 +9,12 @@ import (
 	"main/postgresqldb"
 )
 
+
+/*
+	compares the managa names in bookmarks to the names in the database, prints out the difference if the name does
+	not exist in the DB.
+*/
 func CompareBookmarksAndDB() {
-	/*
-		compares the managa names in bookmarks to the names in the database, prints out the difference if the name does
-		not exist in the DB.
-	*/
 
 	//load db connection config
 	config, _ := auth.LoadConfig()
@@ -37,15 +38,13 @@ func CompareBookmarksAndDB() {
 		if !dbNames {
 			fmt.Printf("Bookmark not in DB: %s\n", name)
 		}
-
 	}
 }
 
+/*
+	func return the manga status attirbutes from the mangadex API and write them to the DB
+*/
 func MangaStatusAttributes() {
-
-	/*
-		func return the manga status attirbutes from the mangadex API and write them to the DB
-	*/
 
 	//load db connection config
 	config, _ := auth.LoadConfig()

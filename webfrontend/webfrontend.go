@@ -332,6 +332,7 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	alternateName := strings.TrimSpace(r.FormValue("alternate_name"))
 	url := strings.TrimSpace(r.FormValue("url"))
 	mangadexID := strings.TrimSpace(r.FormValue("mangadex_id"))
+	table := strings.TrimSpace(r.FormValue("table_select"))
 
 	// Extract boolean fields (use pointers so NULL can be stored)
 	var completed, ongoing, hiatus, cancelled *bool
@@ -353,9 +354,13 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 		cancelled = &val
 	}
 
-	// Validate input (ensure mangaName is provided)
+	// Validate input
 	if mangaName == "" {
 		http.Error(w, "Manga name is required", http.StatusBadRequest)
+		return
+	}
+	if table != "manga" && table != "mangadex" {
+		http.Error(w, "Invalid table selected", http.StatusBadRequest)
 		return
 	}
 
@@ -368,24 +373,41 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer dbConnection.Close()
 
-	// Add entry to the database and get the new ID
-	newID, err := postgresqldb.AddMangadexRow(dbConnection, mangaName, alternateName, url, mangadexID, completed, ongoing, hiatus, cancelled)
-	if err != nil {
-		http.Error(w, "Error adding manga entry to the database", http.StatusInternalServerError)
-		log.Println("Error adding entry:", err)
-		return
-	}
-	fmt.Printf("New entry added with ID: %d\n", newID)
+	// Insert based on table selection
+	var newID int64
+	var newEntry map[string]any
 
-	// Query the database using the new ID
-	newEntry, err := postgresqldb.LookupByID(dbConnection, "mangadex", fmt.Sprintf("%d", newID))
-	if err != nil {
-		http.Error(w, "Error retrieving the added manga entry from the database", http.StatusInternalServerError)
-		log.Println("Error querying for added entry:", err)
-		return
+	switch table {
+	case "manga":
+		newID, err = postgresqldb.AddMangaRow(dbConnection, mangaName, alternateName, url, mangadexID, completed, ongoing, hiatus, cancelled)
+		if err != nil {
+			http.Error(w, "Error adding manga entry to manga table", http.StatusInternalServerError)
+			log.Println("Manga table error:", err)
+			return
+		}
+		newEntry, err = postgresqldb.LookupByID(dbConnection, "manga", fmt.Sprintf("%d", newID))
+		if err != nil {
+			http.Error(w, "Error retrieving added entry from manga table", http.StatusInternalServerError)
+			log.Println("Manga lookup error:", err)
+			return
+		}
+
+	case "mangadex":
+		newID, err = postgresqldb.AddMangadexRow(dbConnection, mangaName, alternateName, url, mangadexID, completed, ongoing, hiatus, cancelled)
+		if err != nil {
+			http.Error(w, "Error adding manga entry to mangadex table", http.StatusInternalServerError)
+			log.Println("Mangadex table error:", err)
+			return
+		}
+		newEntry, err = postgresqldb.LookupByID(dbConnection, "mangadex", fmt.Sprintf("%d", newID))
+		if err != nil {
+			http.Error(w, "Error retrieving added entry from mangadex table", http.StatusInternalServerError)
+			log.Println("Mangadex lookup error:", err)
+			return
+		}
 	}
 
-	// Load the addmangaentryresult.html template
+	// Load the result template
 	tmpl, err := template.ParseFiles("./webfrontend/manga/mangaAddDbEntryResult.html")
 	if err != nil {
 		log.Println("Error loading template:", err)
@@ -396,17 +418,18 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	// Prepare data for the template
 	data := struct {
 		Message string
-		Entry   map[string]interface{}
+		Entry   map[string]any
 	}{
-		Message: fmt.Sprintf("Manga entry '%s' was added successfully!", mangaName),
+		Message: fmt.Sprintf("Manga entry '%s' was added to table '%s' successfully!", mangaName, table),
 		Entry:   newEntry,
 	}
 
-	// Send the response to the user
+	// Send the response
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
 	tmpl.Execute(w, data)
 }
+
 
 ////////////// ANIME ACTION HANDLERS
 
