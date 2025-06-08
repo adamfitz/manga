@@ -9,10 +9,9 @@ import (
 	"main/postgresqldb"
 )
 
-
 /*
-	compares the managa names in bookmarks to the names in the database, prints out the difference if the name does
-	not exist in the DB.
+compares the managa names in bookmarks to the names in the database, prints out the difference if the name does
+not exist in the DB.
 */
 func CompareBookmarksAndDB() {
 
@@ -42,7 +41,7 @@ func CompareBookmarksAndDB() {
 }
 
 /*
-	func return the manga status attirbutes from the mangadex API and write them to the DB
+func return the manga status attirbutes from the mangadex API and write them to the DB
 */
 func MangaStatusAttributes() {
 

@@ -15,10 +15,10 @@ import (
 // table name comes from an untrusted source (user input) so this map is used to validate the table name
 var allowedTables = map[string]bool{"mangadex": true, "manga": true}
 
+/*
+Open a connection to a remote PostgreSQL database using host, port, user, password, and database name.
+*/
 func OpenDatabase(dbHost, dbPort, dbUser, dbPassword, dbName string) (*sql.DB, error) {
-	/*
-		Open a connection to a remote PostgreSQL database using host, port, user, password, and database name.
-	*/
 	dBSourceName := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		dbHost, dbPort, dbUser, dbPassword, dbName)
 
@@ -143,11 +143,11 @@ func LookupRow(pgDB *sql.DB, tableName string, conditions map[string]any) ([]byt
 	return jsonData, nil
 }
 
-// query all data in a table
-func LookupAllRows(db *sql.DB, tableName string) ([]map[string]interface{}, error) {
-	/*
-		Query all data from the specified PostgreSQL table and return the results as a slice of maps.
-	*/
+/*
+Query all data from the specified PostgreSQL table and return the results as a slice of maps.
+*/
+func LookupAllRows(db *sql.DB, tableName string) ([]map[string]any, error) {
+
 	query := fmt.Sprintf("SELECT * FROM %s", tableName)
 
 	rows, err := db.Query(query)
@@ -164,7 +164,7 @@ func LookupAllRows(db *sql.DB, tableName string) ([]map[string]interface{}, erro
 		return nil, fmt.Errorf("failed to get columns: %w", err)
 	}
 
-	var results []map[string]interface{}
+	var results []map[string]any
 
 	// Iterate over the rows
 	for rows.Next() {
@@ -204,11 +204,11 @@ func LookupAllRows(db *sql.DB, tableName string) ([]map[string]interface{}, erro
 	return results, nil
 }
 
+/*
+Query the table by the specified ID and return the entry as a map[string]interface{}.
+This function is tailored to retrieve a single row by its ID.
+*/
 func LookupByID(db *sql.DB, tableName string, id string) (map[string]any, error) {
-	/*
-		Query the table by the specified ID and return the entry as a map[string]interface{}.
-		This function is tailored to retrieve a single row by its ID.
-	*/
 
 	// Prepare the query
 	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1", tableName)
@@ -271,12 +271,12 @@ func LookupByID(db *sql.DB, tableName string, id string) (map[string]any, error)
 	return result, nil
 }
 
-// Query with condition
+/*
+Perform a gerneric DB lookup for specific row and return the result as a map, based on the provided column name
+and condition eg: name
+*/
 func QueryWithCondition(db *sql.DB, tableName, columnName, condition string) (map[string]any, error) {
-	/*
-		Perform a gerneric DB lookup for specific row and return the result as a map, based on the provided column name
-		and condition eg: name
-	*/
+
 	query := fmt.Sprintf("SELECT * FROM %s WHERE %s = $1", tableName, columnName)
 	rows, err := db.Query(query, condition)
 	if err != nil {
@@ -336,13 +336,12 @@ func QueryWithCondition(db *sql.DB, tableName, columnName, condition string) (ma
 	return nil, nil
 }
 
+/*
+This function performs a lookup in the provided table for the provided name.
+
+NOTE: This function exists to perform a comparison with bookmark names and database names.
+*/
 func LookupByName(db *sql.DB, name, tableName string) (bool, error) {
-	/*
-		This function performs a lookup in the provided table for the provided name.
-
-		NOTE: This function exists to perform a comparison with bookmark names and database names.
-	*/
-
 	// Validate the table name (exists in allowed tables)
 	if !allowedTables[tableName] {
 		log.Printf("Illegal table name, validation failed: %s", tableName)
@@ -376,13 +375,15 @@ func LookupByName(db *sql.DB, name, tableName string) (bool, error) {
 	return true, nil
 }
 
-// FOR MANGADEX TABLE ONLY!!!! (hardcoded values -> noob)
-func QuerySearchSubstring(db *sql.DB, tableName, columnName, subString string) ([]map[string]any, error) {
+/*
+Search query on mangadex table for column string.  Return all row data if found
+*/
+func QuerySearchMangadexSubstring(db *sql.DB, tableName, columnName, subString string) ([]map[string]any, error) {
 	// ILIKE is case insensitive LIKE (search)
 	query := fmt.Sprintf("SELECT id, name, alt_name, url, mangadex_id, ongoing, completed, hiatus, cancelled FROM %s WHERE %s ILIKE $1", tableName, columnName)
 	rows, err := db.Query(query, "%"+subString+"%")
 	if err != nil {
-		log.Printf("PG QuerySearchSubstring - failed to execute query %v", err)
+		log.Printf("PG QuerySearchMangadexSubstring - failed to execute query %v", err)
 		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
 	defer rows.Close()
@@ -398,33 +399,84 @@ func QuerySearchSubstring(db *sql.DB, tableName, columnName, subString string) (
 		err := rows.Scan(&id, &name, &altName, &url, &mangadexID, &ongoing, &completed, &hiatus, &cancelled)
 		// Check for errors during scanning
 		if err != nil {
-			log.Printf("PG QuerySearchSubstring - failed to scan row %v", err)
+			log.Printf("PG QuerySearchMangadexSubstring - failed to scan row %v", err)
 			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
 
 		result := map[string]any{
 			"id":          id,
-			"name":        name,              // Guaranteed to be non-NULL
-			"alt_name":    altName.String,    // Returns "" if NULL
-			"url":         url.String,        // Returns "" if NULL
-			"mangadex_id": mangadexID.String, // Returns "" if NULL
-			"ongoing":     ongoing.Bool,      // Returns "" if NULL
-			"completed":   completed.Bool,    // Returns "" if NULL
-			"hiatus":      hiatus.Bool,       // Returns "" if NULL
-			"cancelled":   cancelled.Bool,    // Returns "" if NULL
+			"name":        name,                    // Guaranteed to be non-NULL
+			"alt_name":    altName.String,          // Returns "" if NULL or false
+			"url":         url.String,              // Returns "" if NULL or false
+			"mangadex_id": mangadexID.String,       // Returns "" if NULL or false
+			"ongoing":     boolToString(ongoing),   // Returns "" if NULL or false
+			"completed":   boolToString(completed), // Returns "" if NULL or false
+			"hiatus":      boolToString(hiatus),    // Returns "" if NULL or false
+			"cancelled":   boolToString(cancelled), // Returns "" if NULL or false
 		}
 		results = append(results, result)
 	}
 
 	if err := rows.Err(); err != nil {
-		log.Printf("PG QuerySearchSubstring - row iteration error %v", err)
+		log.Printf("PG QuerySearchMangadexSubstring - row iteration error %v", err)
 		return nil, fmt.Errorf("row iteration error: %w", err)
 	}
 
 	return results, nil
 }
 
-// Add new row to MANGADEX TABLE
+/*
+Search query on manga table for column string.  Return all row data if found
+*/
+func QuerySearchMangaSubstring(db *sql.DB, tableName, columnName, subString string) ([]map[string]any, error) {
+	// ILIKE is case insensitive LIKE (search)
+	query := fmt.Sprintf("SELECT id, name, alt_name, url, ongoing, completed, hiatus, cancelled FROM %s WHERE %s ILIKE $1", tableName, columnName)
+	rows, err := db.Query(query, "%"+subString+"%")
+	if err != nil {
+		log.Printf("PG QuerySearchMangaSubstring - failed to execute query %v", err)
+		return nil, fmt.Errorf("failed to execute query: %w", err)
+	}
+	defer rows.Close()
+
+	var results []map[string]any
+
+	for rows.Next() {
+		var id int
+		var name string
+		var altName, url sql.NullString // Handle NULL values
+		var ongoing, completed, hiatus, cancelled sql.NullBool
+
+		err := rows.Scan(&id, &name, &altName, &url, &ongoing, &completed, &hiatus, &cancelled)
+		// Check for errors during scanning
+		if err != nil {
+			log.Printf("PG QuerySearchMangaSubstring - failed to scan row %v", err)
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+
+		result := map[string]any{
+			"id":        id,
+			"name":      name,                    // Guaranteed to be non-NULL
+			"alt_name":  altName.String,          // Returns "" if NULL
+			"url":       url.String,              // Returns "" if NULL
+			"ongoing":   boolToString(ongoing),   // Returns "" if NULL
+			"completed": boolToString(completed), // Returns "" if NULL
+			"hiatus":    boolToString(hiatus),    // Returns "" if NULL
+			"cancelled": boolToString(cancelled), // Returns "" if NULL
+		}
+		results = append(results, result)
+	}
+
+	if err := rows.Err(); err != nil {
+		log.Printf("PG QuerySearchMangaSubstring - row iteration error %v", err)
+		return nil, fmt.Errorf("row iteration error: %w", err)
+	}
+
+	return results, nil
+}
+
+/*
+Add row to mangadex table
+*/
 func AddMangadexRow(db *sql.DB, name, altTitle, url, mangadexID string, completed, ongoing, hiatus, cancelled *bool) (int64, error) {
 	query := `
 		INSERT INTO mangadex (name, alt_name, url, mangadex_id, completed, ongoing, hiatus, cancelled)
@@ -445,12 +497,13 @@ func AddMangadexRow(db *sql.DB, name, altTitle, url, mangadexID string, complete
 	return newID, nil
 }
 
-
-// Add new row to MANGADEX TABLE
+/*
+Add row to manga table
+*/
 func AddMangaRow(db *sql.DB, name, altTitle, url, mangadexID string, completed, ongoing, hiatus, cancelled *bool) (int64, error) {
 	query := `
-		INSERT INTO manga (name, alt_name, url, mangadex_id, completed, ongoing, hiatus, cancelled)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		INSERT INTO manga (name, alt_name, url, completed, ongoing, hiatus, cancelled)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING id
 	`
 
@@ -476,7 +529,7 @@ func nullableBool(b *bool) any {
 }
 
 /*
-	Perform a lookup for a specific column value based on the provided condition.
+Perform a lookup for a specific column value based on the provided condition.
 */
 func LookupColumnValues(db *sql.DB, tableName, columnName string) ([]string, error) {
 
@@ -973,4 +1026,14 @@ func LookupByNameOrAltName(db *sql.DB, tableName string, searchColumn string, va
 	}
 
 	return result, nil
+}
+
+/*
+Convert to emptry string if false returned (to dispaly nothing when the page is rendered
+*/
+func boolToString(b sql.NullBool) string {
+	if b.Valid && b.Bool {
+		return "true"
+	}
+	return ""
 }

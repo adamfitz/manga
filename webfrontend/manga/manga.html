@@ -13,6 +13,7 @@
 			<li>Alternate Name</li>
 		</ol>
         <p>
+    <!-- Searches BOTH mangadex AND manga table -->
 	<form action="/searchManga" method="post">
 		<label for="manga_name">Manga Name:</label>
 		<input type="text" id="manga_name" name="manga_name">
@@ -34,6 +35,7 @@
 		</ol>
         <p>
         NOTE: One of the provided fields must be an exact match or null value is returned.
+    <!-- TODO: Add table selection -->
     <form action="/queryManga" method="post">
         <label for="manga_name">Manga Name:</label>
         <input type="text" id="manga_name" name="manga_name">

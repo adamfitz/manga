@@ -233,7 +233,6 @@ func mangaQueryHandler(w http.ResponseWriter, r *http.Request) {
 
 // Column substring search handler
 func mangaSearchHandler(w http.ResponseWriter, r *http.Request) {
-	// Load config
 	config, _ := auth.LoadConfig()
 
 	if r.Method != http.MethodPost {
@@ -241,11 +240,9 @@ func mangaSearchHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Extract and clean input variables
 	mangaName := strings.TrimSpace(r.FormValue("manga_name"))
 	alternateName := strings.TrimSpace(r.FormValue("alternate_name"))
 
-	// If empty, set to "Null"
 	if mangaName == "" {
 		mangaName = "Null"
 	}
@@ -253,48 +250,57 @@ func mangaSearchHandler(w http.ResponseWriter, r *http.Request) {
 		alternateName = "Null"
 	}
 
-	// Open database connection
 	dbConnection, _ := postgresqldb.OpenDatabase(config.PgServer, config.PgPort, config.PgUser, config.PgPassword, config.PgDbName)
 
-	// Prepare the response
-	var result string
-	var searchResult []map[string]any
-
-	// Declare error variable
+	var mangadexResults, mangaResults []map[string]any
 	var err error
 
-	// Query by mangaName or alternateName
 	if mangaName != "Null" {
-		searchResult, err = postgresqldb.QuerySearchSubstring(dbConnection, "mangadex", "name", mangaName)
-		result = fmt.Sprintf("Search Result for Manga Name: %s", mangaName)
+		// query mangadex table
+		mangadexResults, err = postgresqldb.QuerySearchMangadexSubstring(dbConnection, "mangadex", "name", mangaName)
+		if err != nil {
+			http.Error(w, "Error querying mangadex", http.StatusInternalServerError)
+			return
+		}
+		// query manga table
+		mangaResults, err = postgresqldb.QuerySearchMangaSubstring(dbConnection, "manga", "name", mangaName)
+		if err != nil {
+			http.Error(w, "Error querying manga", http.StatusInternalServerError)
+			return
+		}
 	} else if alternateName != "Null" {
-		searchResult, err = postgresqldb.QuerySearchSubstring(dbConnection, "mangadex", "alt_name", alternateName)
-		result = fmt.Sprintf("Search Result for Alternate Name: %s", alternateName)
-	}
-	if err != nil {
-		http.Error(w, "Error querying database", http.StatusInternalServerError)
-		return
+		// query mangadex table
+		mangadexResults, err = postgresqldb.QuerySearchMangadexSubstring(dbConnection, "mangadex", "alt_name", alternateName)
+		if err != nil {
+			http.Error(w, "Error querying mangadex", http.StatusInternalServerError)
+			return
+		}
+		// query manga table
+		mangaResults, err = postgresqldb.QuerySearchMangaSubstring(dbConnection, "manga", "alt_name", alternateName)
+		if err != nil {
+			http.Error(w, "Error querying manga", http.StatusInternalServerError)
+			return
+		}
 	}
 
-	// Prepare data for the template
 	data := struct {
-		Result       string
-		SearchResult []map[string]any
+		Result          string
+		MangadexResults []map[string]any
+		MangaResults    []map[string]any
+		HasResults      bool
 	}{
-		Result:       result,
-		SearchResult: searchResult,
+		MangadexResults: mangadexResults,
+		MangaResults:    mangaResults,
+		HasResults:      len(mangadexResults) > 0 || len(mangaResults) > 0,
 	}
 
-	// Load the searchresult page template with the requested data
 	tmpl, err := template.ParseFiles("./webfrontend/manga/mangaSearchResult.html")
 	if err != nil {
-		// Print the error to the server logs for debugging
 		log.Println("Error loading template:", err)
 		http.Error(w, "Error rendering template", http.StatusInternalServerError)
 		return
 	}
 
-	// Send the response to the user
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
 	tmpl.Execute(w, data)
@@ -429,7 +435,6 @@ func addMangaEntryHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	tmpl.Execute(w, data)
 }
-
 
 ////////////// ANIME ACTION HANDLERS
 

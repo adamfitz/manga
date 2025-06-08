@@ -89,9 +89,8 @@ type ChapterDetails struct {
 
 // -- mangadex functions --
 
-
 /*
-	func returns the chapter information for a specific manga by the manga id as a JSON string
+func returns the chapter information for a specific manga by the manga id as a JSON string
 */
 func HttpResponseAsString(manga_id string) (string, error) {
 
@@ -124,7 +123,7 @@ func HttpResponseAsString(manga_id string) (string, error) {
 }
 
 /*
-	func returns the chapter information for a specific manga by the manga id as as struct (custom type)
+func returns the chapter information for a specific manga by the manga id as as struct (custom type)
 */
 func HttpResponseAsStruct(manga_id string) (MangaResponse, error) {
 
@@ -152,10 +151,10 @@ func HttpResponseAsStruct(manga_id string) (MangaResponse, error) {
 }
 
 /*
-	func returns a list of all chapters for a specific manga
+func returns a list of all chapters for a specific manga
 
-	NOTE: This func is different from ChaptersSorted() becuase this func uses the /aggregate URI which
-	provides only the volume, chapter and chapter info (not detailed info).
+NOTE: This func is different from ChaptersSorted() becuase this func uses the /aggregate URI which
+provides only the volume, chapter and chapter info (not detailed info).
 */
 func Chapters(mangaID string) (*MangadexChapterList, error) {
 
@@ -184,14 +183,14 @@ func Chapters(mangaID string) (*MangadexChapterList, error) {
 }
 
 /*
-	This function grabs a list of all the chapters for a specific manga from mangadex.com and returns a JSON string,
-	sorted and ordered by chapter number.
+This function grabs a list of all the chapters for a specific manga from mangadex.com and returns a JSON string,
+sorted and ordered by chapter number.
 
-	NOTE: This func is different from Chapters() becuase this func uses the /feed URI which provides
-	detailed information about each chapter.
+NOTE: This func is different from Chapters() becuase this func uses the /feed URI which provides
+detailed information about each chapter.
 
-	Also this func returns chapter list sorted by chapter number.  The URIs probably also should be swapped and
-	this func use /aggregate and the otrher /feed.
+Also this func returns chapter list sorted by chapter number.  The URIs probably also should be swapped and
+this func use /aggregate and the otrher /feed.
 */
 func ChaptersSorted(mangaId string) (string, error) {
 	const limit = 100 // Define the limit for pagination
@@ -318,9 +317,8 @@ func ChapterPages(chapterID string) (*ChapterPageData, error) {
 }
 */
 
-
 /*
-	Function to search for a manga by name (title) and extract the id and a prioritized altTitle to populate the database.
+Function to search for a manga by name (title) and extract the id and a prioritized altTitle to populate the database.
 */
 func TitleSearch(name string) (string, error) {
 	// Create the URL and add the query parameters
@@ -399,9 +397,8 @@ func TitleSearch(name string) (string, error) {
 	return string(jsonResult), nil
 }
 
-
 /*
-	func returns the chapter information for a specific manga by the manga id as a map
+func returns the chapter information for a specific manga by the manga id as a map
 */
 func MangaAttributes(manga_id string) (map[string]any, error) {
 	response, err := http.Get("https://api.mangadex.org/manga/" + manga_id)
@@ -550,9 +547,8 @@ func ChaptersWithDetails(mangaId string) ([]map[string]any, error) {
 	return chapters, nil
 }
 
-
 /*
-	Returns a map of all page and server information for a specific chapter
+Returns a map of all page and server information for a specific chapter
 */
 func ChapterPages(chapterID string) (map[string]any, error) {
 
