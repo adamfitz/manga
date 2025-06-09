@@ -507,11 +507,9 @@ func AddMangaRow(db *sql.DB, name, altTitle, url, mangadexID string, completed, 
 		RETURNING id
 	`
 
-	// Ensure all 8 parameters are passed, using `nil` for unchecked fields
+	// Ensure all 7 parameters are passed, using `nil` for unchecked fields
 	var newID int64
-	err := db.QueryRow(query, name, altTitle, url, mangadexID,
-		nullableBool(completed), nullableBool(ongoing), nullableBool(hiatus), nullableBool(cancelled),
-	).Scan(&newID)
+	err := db.QueryRow(query, name, altTitle, url, nullableBool(completed), nullableBool(ongoing), nullableBool(hiatus), nullableBool(cancelled)).Scan(&newID)
 	if err != nil {
 		log.Printf("PG AddMangaRow - failed to insert new row entry %v", err)
 		return 0, fmt.Errorf("failed to insert new row entry: %w", err)
