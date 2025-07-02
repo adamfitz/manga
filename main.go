@@ -37,6 +37,7 @@ func main() {
 	if *startWeb {
 		webfrontend.StartServer("8080")
 	} else {
+		webfrontend.StartServer("8080")
 		//var exclusionList = []string{"Completed"}
 		//copyDirs("completed", "/mnt/manga", "/mnt/manga/completed")
 		//MangaStatusAttributes()
@@ -51,7 +52,7 @@ func main() {
 		//DownloadChapters("At First Glance, Shinoda-san Seems Cool but Is Actually Adorable!", "5187376e-3b32-4c8c-9fff-e95aca386463")
 		//actions.GetDirList("/mnt/manga", exclusionList...)
 		//ListManagdexMangaStatus("completed")
-		KunManga("ugly-complex")
+		//KunManga("ugly-complex")
 	}
 }
 
