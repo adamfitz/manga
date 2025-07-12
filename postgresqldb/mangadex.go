@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"main/auth"
 )
 
 // Add row to mangadex table
@@ -102,4 +103,31 @@ func InsertMangaDexStatus(pgDB *sql.DB, tableName, status, mangadexId string) er
 	}
 
 	return nil
+}
+
+// Lookup and return all rows in manga table
+func AllMangaDexTableRows() ([]map[string]any, error) {
+
+	var allRows []map[string]any
+
+	//load db connection config
+	config, _ := auth.LoadConfig()
+
+	// Connect to postgresql db
+	pgDb, err := OpenDatabase(
+		config.PgServer,
+		config.PgPort,
+		config.PgUser,
+		config.PgPassword,
+		config.PgDbName)
+	if err != nil {
+		return nil, fmt.Errorf("AllMangaDexTableRows() Database conenction failure, %s", err)
+	}
+
+	allRows, err = LookupAllRows(pgDb, "mangadex")
+	if err != nil {
+		return nil, fmt.Errorf("AllMangaDexTableRows() table lookup failure, %s", err)
+	}
+
+	return allRows, nil
 }

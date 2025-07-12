@@ -39,6 +39,9 @@
 	{{if .HasResults}}
 		{{if .MangadexResults}}
 		<h2>Mangadex Table Search Results</h2>
+		{{if .MangadexTableRowCount}}
+			<p>Total row count: {{.MangadexTableRowCount}}</p>
+		{{end}}
 		<table>
 			<thead>
 				<tr>
@@ -73,6 +76,10 @@
 
 		{{if .MangaResults}}
 		<h2>Manga Table Search Results</h2>
+		{{if .MangaTableRowCount}}
+			<p>Total row count: {{.MangaTableRowCount}}</p>
+		{{end}}
+
 		<table>
 			<thead>
 				<tr>

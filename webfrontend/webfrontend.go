@@ -28,6 +28,8 @@ func StartServer(port string) {
 	http.HandleFunc("/searchManga", mangaSearchHandler)
 	//http.HandleFunc("/updateManga", mangaUpdateHandler)
 	http.HandleFunc("/addManga", addMangaEntryHandler)
+	http.HandleFunc("/queryMangaAll", mangaLookupAllRows)
+	http.HandleFunc("/queryMangadexAll", mangadexLookupAllRows)
 
 	// anime actions
 	http.HandleFunc("/queryAnime", animeQueryHandler)   // this is the DB lookup, must be exact match
@@ -144,6 +146,7 @@ func webtoonPageHandler(w http.ResponseWriter, r *http.Request) {
 ////////////// MANGA ACTION HANDLERS
 
 func mangaQueryHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Received request on /query/Manga")
 	// Load config
 	config, _ := auth.LoadConfig()
 
@@ -173,7 +176,7 @@ func mangaQueryHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Prepare the response
 	var result string
-	var queryResult map[string]interface{}
+	var queryResult map[string]any
 
 	// Query by mangaName
 	if mangaName != "Null" {
@@ -304,6 +307,90 @@ func mangaSearchHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
 	tmpl.Execute(w, data)
+}
+
+// Return all rows in manag DB table (NOT mangadex)
+func mangaLookupAllRows(w http.ResponseWriter, r *http.Request) {
+	// im super lazy and since the target page will render both or EITHER manga results on their own I have just left
+	// empty vars in each of the separate funcs that lookup and return all the table rows so teh target results template
+	// does not have to change, becuase it is also used for single manga lookups as well (same as below func)
+	var mangadexResults []map[string]any
+
+	mangaResults, err := postgresqldb.AllMangaTableRows()
+	if err != nil {
+		log.Println("Error querying all rows manga table", http.StatusInternalServerError)
+		http.Error(w, "Error querying all rows manga table", http.StatusInternalServerError)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("./webfrontend/manga/mangaSearchResult.html")
+	if err != nil {
+		log.Println("Error loading template:", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+	data := struct {
+		Result             string
+		MangadexResults    []map[string]any
+		MangaResults       []map[string]any
+		HasResults         bool
+		MangaTableRowCount int
+		MangadexRowCount   int
+	}{
+		MangadexResults:    mangadexResults,
+		MangaResults:       mangaResults,
+		HasResults:         len(mangadexResults) > 0 || len(mangaResults) > 0,
+		MangaTableRowCount: len(mangaResults),
+		MangadexRowCount:   len(mangadexResults),
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, data)
+
+}
+
+// Return all rows in mangadex DB table (NOT manga table)
+func mangadexLookupAllRows(w http.ResponseWriter, r *http.Request) {
+	// im super lazy and since the target page will render both or EITHER manga results on their own I have just left
+	// empty vars in each of the separate funcs that lookup and return all the table rows so teh target results template
+	// does not have to change, becuase it is also used for single manga lookups as well
+	var mangaResults []map[string]any
+
+	mangadexResults, err := postgresqldb.AllMangaDexTableRows()
+	if err != nil {
+		log.Println("Error querying all rows mangadex table", http.StatusInternalServerError)
+		http.Error(w, "Error querying all rows mangadex table", http.StatusInternalServerError)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("./webfrontend/manga/mangaSearchResult.html")
+	if err != nil {
+		log.Println("Error loading template:", err)
+		http.Error(w, "Error rendering template", http.StatusInternalServerError)
+		return
+	}
+
+	data := struct {
+		Result                string
+		MangadexResults       []map[string]any
+		MangaResults          []map[string]any
+		HasResults            bool
+		MangaTableRowCount    int
+		MangadexTableRowCount int
+	}{
+		MangadexResults:       mangadexResults,
+		MangaResults:          mangaResults,
+		HasResults:            len(mangadexResults) > 0 || len(mangaResults) > 0,
+		MangaTableRowCount:    len(mangaResults),
+		MangadexTableRowCount: len(mangadexResults),
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+	tmpl.Execute(w, data)
+
 }
 
 /*

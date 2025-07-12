@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"main/auth"
 )
 
 // Add row to manga table
@@ -71,4 +72,31 @@ func QuerySearchMangaSubstring(db *sql.DB, tableName, columnName, subString stri
 	}
 
 	return results, nil
+}
+
+// Lookup and return all rows in manga table
+func AllMangaTableRows() ([]map[string]any, error) {
+
+	var allRows []map[string]any
+
+	//load db connection config
+	config, _ := auth.LoadConfig()
+
+	// Connect to postgresql db
+	pgDb, err := OpenDatabase(
+		config.PgServer,
+		config.PgPort,
+		config.PgUser,
+		config.PgPassword,
+		config.PgDbName)
+	if err != nil {
+		return nil, fmt.Errorf("AllMangaTableRows() Database conenction failure, %s", err)
+	}
+
+	allRows, err = LookupAllRows(pgDb, "manga")
+	if err != nil {
+		return nil, fmt.Errorf("AllMangaTableRows() table lookup failure, %s", err)
+	}
+
+	return allRows, nil
 }
