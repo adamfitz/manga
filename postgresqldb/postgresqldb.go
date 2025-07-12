@@ -74,7 +74,7 @@ func InsertRow(pgDB *sql.DB, tableName string, rows []map[string]interface{}) er
 	return nil
 }
 
-// Lookup and return row from database
+// Lookup and return row from DB table
 func LookupRow(pgDB *sql.DB, tableName string, conditions map[string]any) ([]byte, error) {
 	if len(conditions) == 0 {
 		return nil, errors.New("no conditions provided for query")
@@ -143,9 +143,7 @@ func LookupRow(pgDB *sql.DB, tableName string, conditions map[string]any) ([]byt
 	return jsonData, nil
 }
 
-/*
-Query all data from the specified PostgreSQL table and return the results as a slice of maps.
-*/
+// Query all data from the specified PostgreSQL table and return the results as a slice of maps.
 func LookupAllRows(db *sql.DB, tableName string) ([]map[string]any, error) {
 
 	query := fmt.Sprintf("SELECT * FROM %s", tableName)
@@ -271,10 +269,8 @@ func LookupByID(db *sql.DB, tableName string, id string) (map[string]any, error)
 	return result, nil
 }
 
-/*
-Perform a gerneric DB lookup for specific row and return the result as a map, based on the provided column name
-and condition eg: name
-*/
+// Perform a gerneric DB table lookup for specific row and return the result as a map, based on the provided column name
+// and condition eg: name
 func QueryWithCondition(db *sql.DB, tableName, columnName, condition string) (map[string]any, error) {
 
 	query := fmt.Sprintf("SELECT * FROM %s WHERE %s = $1", tableName, columnName)
@@ -375,149 +371,6 @@ func LookupByName(db *sql.DB, name, tableName string) (bool, error) {
 	return true, nil
 }
 
-/*
-Search query on mangadex table for column string.  Return all row data if found
-*/
-func QuerySearchMangadexSubstring(db *sql.DB, tableName, columnName, subString string) ([]map[string]any, error) {
-	// ILIKE is case insensitive LIKE (search)
-	query := fmt.Sprintf("SELECT id, name, alt_name, url, mangadex_id, ongoing, completed, hiatus, cancelled FROM %s WHERE %s ILIKE $1", tableName, columnName)
-	rows, err := db.Query(query, "%"+subString+"%")
-	if err != nil {
-		log.Printf("PG QuerySearchMangadexSubstring - failed to execute query %v", err)
-		return nil, fmt.Errorf("failed to execute query: %w", err)
-	}
-	defer rows.Close()
-
-	var results []map[string]any
-
-	for rows.Next() {
-		var id int
-		var name string
-		var altName, url, mangadexID sql.NullString // Handle NULL values
-		var ongoing, completed, hiatus, cancelled sql.NullBool
-
-		err := rows.Scan(&id, &name, &altName, &url, &mangadexID, &ongoing, &completed, &hiatus, &cancelled)
-		// Check for errors during scanning
-		if err != nil {
-			log.Printf("PG QuerySearchMangadexSubstring - failed to scan row %v", err)
-			return nil, fmt.Errorf("failed to scan row: %w", err)
-		}
-
-		result := map[string]any{
-			"id":          id,
-			"name":        name,                    // Guaranteed to be non-NULL
-			"alt_name":    altName.String,          // Returns "" if NULL or false
-			"url":         url.String,              // Returns "" if NULL or false
-			"mangadex_id": mangadexID.String,       // Returns "" if NULL or false
-			"ongoing":     boolToString(ongoing),   // Returns "" if NULL or false
-			"completed":   boolToString(completed), // Returns "" if NULL or false
-			"hiatus":      boolToString(hiatus),    // Returns "" if NULL or false
-			"cancelled":   boolToString(cancelled), // Returns "" if NULL or false
-		}
-		results = append(results, result)
-	}
-
-	if err := rows.Err(); err != nil {
-		log.Printf("PG QuerySearchMangadexSubstring - row iteration error %v", err)
-		return nil, fmt.Errorf("row iteration error: %w", err)
-	}
-
-	return results, nil
-}
-
-/*
-Search query on manga table for column string.  Return all row data if found
-*/
-func QuerySearchMangaSubstring(db *sql.DB, tableName, columnName, subString string) ([]map[string]any, error) {
-	// ILIKE is case insensitive LIKE (search)
-	query := fmt.Sprintf("SELECT id, name, alt_name, url, ongoing, completed, hiatus, cancelled FROM %s WHERE %s ILIKE $1", tableName, columnName)
-	rows, err := db.Query(query, "%"+subString+"%")
-	if err != nil {
-		log.Printf("PG QuerySearchMangaSubstring - failed to execute query %v", err)
-		return nil, fmt.Errorf("failed to execute query: %w", err)
-	}
-	defer rows.Close()
-
-	var results []map[string]any
-
-	for rows.Next() {
-		var id int
-		var name string
-		var altName, url sql.NullString // Handle NULL values
-		var ongoing, completed, hiatus, cancelled sql.NullBool
-
-		err := rows.Scan(&id, &name, &altName, &url, &ongoing, &completed, &hiatus, &cancelled)
-		// Check for errors during scanning
-		if err != nil {
-			log.Printf("PG QuerySearchMangaSubstring - failed to scan row %v", err)
-			return nil, fmt.Errorf("failed to scan row: %w", err)
-		}
-
-		result := map[string]any{
-			"id":        id,
-			"name":      name,                    // Guaranteed to be non-NULL
-			"alt_name":  altName.String,          // Returns "" if NULL
-			"url":       url.String,              // Returns "" if NULL
-			"ongoing":   boolToString(ongoing),   // Returns "" if NULL
-			"completed": boolToString(completed), // Returns "" if NULL
-			"hiatus":    boolToString(hiatus),    // Returns "" if NULL
-			"cancelled": boolToString(cancelled), // Returns "" if NULL
-		}
-		results = append(results, result)
-	}
-
-	if err := rows.Err(); err != nil {
-		log.Printf("PG QuerySearchMangaSubstring - row iteration error %v", err)
-		return nil, fmt.Errorf("row iteration error: %w", err)
-	}
-
-	return results, nil
-}
-
-/*
-Add row to mangadex table
-*/
-func AddMangadexRow(db *sql.DB, name, altTitle, url, mangadexID string, completed, ongoing, hiatus, cancelled *bool) (int64, error) {
-	query := `
-		INSERT INTO mangadex (name, alt_name, url, mangadex_id, completed, ongoing, hiatus, cancelled)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-		RETURNING id
-	`
-
-	// Ensure all 8 parameters are passed, using `nil` for unchecked fields
-	var newID int64
-	err := db.QueryRow(query, name, altTitle, url, mangadexID,
-		nullableBool(completed), nullableBool(ongoing), nullableBool(hiatus), nullableBool(cancelled),
-	).Scan(&newID)
-	if err != nil {
-		log.Printf("PG AddMangadexRow - failed to insert new row entry %v", err)
-		return 0, fmt.Errorf("failed to insert new row entry: %w", err)
-	}
-
-	return newID, nil
-}
-
-/*
-Add row to manga table
-*/
-func AddMangaRow(db *sql.DB, name, altTitle, url, mangadexID string, completed, ongoing, hiatus, cancelled *bool) (int64, error) {
-	query := `
-		INSERT INTO manga (name, alt_name, url, completed, ongoing, hiatus, cancelled)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-		RETURNING id
-	`
-
-	// Ensure all 7 parameters are passed, using `nil` for unchecked fields
-	var newID int64
-	err := db.QueryRow(query, name, altTitle, url, nullableBool(completed), nullableBool(ongoing), nullableBool(hiatus), nullableBool(cancelled)).Scan(&newID)
-	if err != nil {
-		log.Printf("PG AddMangaRow - failed to insert new row entry %v", err)
-		return 0, fmt.Errorf("failed to insert new row entry: %w", err)
-	}
-
-	return newID, nil
-}
-
 // Helper function to handle *bool -> SQL NULL conversion
 func nullableBool(b *bool) any {
 	if b == nil {
@@ -564,34 +417,6 @@ func LookupColumnValues(db *sql.DB, tableName, columnName string) ([]string, err
 	}
 
 	return results, nil
-}
-
-// Update applicable manga status column
-func InsertMangaStatus(pgDB *sql.DB, tableName, status, mangadexId string) error {
-	// Map statuses to valid column names
-	validStatuses := map[string]bool{
-		"completed": true,
-		"ongoing":   true,
-		"cancelled": true,
-		"hiatus":    true,
-	}
-
-	// Ensure the given status is valid
-	if !validStatuses[status] {
-		return fmt.Errorf("invalid status: %s", status)
-	}
-
-	// Construct the SQL query to update the correct column
-	query := fmt.Sprintf("UPDATE %s SET %s = TRUE WHERE mangadex_id = $1", tableName, status)
-
-	// Execute the update
-	_, err := pgDB.Exec(query, mangadexId)
-	if err != nil {
-		log.Printf("Error updating manga status: %v", err)
-		return fmt.Errorf("failed to update status: %w", err)
-	}
-
-	return nil
 }
 
 // Extract values from multiple columns at the same time
@@ -661,263 +486,7 @@ func LookupMultipleColumnValues(db *sql.DB, tableName string, columnNames ...str
 	return rows, nil
 }
 
-// Anime substring search (specific table columns are specified in the query)
-func AnimeSearchSubstring(db *sql.DB, tableName, columnName, subString string) ([]map[string]any, error) {
-	// ILIKE is case insensitive LIKE (search)
-	query := fmt.Sprintf("SELECT id, name, alt_name, url, completed, watched FROM %s WHERE %s ILIKE $1", tableName, columnName)
-	rows, err := db.Query(query, "%"+subString+"%")
-	if err != nil {
-		log.Printf("PG AnimeSearchSubstring - failed to execute query %v", err)
-		return nil, fmt.Errorf("failed to execute query: %w", err)
-	}
-	defer rows.Close()
-
-	var results []map[string]any
-
-	for rows.Next() {
-		var id int
-		var name string
-		var altName, url sql.NullString // Handle NULL values
-		var completed, watched sql.NullBool
-
-		err := rows.Scan(&id, &name, &altName, &url, &completed, &watched)
-		// Check for errors during scanning
-		if err != nil {
-			log.Printf("PG AnimeSearchSubstring - failed to scan row %v", err)
-			return nil, fmt.Errorf("failed to scan row: %w", err)
-		}
-
-		result := map[string]any{
-			"id":        id,
-			"name":      name,           // Guaranteed to be non-NULL
-			"alt_name":  altName.String, // Returns "" if NULL
-			"url":       url.String,     // Returns "" if NULL
-			"completed": completed.Bool, // Returns "" if NULL
-			"watched":   watched.Bool,   // Returns "" if NULL
-		}
-		results = append(results, result)
-	}
-
-	if err := rows.Err(); err != nil {
-		log.Printf("PG QuerySearchSubstring - row iteration error %v", err)
-		return nil, fmt.Errorf("row iteration error: %w", err)
-	}
-
-	return results, nil
-}
-
-// Add new row to anime TABLE
-func AddAnimeRow(db *sql.DB, name, altTitle, url string, completed, watched *bool) (int64, error) {
-	query := `
-		INSERT INTO anime (name, alt_name, url, completed, watched)
-		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id
-	`
-
-	// Ensure all 5 parameters are passed, using `nil` for unchecked fields
-	var newID int64
-	err := db.QueryRow(query, name, altTitle, url,
-		nullableBool(completed), nullableBool(watched)).Scan(&newID)
-	if err != nil {
-		log.Printf("PG AddAnimeRow - failed to insert new row entry %v", err)
-		return 0, fmt.Errorf("failed to insert new row entry: %w", err)
-	}
-
-	return newID, nil
-}
-
-// Light novel substring search (specific table columns are specified in the query)
-func LightNovelSearchSubstring(db *sql.DB, tableName, columnName, subString string) ([]map[string]any, error) {
-	// ILIKE is case insensitive LIKE (search)
-	query := fmt.Sprintf("SELECT id, name, alt_name, url, volumes, completed FROM %s WHERE %s ILIKE $1", tableName, columnName)
-	rows, err := db.Query(query, "%"+subString+"%")
-	if err != nil {
-		log.Printf("PG LightNovelSearchSubstring - failed to execute query %v", err)
-		return nil, fmt.Errorf("failed to execute query: %w", err)
-	}
-	defer rows.Close()
-
-	var results []map[string]any
-
-	for rows.Next() {
-		var id int
-		var name string
-		var altName, url sql.NullString // Handle NULL values
-		var volumes int64
-		var completed sql.NullBool
-
-		err := rows.Scan(&id, &name, &altName, &url, &volumes, &completed)
-		// Check for errors during scanning
-		if err != nil {
-			log.Printf("PG LightNovelSearchSubstring - failed to scan row %v", err)
-			return nil, fmt.Errorf("failed to scan row: %w", err)
-		}
-
-		result := map[string]any{
-			"id":        id,
-			"name":      name,           // Guaranteed to be non-NULL
-			"alt_name":  altName.String, // Returns "" if NULL
-			"url":       url.String,     // Returns "" if NULL
-			"volumes":   volumes,        // Returns "" if NULL
-			"completed": completed.Bool, // Returns "" if NULL
-		}
-		results = append(results, result)
-	}
-
-	if err := rows.Err(); err != nil {
-		log.Printf("PG LightNovelSearchSubstring - row iteration error %v", err)
-		return nil, fmt.Errorf("row iteration error: %w", err)
-	}
-
-	return results, nil
-}
-
-// Add new row to lightnovel TABLE
-func AddLightNovelRow(db *sql.DB, name, altTitle, url string, volumes int, completed *bool) (int64, error) {
-	query := `
-		INSERT INTO lightnovel (name, alt_name, url, volumes, completed)
-		VALUES ($1, $2, $3, $4, $5)
-		RETURNING id
-	`
-
-	// Ensure all 6 parameters are passed, using `nil` for unchecked fields
-	var newID int64
-	err := db.QueryRow(query, name, altTitle, url, volumes, nullableBool(completed)).Scan(&newID)
-	if err != nil {
-		log.Printf("PG AddLightNovelRow - failed to insert new row entry %v", err)
-		return 0, fmt.Errorf("failed to insert new row entry: %w", err)
-	}
-
-	return newID, nil
-}
-
-// Webtoon substring search (specific table columns are specified in the query)
-func WebtoonSearchSubstring(db *sql.DB, tableName, columnName, subString string) ([]map[string]any, error) {
-	// ILIKE is case insensitive LIKE (search)
-	query := fmt.Sprintf("SELECT id, name, alt_name, url, completed FROM %s WHERE %s ILIKE $1", tableName, columnName)
-	rows, err := db.Query(query, "%"+subString+"%")
-	if err != nil {
-		log.Printf("PG WebtoonSearchSubstring - failed to execute query %v", err)
-		return nil, fmt.Errorf("failed to execute query: %w", err)
-	}
-	defer rows.Close()
-
-	var results []map[string]any
-
-	for rows.Next() {
-		var id int
-		var name string
-		var altName, url sql.NullString // Handle NULL values
-		var completed sql.NullBool
-
-		err := rows.Scan(&id, &name, &altName, &url, &completed)
-		// Check for errors during scanning
-		if err != nil {
-			log.Printf("PG WebtoonSearchSubstring - failed to scan row %v", err)
-			return nil, fmt.Errorf("failed to scan row: %w", err)
-		}
-
-		result := map[string]any{
-			"id":        id,
-			"name":      name,           // Guaranteed to be non-NULL
-			"alt_name":  altName.String, // Returns "" if NULL
-			"url":       url.String,     // Returns "" if NULL
-			"completed": completed.Bool, // Returns "" if NULL
-		}
-		results = append(results, result)
-	}
-
-	if err := rows.Err(); err != nil {
-		log.Printf("PG WebtoonSearchSubstring - row iteration error %v", err)
-		return nil, fmt.Errorf("row iteration error: %w", err)
-	}
-
-	return results, nil
-}
-
-// Add new row to webtoons TABLE
-func AddWebtoonRow(db *sql.DB, name, altTitle, url string, completed *bool) (int64, error) {
-	query := `
-		INSERT INTO webtoons (name, alt_name, url, completed)
-		VALUES ($1, $2, $3, $4)
-		RETURNING id
-	`
-
-	// Ensure all 6 parameters are passed, using `nil` for unchecked fields
-	var newID int64
-	err := db.QueryRow(query, name, altTitle, url, nullableBool(completed)).Scan(&newID)
-	if err != nil {
-		log.Printf("PG AddWebtoonRow - failed to insert new row entry %v", err)
-		return 0, fmt.Errorf("failed to insert new row entry: %w", err)
-	}
-
-	return newID, nil
-}
-
-// Add new row to webnovel TABLE
-func AddWebnovelRow(db *sql.DB, name, altTitle, url string, completed *bool) (int64, error) {
-	query := `
-		INSERT INTO webnovel (name, alt_name, url, completed)
-		VALUES ($1, $2, $3, $4)
-		RETURNING id
-	`
-
-	// Ensure all 6 parameters are passed, using `nil` for unchecked fields
-	var newID int64
-	err := db.QueryRow(query, name, altTitle, url, nullableBool(completed)).Scan(&newID)
-	if err != nil {
-		log.Printf("PG AddWebnovelRow - failed to insert new row entry %v", err)
-		return 0, fmt.Errorf("failed to insert new row entry: %w", err)
-	}
-
-	return newID, nil
-}
-
-// Webtoon substring search (specific table columns are specified in the query)
-func WebnovelSearchSubstring(db *sql.DB, tableName, columnName, subString string) ([]map[string]any, error) {
-	// ILIKE is case insensitive LIKE (search)
-	query := fmt.Sprintf("SELECT id, name, alt_name, url, completed FROM %s WHERE %s ILIKE $1", tableName, columnName)
-	rows, err := db.Query(query, "%"+subString+"%")
-	if err != nil {
-		log.Printf("PG WebnovelSearchSubstring - failed to execute query %v", err)
-		return nil, fmt.Errorf("failed to execute query: %w", err)
-	}
-	defer rows.Close()
-
-	var results []map[string]any
-
-	for rows.Next() {
-		var id int
-		var name string
-		var altName, url sql.NullString // Handle NULL values
-		var completed sql.NullBool
-
-		err := rows.Scan(&id, &name, &altName, &url, &completed)
-		// Check for errors during scanning
-		if err != nil {
-			log.Printf("PG WebnovelSearchSubstring - failed to scan row %v", err)
-			return nil, fmt.Errorf("failed to scan row: %w", err)
-		}
-
-		result := map[string]any{
-			"id":        id,
-			"name":      name,           // Guaranteed to be non-NULL
-			"alt_name":  altName.String, // Returns "" if NULL
-			"url":       url.String,     // Returns "" if NULL
-			"completed": completed.Bool, // Returns "" if NULL
-		}
-		results = append(results, result)
-	}
-
-	if err := rows.Err(); err != nil {
-		log.Printf("PG WebnovelSearchSubstring - row iteration error %v", err)
-		return nil, fmt.Errorf("row iteration error: %w", err)
-	}
-
-	return results, nil
-}
-
-// DB Lookup by manga status
+// Perform DB table lookup by manga status
 func LookupByStatus(db *sql.DB, tableName string, statusColumn string) ([]map[string]any, error) {
 	// Allowlist of valid status columns
 	validColumns := map[string]bool{
@@ -966,7 +535,7 @@ func LookupByStatus(db *sql.DB, tableName string, statusColumn string) ([]map[st
 	return results, nil
 }
 
-// func performs DB lookup by name or alt_name and returns the status of the manga eg: goingoing, completed, hiatus or cancelled
+// Perform DB table lookup by name or alt_name and returns the status of the manga eg: ongoing, completed, hiatus or cancelled
 func LookupByNameOrAltName(db *sql.DB, tableName string, searchColumn string, value string) (map[string]any, error) {
 	// Allowlist to prevent SQL injection
 	validColumns := map[string]bool{
