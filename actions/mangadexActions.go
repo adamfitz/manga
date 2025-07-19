@@ -68,7 +68,7 @@ func MangaStatusAttributes() {
 	for _, id := range mangadexIds {
 		response, _ := mangadex.MangaAttributes(id)
 		status := mangadex.MangaStatus(response)
-		postgresqldb.InsertMangaStatus(pgDb, "mangadex", status, id)
+		postgresqldb.InsertMangaDexStatus(pgDb, "mangadex", status, id)
 	}
 
 	// slice of all the columns to perform the lookup on

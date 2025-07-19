@@ -9,16 +9,13 @@ import (
 	"strings"
 	//"main/compare"
 	//"main/mangadex"
-	"main/postgresqldb"
-	//"main/sqlitedb"
 	"flag"
 	"main/actions"
 	"main/parser"
-	"main/scraper"
+	"main/postgresqldb"
 	"main/webfrontend"
 	"os"
 	"path/filepath"
-	"sort"
 )
 
 func init() {
@@ -218,65 +215,4 @@ func copyDirs(status, srcDir, destDir string) {
 	}
 	// List the directories in the destination
 	actions.GetDirList(destDir)
-}
-
-// mangaName is the name of the manga from the url eg:
-// From: https://kunmanga.com/manga/ugly-complex/
-// the mangaNmae will be the string "ugly-complex"
-func KunManga(mangaName string) {
-	{
-		// Chapter holds URL and parsed chapter number
-		type Chapter struct {
-			URL    string
-			Slug   string
-			Number int
-		}
-
-		chapterURLs := scraper.KunMangaChapterUrls(mangaName)
-		outputDir := "downloads"
-
-		startChapter := 1
-		endChapter := 13
-
-		var filtered []Chapter
-
-		// Filter and parse chapters on the fly
-		for _, chapterUrl := range chapterURLs {
-			parts := strings.Split(strings.Trim(chapterUrl, "/"), "/")
-			chapterSlug := parts[len(parts)-1]
-
-			chNum := scraper.ParseChapterNumber(chapterSlug)
-			if chNum == 0 {
-				log.Printf("[MAIN] Skipping invalid chapter slug: %s", chapterSlug)
-				continue
-			}
-
-			if chNum < startChapter || chNum > endChapter {
-				log.Printf("[MAIN] Skipping chapter %s (number %d): outside range %d-%d", chapterSlug, chNum, startChapter, endChapter)
-				continue
-			}
-
-			filtered = append(filtered, Chapter{
-				URL:    chapterUrl,
-				Slug:   chapterSlug,
-				Number: chNum,
-			})
-		}
-
-		// Sort filtered chapters ascending by chapter number
-		sort.Slice(filtered, func(i, j int) bool {
-			return filtered[i].Number < filtered[j].Number
-		})
-
-		// Download each filtered chapter
-		for _, ch := range filtered {
-			//log.Printf("[MAIN] Starting download for chapter %s (number %d)", ch.Slug, ch.Number)
-			fmt.Printf("Downloading chapter %d (%s)...\n", ch.Number, ch.Slug)
-			err := scraper.DownloadKunMangaChapters(ch.URL, outputDir)
-			if err != nil {
-				log.Printf("[MAIN] Error downloading chapter %s: %v", ch.Slug, err)
-			}
-		}
-
-	}
 }

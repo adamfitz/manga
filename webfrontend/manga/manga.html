@@ -36,18 +36,50 @@
         <p>
         NOTE: One of the provided fields must be an exact match or null value is returned.
     <!-- TODO: Add table selection -->
-    <form action="/queryManga" method="post">
-        <label for="manga_name">Manga Name:</label>
-        <input type="text" id="manga_name" name="manga_name">
+    <form id="mangaForm" action="/queryManga" method="post">
+    <label>
+        <input type="radio" name="lookup_mode" value="single" checked>
+            Single Manga Lookup
+    </label>
+    <br>
 
-        <label for="alternate_name">Alternate Name:</label>
-        <input type="text" id="alternate_name" name="alternate_name">
+    <label>
+        <input type="radio" name="lookup_mode" value="manga_all">
+            Manga Table Lookup (return all rows from manga table)
+    </label>
+    <br>
 
-        <label for="id">Database ID:</label>
-        <input type="text" id="id" name="id"><p>
+    <label>
+        <input type="radio" name="lookup_mode" value="mangadex_all">
+            Mangadex Table Lookup (return all rows from mangadex table)
+    </label>
+    <br><br>
 
-        <button type="submit">Lookup Manga</button>
-    </form>
+    <label for="manga_name">Manga Name:</label>
+    <input type="text" id="manga_name" name="manga_name">
+
+    <label for="alternate_name">Alternate Name:</label>
+    <input type="text" id="alternate_name" name="alternate_name">
+
+    <label for="id">Database ID:</label>
+    <input type="text" id="id" name="id"><p>
+
+    <button type="submit">Lookup Manga</button>
+</form>
+
+<script>
+    document.getElementById('mangaForm').addEventListener('submit', function(event) {
+        const lookupMode = document.querySelector('input[name="lookup_mode"]:checked').value;
+        if (lookupMode === 'single') {
+            this.action = '/queryManga';
+        } else if (lookupMode === 'manga_all') {
+            this.action = '/queryMangaAll';
+        } else if (lookupMode === 'mangadex_all') {
+            this.action = '/queryMangadexAll';
+        }
+    });
+</script>
+
 	<p>
 	<hr>
 	<p>
