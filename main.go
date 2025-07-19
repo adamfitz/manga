@@ -34,22 +34,8 @@ func main() {
 	if *startWeb {
 		webfrontend.StartServer("8080")
 	} else {
-		webfrontend.StartServer("8080")
-		//var exclusionList = []string{"Completed"}
-		//copyDirs("completed", "/mnt/manga", "/mnt/manga/completed")
-		//MangaStatusAttributes()
-		//NewMangaDbUpdate()
-		//CheckIfBookmarkInDb()
-		//CompareNames()
-		//BlanketUpdateDb()
-		//ExtractMangasWithoutChapterList()
-		//UpdateMangasWithoutChapterList()
-		//actions.DumpPostgressTable("manga", []string{"name", "url"})
-		//PgQueryByID("21")
-		//DownloadChapters("At First Glance, Shinoda-san Seems Cool but Is Actually Adorable!", "5187376e-3b32-4c8c-9fff-e95aca386463")
-		//actions.GetDirList("/mnt/manga", exclusionList...)
-		//ListManagdexMangaStatus("completed")
-		//KunManga("ugly-complex")
+		// placeholder for manga name cmoparisons
+		DbNameCompare()
 	}
 }
 
@@ -214,5 +200,44 @@ func copyDirs(status, srcDir, destDir string) {
 		}
 	}
 	// List the directories in the destination
-	actions.GetDirList(destDir)
+	actions.DirList(destDir)
+}
+
+func DbNameCompare() {
+	// list of all directories
+
+	dirList, _ := actions.DirList("/mnt/manga/")
+
+	//list of mangadex table entries
+	mangadexList, _ := actions.MangadexNames()
+
+	// list of manga table entries
+	mangaList, _ := actions.MangaNames()
+
+	// merge list of names frmo both tables
+	allNames := parser.NormalizeAndDeduplicate(mangadexList, mangaList)
+
+	//for _, name := range allNames {
+	//	fmt.Println(name)
+	//}
+
+	// compare them both
+
+	// manga names that ONLY appear in the directory list (not in database)
+	dirCompare := parser.FindUniqueStrings(dirList, allNames)
+	parser.WriteMissingTableEntriesWithSourceTags("MissingFromDB.txt", dirCompare, mangadexList, mangaList)
+	fmt.Println("Names found in the driectory list BUT missing from the database:")
+	fmt.Println("Output file written to: ./MissingFromDB.txt")
+
+	// names that are not present in the directory list but ARE in the database tables
+	tableNameCompare := parser.FindUniqueStrings(allNames, dirList)
+
+	// save dir list to file and which table it appears in
+	parser.WriteMissingDirsWithSourceTags("MissingDirs.txt", tableNameCompare, mangadexList, mangaList)
+	fmt.Println("Names found in the database and missing from directory / disk:")
+	fmt.Println("Output file written to: ./MissingDirs.txt")
+
+	// name could be different - spelling
+	// cant detect this just in code, it would be too much of a PITA
+
 }

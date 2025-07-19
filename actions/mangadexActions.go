@@ -9,10 +9,8 @@ import (
 	"main/postgresqldb"
 )
 
-/*
-compares the managa names in bookmarks to the names in the database, prints out the difference if the name does
-not exist in the DB.
-*/
+// Compare the managa names in bookmarks to the names in the database, prints out the difference if the name does
+// not exist in the DB.
 func CompareBookmarksAndDB() {
 
 	//load db connection config
@@ -40,9 +38,7 @@ func CompareBookmarksAndDB() {
 	}
 }
 
-/*
-func return the manga status attirbutes from the mangadex API and write them to the DB
-*/
+// Return the manga status attirbutes from the mangadex API and write them to the DB
 func MangaStatusAttributes() {
 
 	//load db connection config
@@ -80,4 +76,31 @@ func MangaStatusAttributes() {
 	for _, columnValues := range outputList {
 		fmt.Println(columnValues)
 	}
+}
+
+// Return all entries in name column
+func MangadexNames() ([]string, error) {
+	//load db connection config
+	config, _ := auth.LoadConfig()
+
+	// Connect to postgresql db
+	pgDb, err := postgresqldb.OpenDatabase(
+		config.PgServer,
+		config.PgPort,
+		config.PgUser,
+		config.PgPassword,
+		config.PgDbName)
+	if err != nil {
+		log.Fatalf("Error opening database: %v", err)
+	}
+	defer pgDb.Close()
+
+	// all entry names
+	mangadexNames, err := postgresqldb.LookupColumnValues(pgDb, "mangadex", "name")
+	if err != nil {
+		log.Println("error retrieving mangadex table column n\"name\"", err)
+		return nil, fmt.Errorf("error retrieving mangadex table column n\"name\" %v", err)
+	}
+
+	return mangadexNames, nil
 }

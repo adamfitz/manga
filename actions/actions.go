@@ -141,16 +141,13 @@ func DumpPostgressTable(tableName string, columns []string) {
 	}
 }
 
-func GetDirList(rootDir string, exclusionList ...string) {
-	/*
-		Get a list of all directories from the provided rootDir.
-	*/
-
+// Get a list of all directories from the provided rootDir.
+func DirList(rootDir string, exclusionList ...string) ([]string, error) {
 	dirListing, err := parser.DirList(rootDir, exclusionList...) // Exclusion list is optional, indicated by the variadic parameter
 	if err != nil {
 		log.Fatalf("Error getting directory list: %v", err)
+		return nil, err
 	}
-	for _, dir := range dirListing {
-		fmt.Println(dir)
-	}
+
+	return dirListing, nil
 }

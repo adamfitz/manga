@@ -379,9 +379,7 @@ func nullableBool(b *bool) any {
 	return *b // Store TRUE if checked
 }
 
-/*
-Perform a lookup for a specific column value based on the provided condition.
-*/
+// Perform a lookup for a specific column value based on the provided condition.
 func LookupColumnValues(db *sql.DB, tableName, columnName string) ([]string, error) {
 
 	// Validate the table name (exists in allowed tables)
