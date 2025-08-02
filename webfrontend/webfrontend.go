@@ -287,14 +287,18 @@ func mangaSearchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		Result          string
-		MangadexResults []map[string]any
-		MangaResults    []map[string]any
-		HasResults      bool
+		Result                string
+		MangadexResults       []map[string]any
+		MangaResults          []map[string]any
+		HasResults            bool
+		MangaTableRowCount    int
+		MangadexTableRowCount int
 	}{
-		MangadexResults: mangadexResults,
-		MangaResults:    mangaResults,
-		HasResults:      len(mangadexResults) > 0 || len(mangaResults) > 0,
+		MangadexResults:       mangadexResults,
+		MangaResults:          mangaResults,
+		HasResults:            len(mangadexResults) > 0 || len(mangaResults) > 0,
+		MangaTableRowCount:    len(mangaResults),
+		MangadexTableRowCount: len(mangadexResults),
 	}
 
 	tmpl, err := template.ParseFiles("./webfrontend/manga/mangaSearchResult.html")
@@ -331,18 +335,18 @@ func mangaLookupAllRows(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := struct {
-		Result             string
-		MangadexResults    []map[string]any
-		MangaResults       []map[string]any
-		HasResults         bool
-		MangaTableRowCount int
-		MangadexRowCount   int
+		Result                string
+		MangadexResults       []map[string]any
+		MangaResults          []map[string]any
+		HasResults            bool
+		MangaTableRowCount    int
+		MangadexTableRowCount int
 	}{
-		MangadexResults:    mangadexResults,
-		MangaResults:       mangaResults,
-		HasResults:         len(mangadexResults) > 0 || len(mangaResults) > 0,
-		MangaTableRowCount: len(mangaResults),
-		MangadexRowCount:   len(mangadexResults),
+		MangadexResults:       mangadexResults,
+		MangaResults:          mangaResults,
+		HasResults:            len(mangadexResults) > 0 || len(mangaResults) > 0,
+		MangaTableRowCount:    len(mangaResults),
+		MangadexTableRowCount: len(mangadexResults),
 	}
 
 	w.Header().Set("Content-Type", "text/html")
