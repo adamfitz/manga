@@ -14,9 +14,10 @@ type App struct {
 	mainWindow      fyne.Window
 	db              *sql.DB
 	config          *config.Config
-	mangaService    *services.MangaService
-	bookmarkService *services.BookmarkService
+	contentService  *services.ContentService
 	mangadexService *services.MangadexService
+	mangaService    *services.MangaService    // added
+	bookmarkService *services.BookmarkService // added
 }
 
 func NewApp(db *sql.DB, cfg *config.Config) *App {
@@ -24,16 +25,18 @@ func NewApp(db *sql.DB, cfg *config.Config) *App {
 		fyneApp:         app.New(),
 		db:              db,
 		config:          cfg,
-		mangadexService: services.NewMangadexService(),
+		contentService:  services.NewContentService(db),
+		mangadexService: services.NewMangadexService(), // adjust constructor if needed
+		mangaService:    services.NewMangaService(db),
+		bookmarkService: services.NewBookmarkService(db),
 	}
 
 	if db != nil {
-		a.mangaService = services.NewMangaService(db)
-		a.bookmarkService = services.NewBookmarkService(db)
+		a.contentService = services.NewContentService(db)
 	}
 
-	a.mainWindow = a.fyneApp.NewWindow("Manga Tracker")
-	a.mainWindow.Resize(fyne.NewSize(1200, 800))
+	a.mainWindow = a.fyneApp.NewWindow("Content Database Manager")
+	a.mainWindow.Resize(fyne.NewSize(1400, 900))
 
 	a.setupMainWindow()
 
@@ -42,8 +45,7 @@ func NewApp(db *sql.DB, cfg *config.Config) *App {
 
 func (a *App) SetDatabase(db *sql.DB) {
 	a.db = db
-	a.mangaService = services.NewMangaService(db)
-	a.bookmarkService = services.NewBookmarkService(db)
+	a.contentService = services.NewContentService(db)
 
 	// Refresh the UI
 	a.setupMainWindow()

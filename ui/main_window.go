@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"manga/models"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
@@ -39,9 +41,13 @@ func (a *App) setupMainWindow() {
 		a.mainWindow.SetContent(content)
 	} else {
 		tabs := container.NewAppTabs(
-			container.NewTabItem("Library", a.createMangaListView()),
-			container.NewTabItem("Bookmarks", a.createBookmarkView()),
-			container.NewTabItem("Search", a.createSearchView()),
+			container.NewTabItem("Manga", a.createContentView(models.TypeManga)),
+			container.NewTabItem("MangaDex", a.createContentView(models.TypeMangadex)),
+			container.NewTabItem("Anime", a.createContentView(models.TypeAnime)),
+			container.NewTabItem("Light Novel", a.createContentView(models.TypeLightNovel)),
+			container.NewTabItem("Web Novel", a.createContentView(models.TypeWebNovel)),
+			container.NewTabItem("Webtoons", a.createContentView(models.TypeWebtoons)),
+			container.NewTabItem("MangaDex API Search", a.createMangadexSearchView()),
 		)
 		a.mainWindow.SetContent(tabs)
 	}
