@@ -3,6 +3,7 @@ package ui
 import (
 	"fmt"
 	"manga/models"
+	"net/url"
 	"sort"
 	"strings"
 
@@ -71,7 +72,18 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 				&searchResults,
 			)
 			detailContainer.Refresh()
+			// Reset scroll position to top when selecting new entry
+			detailScroll.ScrollToTop()
 		}
+	}
+
+	// Function to clear selection
+	clearSelection := func() {
+		resultsList.UnselectAll()
+		detailContainer.Objects = []fyne.CanvasObject{
+			widget.NewLabel("Select an entry to view details"),
+		}
+		detailContainer.Refresh()
 	}
 
 	// ----------------------
@@ -111,10 +123,14 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 	)
 
 	// ----------------------
-	// Left / Right split
+	// Left / Right split - 50/50 fixed, no resizing
 	// ----------------------
 	resultsContainer := container.NewHSplit(leftPane, rightPane)
-	resultsContainer.SetOffset(0.5)
+	resultsContainer.SetOffset(0.5) // Lock at 50/50
+
+	// Disable dragging to prevent resizing - users can't change the split
+	// Note: Fyne doesn't have a direct "disable drag" method, but we can
+	// recreate the split on resize to maintain 50/50
 
 	// ----------------------
 	// Buttons and Actions
@@ -233,31 +249,23 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 		} else {
 			searchResults = []models.Content{}
 		}
-		resultsList.Refresh()
 
-		// Clear the details pane
-		detailContainer.Objects = []fyne.CanvasObject{
-			widget.NewLabel("Select an entry to view details"),
-		}
-		detailContainer.Refresh()
+		// Clear selection and details in one go
+		clearSelection()
+		resultsList.Refresh()
 	})
 	clearButton.Alignment = widget.ButtonAlignCenter
 
 	// ----------------------
-	// Controls (top) - Properly aligned layout with fixed button widths
+	// Controls (top) - Fixed alignment with proper grid layout
 	// ----------------------
-	// Set button minimum widths to ensure consistent sizing
-	searchButton.Importance = widget.MediumImportance
-	lookupButton.Importance = widget.MediumImportance
+	// Put buttons in containers with fixed minimum width
+	searchButtonContainer := container.NewStack(searchButton)
+	lookupButtonContainer := container.NewStack(lookupButton)
 
-	// Create properly aligned rows using GridWithColumns for buttons
-	searchBox := container.NewBorder(nil, nil, nil,
-		container.NewGridWithColumns(1, searchButton),
-		searchEntry)
-
-	lookupBox := container.NewBorder(nil, nil, nil,
-		container.NewGridWithColumns(1, lookupButton),
-		lookupEntry)
+	// Use HBox to create aligned rows
+	searchBox := container.NewBorder(nil, nil, nil, searchButtonContainer, searchEntry)
+	lookupBox := container.NewBorder(nil, nil, nil, lookupButtonContainer, lookupEntry)
 
 	// Create button row with Load All and Clear side by side
 	buttonRow := container.NewGridWithColumns(2, loadAllButton, clearButton)
@@ -292,35 +300,57 @@ func (a *App) createContentDetail(
 	searchResults *[]models.Content,
 ) []fyne.CanvasObject {
 
-	newWrappedLabel := func(text string) *widget.Label {
-		l := widget.NewLabel(text)
-		l.Wrapping = fyne.TextWrapWord
-		return l
+	// Helper to create selectable text using RichText
+	newSelectableText := func(text string) *widget.RichText {
+		rt := widget.NewRichTextFromMarkdown(text)
+		rt.Wrapping = fyne.TextWrapWord
+		return rt
+	}
+
+	// Helper to create clickable hyperlink with wrapping
+	newHyperlink := func(label, urlStr string) fyne.CanvasObject {
+		if urlStr == "" {
+			return newSelectableText(label + " ")
+		}
+		// Parse the URL using net/url
+		parsedURL, err := url.Parse(urlStr)
+		if err != nil {
+			// If URL is invalid, just show as selectable text
+			return newSelectableText(label + " " + urlStr)
+		}
+
+		// Create hyperlink with just the label, not the full URL in text
+		link := widget.NewHyperlink(urlStr, parsedURL)
+		link.Wrapping = fyne.TextWrapWord
+
+		// Combine label and link in a container
+		labelWidget := widget.NewLabel(label)
+		return container.NewVBox(labelWidget, link)
 	}
 
 	objects := []fyne.CanvasObject{
-		newWrappedLabel(fmt.Sprintf("ID: %d", content.ID)),
-		newWrappedLabel(fmt.Sprintf("Name: %s", content.Name)),
-		newWrappedLabel(fmt.Sprintf("Alt Name: %s", content.AltName)),
-		newWrappedLabel(fmt.Sprintf("URL: %s", content.URL)),
+		newSelectableText(fmt.Sprintf("ID: %d", content.ID)),
+		newSelectableText(fmt.Sprintf("Name: %s", content.Name)),
+		newSelectableText(fmt.Sprintf("Alt Name: %s", content.AltName)),
+		newHyperlink("URL:", content.URL),
 	}
 
 	if contentType == models.TypeManga {
 		objects = append(objects,
-			newWrappedLabel(fmt.Sprintf("Author: %s", content.Author)),
-			newWrappedLabel(fmt.Sprintf("Description: %s", content.Description)),
-			newWrappedLabel(fmt.Sprintf("Cover URL: %s", content.CoverURL)),
+			newSelectableText(fmt.Sprintf("Author: %s", content.Author)),
+			newSelectableText(fmt.Sprintf("Description: %s", content.Description)),
+			newHyperlink("Cover URL:", content.CoverURL),
 		)
 	}
 
 	if contentType.HasMangadexID() && content.MangadexID != "" {
 		objects = append(objects,
-			newWrappedLabel(fmt.Sprintf("MangaDex ID: %s", content.MangadexID)),
+			newSelectableText(fmt.Sprintf("MangaDex ID: %s", content.MangadexID)),
 		)
 	}
 
 	objects = append(objects,
-		newWrappedLabel(fmt.Sprintf("Status: %s", content.Status)),
+		newSelectableText(fmt.Sprintf("Status: %s", content.Status)),
 		widget.NewSeparator(),
 	)
 
