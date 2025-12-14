@@ -15,7 +15,9 @@ func NewMangaService(db *sql.DB) *MangaService {
 }
 
 func (s *MangaService) GetAll() ([]models.Manga, error) {
-	query := `SELECT id, title, author, description, cover_url, mangadex_id, status, created_at, updated_at 
+	query := `SELECT id, title, COALESCE(alt_title, ''), COALESCE(author, ''), 
+			  COALESCE(description, ''), COALESCE(cover_url, ''), COALESCE(url, ''), 
+			  COALESCE(mangadex_id, ''), status, created_at, updated_at 
 			  FROM manga ORDER BY updated_at DESC`
 
 	rows, err := s.db.Query(query)
@@ -27,8 +29,8 @@ func (s *MangaService) GetAll() ([]models.Manga, error) {
 	var mangas []models.Manga
 	for rows.Next() {
 		var m models.Manga
-		err := rows.Scan(&m.ID, &m.Title, &m.Author, &m.Description, &m.CoverURL,
-			&m.MangadexID, &m.Status, &m.CreatedAt, &m.UpdatedAt)
+		err := rows.Scan(&m.ID, &m.Title, &m.AltTitle, &m.Author, &m.Description,
+			&m.CoverURL, &m.URL, &m.MangadexID, &m.Status, &m.CreatedAt, &m.UpdatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan manga: %w", err)
 		}
@@ -39,12 +41,15 @@ func (s *MangaService) GetAll() ([]models.Manga, error) {
 }
 
 func (s *MangaService) GetByID(id int) (*models.Manga, error) {
-	query := `SELECT id, title, author, description, cover_url, mangadex_id, status, created_at, updated_at 
+	query := `SELECT id, title, COALESCE(alt_title, ''), COALESCE(author, ''), 
+			  COALESCE(description, ''), COALESCE(cover_url, ''), COALESCE(url, ''), 
+			  COALESCE(mangadex_id, ''), status, created_at, updated_at 
 			  FROM manga WHERE id = $1`
 
 	var m models.Manga
-	err := s.db.QueryRow(query, id).Scan(&m.ID, &m.Title, &m.Author, &m.Description,
-		&m.CoverURL, &m.MangadexID, &m.Status, &m.CreatedAt, &m.UpdatedAt)
+	err := s.db.QueryRow(query, id).Scan(&m.ID, &m.Title, &m.AltTitle, &m.Author,
+		&m.Description, &m.CoverURL, &m.URL, &m.MangadexID, &m.Status,
+		&m.CreatedAt, &m.UpdatedAt)
 
 	if err == sql.ErrNoRows {
 		return nil, fmt.Errorf("manga not found")
@@ -56,12 +61,35 @@ func (s *MangaService) GetByID(id int) (*models.Manga, error) {
 	return &m, nil
 }
 
-func (s *MangaService) Create(m *models.Manga) error {
-	query := `INSERT INTO manga (title, author, description, cover_url, mangadex_id, status) 
-			  VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, created_at, updated_at`
+func (s *MangaService) GetByMangadexID(mangadexID string) (*models.Manga, error) {
+	query := `SELECT id, title, COALESCE(alt_title, ''), COALESCE(author, ''), 
+			  COALESCE(description, ''), COALESCE(cover_url, ''), COALESCE(url, ''), 
+			  COALESCE(mangadex_id, ''), status, created_at, updated_at 
+			  FROM manga WHERE mangadex_id = $1`
 
-	err := s.db.QueryRow(query, m.Title, m.Author, m.Description, m.CoverURL, m.MangadexID, m.Status).
-		Scan(&m.ID, &m.CreatedAt, &m.UpdatedAt)
+	var m models.Manga
+	err := s.db.QueryRow(query, mangadexID).Scan(&m.ID, &m.Title, &m.AltTitle,
+		&m.Author, &m.Description, &m.CoverURL, &m.URL, &m.MangadexID, &m.Status,
+		&m.CreatedAt, &m.UpdatedAt)
+
+	if err == sql.ErrNoRows {
+		return nil, nil // Not found, but not an error
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to get manga by mangadex_id: %w", err)
+	}
+
+	return &m, nil
+}
+
+func (s *MangaService) Create(m *models.Manga) error {
+	query := `INSERT INTO manga (title, alt_title, author, description, cover_url, 
+			  url, mangadex_id, status) 
+			  VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+			  RETURNING id, created_at, updated_at`
+
+	err := s.db.QueryRow(query, m.Title, m.AltTitle, m.Author, m.Description,
+		m.CoverURL, m.URL, m.MangadexID, m.Status).Scan(&m.ID, &m.CreatedAt, &m.UpdatedAt)
 
 	if err != nil {
 		return fmt.Errorf("failed to create manga: %w", err)
@@ -71,12 +99,13 @@ func (s *MangaService) Create(m *models.Manga) error {
 }
 
 func (s *MangaService) Update(m *models.Manga) error {
-	query := `UPDATE manga SET title = $1, author = $2, description = $3, cover_url = $4, 
-			  mangadex_id = $5, status = $6, updated_at = CURRENT_TIMESTAMP 
-			  WHERE id = $7`
+	query := `UPDATE manga SET title = $1, alt_title = $2, author = $3, 
+			  description = $4, cover_url = $5, url = $6, mangadex_id = $7, 
+			  status = $8, updated_at = CURRENT_TIMESTAMP 
+			  WHERE id = $9`
 
-	result, err := s.db.Exec(query, m.Title, m.Author, m.Description, m.CoverURL,
-		m.MangadexID, m.Status, m.ID)
+	result, err := s.db.Exec(query, m.Title, m.AltTitle, m.Author, m.Description,
+		m.CoverURL, m.URL, m.MangadexID, m.Status, m.ID)
 
 	if err != nil {
 		return fmt.Errorf("failed to update manga: %w", err)
@@ -115,8 +144,12 @@ func (s *MangaService) Delete(id int) error {
 }
 
 func (s *MangaService) Search(searchTerm string) ([]models.Manga, error) {
-	query := `SELECT id, title, author, description, cover_url, mangadex_id, status, created_at, updated_at 
-			  FROM manga WHERE title ILIKE $1 OR author ILIKE $1 ORDER BY title`
+	query := `SELECT id, title, COALESCE(alt_title, ''), COALESCE(author, ''), 
+			  COALESCE(description, ''), COALESCE(cover_url, ''), COALESCE(url, ''), 
+			  COALESCE(mangadex_id, ''), status, created_at, updated_at 
+			  FROM manga 
+			  WHERE title ILIKE $1 OR author ILIKE $1 OR alt_title ILIKE $1
+			  ORDER BY title`
 
 	rows, err := s.db.Query(query, "%"+searchTerm+"%")
 	if err != nil {
@@ -127,8 +160,8 @@ func (s *MangaService) Search(searchTerm string) ([]models.Manga, error) {
 	var mangas []models.Manga
 	for rows.Next() {
 		var m models.Manga
-		err := rows.Scan(&m.ID, &m.Title, &m.Author, &m.Description, &m.CoverURL,
-			&m.MangadexID, &m.Status, &m.CreatedAt, &m.UpdatedAt)
+		err := rows.Scan(&m.ID, &m.Title, &m.AltTitle, &m.Author, &m.Description,
+			&m.CoverURL, &m.URL, &m.MangadexID, &m.Status, &m.CreatedAt, &m.UpdatedAt)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan manga: %w", err)
 		}

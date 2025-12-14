@@ -8,6 +8,9 @@ import (
 )
 
 func main() {
+	// start logging
+	config.Logger()
+
 	// Check if config exists, if not show config dialog first
 	if !config.ConfigExists() {
 		log.Println("No configuration found. Please configure database settings.")

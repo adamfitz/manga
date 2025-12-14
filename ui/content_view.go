@@ -103,11 +103,6 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 		}
 	}
 
-	// Add button
-	addButton := widget.NewButton("Add New Entry", func() {
-		a.showAddContentDialog(contentType, resultsList, &searchResults)
-	})
-
 	// Layout
 	searchBox := container.NewBorder(nil, nil, nil, searchButton, searchEntry)
 	lookupBox := container.NewBorder(nil, nil, nil, lookupButton, lookupEntry)
@@ -116,7 +111,7 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 		widget.NewSeparator(),
 		searchBox,
 		lookupBox,
-		container.NewHBox(loadAllButton, addButton),
+		loadAllButton,
 		widget.NewSeparator(),
 	)
 
@@ -188,73 +183,4 @@ func (a *App) createContentDetail(content *models.Content, contentType models.Co
 	objects = append(objects, deleteBtn)
 
 	return objects
-}
-
-func (a *App) showAddContentDialog(contentType models.ContentType, list *widget.List, searchResults *[]models.Content) {
-	nameEntry := widget.NewEntry()
-	nameEntry.SetPlaceHolder("Name (required)")
-
-	altNameEntry := widget.NewEntry()
-	altNameEntry.SetPlaceHolder("Alt Name (optional)")
-
-	urlEntry := widget.NewEntry()
-	urlEntry.SetPlaceHolder("URL (required)")
-
-	var mangadexIDEntry *widget.Entry
-	var formItems []*widget.FormItem
-
-	formItems = append(formItems,
-		&widget.FormItem{Text: "Name", Widget: nameEntry},
-		&widget.FormItem{Text: "Alt Name", Widget: altNameEntry},
-		&widget.FormItem{Text: "URL", Widget: urlEntry},
-	)
-
-	// Add mangadex_id field if applicable
-	if contentType.HasMangadexID() {
-		mangadexIDEntry = widget.NewEntry()
-		mangadexIDEntry.SetPlaceHolder("MangaDex ID (optional)")
-		formItems = append(formItems, &widget.FormItem{Text: "MangaDex ID", Widget: mangadexIDEntry})
-	}
-
-	statusSelect := widget.NewSelect([]string{"ongoing", "completed", "hiatus", "cancelled"}, nil)
-	statusSelect.SetSelected("ongoing")
-	formItems = append(formItems, &widget.FormItem{Text: "Status", Widget: statusSelect})
-
-	form := dialog.NewForm(fmt.Sprintf("Add New %s", contentType), "Add", "Cancel",
-		formItems,
-		func(ok bool) {
-			if !ok {
-				return
-			}
-
-			if nameEntry.Text == "" || urlEntry.Text == "" {
-				dialog.ShowError(fmt.Errorf("name and URL are required"), a.mainWindow)
-				return
-			}
-
-			content := &models.Content{
-				Name:    nameEntry.Text,
-				AltName: altNameEntry.Text,
-				URL:     urlEntry.Text,
-				Status:  statusSelect.Selected,
-			}
-
-			if contentType.HasMangadexID() && mangadexIDEntry != nil {
-				content.MangadexID = mangadexIDEntry.Text
-			}
-
-			if err := a.contentService.Create(contentType, content); err != nil {
-				dialog.ShowError(err, a.mainWindow)
-				return
-			}
-
-			// Add to searchResults if we're viewing all
-			*searchResults = append(*searchResults, *content)
-
-			dialog.ShowInformation("Success", fmt.Sprintf("%s added with ID: %d", contentType, content.ID), a.mainWindow)
-			list.Refresh()
-		}, a.mainWindow)
-
-	form.Resize(fyne.NewSize(500, 450))
-	form.Show()
 }

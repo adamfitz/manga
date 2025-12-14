@@ -1,17 +1,13 @@
 package models
 
-import "time"
-
 // Content is a generic model for all content types
 type Content struct {
-	ID         int       `json:"id"`
-	Name       string    `json:"name"`
-	AltName    string    `json:"alt_name"`
-	URL        string    `json:"url"`
-	MangadexID string    `json:"mangadex_id,omitempty"` // Only for manga/mangadex tables
-	Status     string    `json:"status"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	AltName    string `json:"alt_name"`
+	URL        string `json:"url"`
+	MangadexID string `json:"mangadex_id,omitempty"` // Only for manga
+	Status     string `json:"status"`
 }
 
 // ContentType represents the type of content
@@ -19,7 +15,6 @@ type ContentType string
 
 const (
 	TypeManga      ContentType = "manga"
-	TypeMangadex   ContentType = "mangadex"
 	TypeAnime      ContentType = "anime"
 	TypeLightNovel ContentType = "lightnovel"
 	TypeWebNovel   ContentType = "webnovel"
@@ -35,7 +30,6 @@ func (ct ContentType) String() string {
 func GetAllContentTypes() []ContentType {
 	return []ContentType{
 		TypeManga,
-		TypeMangadex,
 		TypeAnime,
 		TypeLightNovel,
 		TypeWebNovel,
@@ -45,5 +39,5 @@ func GetAllContentTypes() []ContentType {
 
 // HasMangadexID returns true if this content type supports mangadex_id
 func (ct ContentType) HasMangadexID() bool {
-	return ct == TypeManga || ct == TypeMangadex
+	return ct == TypeManga
 }

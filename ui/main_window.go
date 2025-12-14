@@ -41,13 +41,11 @@ func (a *App) setupMainWindow() {
 		a.mainWindow.SetContent(content)
 	} else {
 		tabs := container.NewAppTabs(
-			container.NewTabItem("Manga", a.createContentView(models.TypeManga)),
-			container.NewTabItem("MangaDex", a.createContentView(models.TypeMangadex)),
+			container.NewTabItem("Manga", a.createMangaListView()),
+			container.NewTabItem("Bookmarks", a.createBookmarkView()),
+			container.NewTabItem("MangaDex Search", a.createMangadexSearchView()),
 			container.NewTabItem("Anime", a.createContentView(models.TypeAnime)),
 			container.NewTabItem("Light Novel", a.createContentView(models.TypeLightNovel)),
-			container.NewTabItem("Web Novel", a.createContentView(models.TypeWebNovel)),
-			container.NewTabItem("Webtoons", a.createContentView(models.TypeWebtoons)),
-			container.NewTabItem("MangaDex API Search", a.createMangadexSearchView()),
 		)
 		a.mainWindow.SetContent(tabs)
 	}

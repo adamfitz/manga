@@ -14,15 +14,23 @@ func NewContentService(db *sql.DB) *ContentService {
 	return &ContentService{db: db}
 }
 
-// GetAll retrieves all entries from the specified table
+// GetAll retrieves all entries for the given content type
 func (s *ContentService) GetAll(contentType models.ContentType) ([]models.Content, error) {
 	var query string
-	if contentType.HasMangadexID() {
-		query = fmt.Sprintf(`SELECT id, name, COALESCE(alt_name, ''), url, COALESCE(mangadex_id, ''), status, created_at, updated_at 
-							 FROM %s ORDER BY updated_at DESC`, contentType)
-	} else {
-		query = fmt.Sprintf(`SELECT id, name, COALESCE(alt_name, ''), url, status, created_at, updated_at 
-							 FROM %s ORDER BY updated_at DESC`, contentType)
+
+	switch contentType {
+	case models.TypeManga:
+		query = `SELECT id, title as name, COALESCE(alt_title,'') as alt_name, 
+				 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, status
+				 FROM manga ORDER BY id DESC`
+	case models.TypeAnime:
+		query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
+				 FROM anime ORDER BY id DESC`
+	case models.TypeLightNovel:
+		query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
+				 FROM lightnovel ORDER BY id DESC`
+	default:
+		return nil, fmt.Errorf("unsupported content type: %v", contentType)
 	}
 
 	rows, err := s.db.Query(query)
@@ -31,166 +39,126 @@ func (s *ContentService) GetAll(contentType models.ContentType) ([]models.Conten
 	}
 	defer rows.Close()
 
-	var contents []models.Content
+	var list []models.Content
 	for rows.Next() {
 		var c models.Content
-		if contentType.HasMangadexID() {
-			err := rows.Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID, &c.Status, &c.CreatedAt, &c.UpdatedAt)
-			if err != nil {
-				return nil, fmt.Errorf("failed to scan %s: %w", contentType, err)
-			}
-		} else {
-			err := rows.Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.Status, &c.CreatedAt, &c.UpdatedAt)
-			if err != nil {
-				return nil, fmt.Errorf("failed to scan %s: %w", contentType, err)
-			}
+		if err := rows.Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID, &c.Status); err != nil {
+			return nil, fmt.Errorf("failed to scan %s: %w", contentType, err)
 		}
-		contents = append(contents, c)
+		list = append(list, c)
 	}
 
-	return contents, nil
+	return list, nil
 }
 
 // Search performs substring search on name and alt_name
 func (s *ContentService) Search(contentType models.ContentType, searchTerm string) ([]models.Content, error) {
+	term := "%" + searchTerm + "%"
 	var query string
-	if contentType.HasMangadexID() {
-		query = fmt.Sprintf(`SELECT id, name, COALESCE(alt_name, ''), url, COALESCE(mangadex_id, ''), status, created_at, updated_at 
-							 FROM %s 
-							 WHERE name ILIKE $1 OR alt_name ILIKE $1 
-							 ORDER BY name`, contentType)
-	} else {
-		query = fmt.Sprintf(`SELECT id, name, COALESCE(alt_name, ''), url, status, created_at, updated_at 
-							 FROM %s 
-							 WHERE name ILIKE $1 OR alt_name ILIKE $1 
-							 ORDER BY name`, contentType)
+
+	switch contentType {
+	case models.TypeManga:
+		query = `SELECT id, title as name, COALESCE(alt_title,'') as alt_name, 
+				 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, status
+				 FROM manga 
+				 WHERE title ILIKE $1 OR alt_title ILIKE $1 OR author ILIKE $1
+				 ORDER BY title`
+	case models.TypeAnime:
+		query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
+				 FROM anime WHERE name ILIKE $1 OR alt_name ILIKE $1 ORDER BY name`
+	case models.TypeLightNovel:
+		query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
+				 FROM lightnovel WHERE name ILIKE $1 OR alt_name ILIKE $1 ORDER BY name`
+	default:
+		return nil, fmt.Errorf("unsupported content type: %v", contentType)
 	}
 
-	rows, err := s.db.Query(query, "%"+searchTerm+"%")
+	rows, err := s.db.Query(query, term)
 	if err != nil {
-		return nil, fmt.Errorf("failed to search %s: %w", contentType, err)
+		return nil, err
 	}
 	defer rows.Close()
 
-	var contents []models.Content
+	var list []models.Content
 	for rows.Next() {
 		var c models.Content
-		if contentType.HasMangadexID() {
-			err := rows.Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID, &c.Status, &c.CreatedAt, &c.UpdatedAt)
-			if err != nil {
-				return nil, fmt.Errorf("failed to scan %s: %w", contentType, err)
-			}
-		} else {
-			err := rows.Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.Status, &c.CreatedAt, &c.UpdatedAt)
-			if err != nil {
-				return nil, fmt.Errorf("failed to scan %s: %w", contentType, err)
-			}
+		if err := rows.Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID, &c.Status); err != nil {
+			return nil, err
 		}
-		contents = append(contents, c)
+		list = append(list, c)
 	}
 
-	return contents, nil
+	return list, nil
 }
 
 // Lookup performs exact match on name, alt_name, or ID
 func (s *ContentService) Lookup(contentType models.ContentType, lookupValue string) (*models.Content, error) {
+	var id int
 	var query string
 	var c models.Content
 
-	// Try to parse as ID first
-	var id int
 	_, err := fmt.Sscanf(lookupValue, "%d", &id)
-
 	if err == nil {
-		// It's a number, do ID lookup
-		if contentType.HasMangadexID() {
-			query = fmt.Sprintf(`SELECT id, name, COALESCE(alt_name, ''), url, COALESCE(mangadex_id, ''), status, created_at, updated_at 
-								 FROM %s WHERE id = $1`, contentType)
-			err = s.db.QueryRow(query, id).Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID, &c.Status, &c.CreatedAt, &c.UpdatedAt)
-		} else {
-			query = fmt.Sprintf(`SELECT id, name, COALESCE(alt_name, ''), url, status, created_at, updated_at 
-								 FROM %s WHERE id = $1`, contentType)
-			err = s.db.QueryRow(query, id).Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.Status, &c.CreatedAt, &c.UpdatedAt)
+		// Lookup by ID
+		switch contentType {
+		case models.TypeManga:
+			query = `SELECT id, title as name, COALESCE(alt_title,'') as alt_name, 
+					 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, status
+					 FROM manga WHERE id=$1`
+		case models.TypeAnime:
+			query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
+					 FROM anime WHERE id=$1`
+		case models.TypeLightNovel:
+			query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
+					 FROM lightnovel WHERE id=$1`
+		default:
+			return nil, fmt.Errorf("unsupported content type: %v", contentType)
 		}
+
+		err = s.db.QueryRow(query, id).Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID, &c.Status)
 	} else {
-		// It's a string, do exact name/alt_name lookup
-		if contentType.HasMangadexID() {
-			query = fmt.Sprintf(`SELECT id, name, COALESCE(alt_name, ''), url, COALESCE(mangadex_id, ''), status, created_at, updated_at 
-								 FROM %s WHERE name = $1 OR alt_name = $1 LIMIT 1`, contentType)
-			err = s.db.QueryRow(query, lookupValue).Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID, &c.Status, &c.CreatedAt, &c.UpdatedAt)
-		} else {
-			query = fmt.Sprintf(`SELECT id, name, COALESCE(alt_name, ''), url, status, created_at, updated_at 
-								 FROM %s WHERE name = $1 OR alt_name = $1 LIMIT 1`, contentType)
-			err = s.db.QueryRow(query, lookupValue).Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.Status, &c.CreatedAt, &c.UpdatedAt)
+		// Lookup by name/alt_name
+		switch contentType {
+		case models.TypeManga:
+			query = `SELECT id, title as name, COALESCE(alt_title,'') as alt_name, 
+					 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, status
+					 FROM manga WHERE title=$1 OR alt_title=$1 LIMIT 1`
+		case models.TypeAnime:
+			query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
+					 FROM anime WHERE name=$1 OR alt_name=$1 LIMIT 1`
+		case models.TypeLightNovel:
+			query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
+					 FROM lightnovel WHERE name=$1 OR alt_name=$1 LIMIT 1`
+		default:
+			return nil, fmt.Errorf("unsupported content type: %v", contentType)
 		}
+
+		err = s.db.QueryRow(query, lookupValue).Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID, &c.Status)
 	}
 
 	if err == sql.ErrNoRows {
-		return nil, fmt.Errorf("no %s found with that identifier", contentType)
+		return nil, fmt.Errorf("%s not found", contentType)
 	}
 	if err != nil {
-		return nil, fmt.Errorf("failed to lookup %s: %w", contentType, err)
+		return nil, err
 	}
 
 	return &c, nil
 }
 
-// Create adds a new entry to the specified table
-func (s *ContentService) Create(contentType models.ContentType, c *models.Content) error {
-	var query string
-	var err error
-
-	// Handle NULL for empty strings
-	var altName interface{}
-	if c.AltName == "" {
-		altName = nil
-	} else {
-		altName = c.AltName
-	}
-
-	if contentType.HasMangadexID() {
-		var mangadexID interface{}
-		if c.MangadexID == "" {
-			mangadexID = nil
-		} else {
-			mangadexID = c.MangadexID
-		}
-
-		query = fmt.Sprintf(`INSERT INTO %s (name, alt_name, url, mangadex_id, status) 
-							 VALUES ($1, $2, $3, $4, $5) RETURNING id, created_at, updated_at`, contentType)
-		err = s.db.QueryRow(query, c.Name, altName, c.URL, mangadexID, c.Status).
-			Scan(&c.ID, &c.CreatedAt, &c.UpdatedAt)
-	} else {
-		query = fmt.Sprintf(`INSERT INTO %s (name, alt_name, url, status) 
-							 VALUES ($1, $2, $3, $4) RETURNING id, created_at, updated_at`, contentType)
-		err = s.db.QueryRow(query, c.Name, altName, c.URL, c.Status).
-			Scan(&c.ID, &c.CreatedAt, &c.UpdatedAt)
-	}
-
-	if err != nil {
-		return fmt.Errorf("failed to create %s: %w", contentType, err)
-	}
-
-	return nil
-}
-
-// Delete removes an entry from the specified table
+// Delete removes an entry
 func (s *ContentService) Delete(contentType models.ContentType, id int) error {
-	query := fmt.Sprintf(`DELETE FROM %s WHERE id = $1`, contentType)
-
+	query := fmt.Sprintf(`DELETE FROM %s WHERE id=$1`, contentType)
 	result, err := s.db.Exec(query, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete %s: %w", contentType, err)
 	}
-
-	rows, err := result.RowsAffected()
+	affected, err := result.RowsAffected()
 	if err != nil {
-		return fmt.Errorf("failed to get rows affected: %w", err)
+		return err
 	}
-
-	if rows == 0 {
-		return fmt.Errorf("%s not found", contentType)
+	if affected == 0 {
+		return fmt.Errorf("%s with id %d not found", contentType, id)
 	}
-
 	return nil
 }

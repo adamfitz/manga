@@ -21,25 +21,10 @@ func NewMangadexService() *MangadexService {
 	}
 }
 
-type MangadexResponse struct {
-	Data []struct {
-		ID         string `json:"id"`
-		Attributes struct {
-			Title       map[string]string `json:"title"`
-			Description map[string]string `json:"description"`
-			Status      string            `json:"status"`
-		} `json:"attributes"`
-		Relationships []struct {
-			Type       string `json:"type"`
-			Attributes struct {
-				Name string `json:"name"`
-			} `json:"attributes"`
-		} `json:"relationships"`
-	} `json:"data"`
-}
-
-func (s *MangadexService) Search(title string) ([]models.Manga, error) {
-	searchURL := fmt.Sprintf("%s/manga?title=%s&limit=20", s.baseURL, url.QueryEscape(title))
+// Search searches for manga on MangaDex API and returns API models
+func (s *MangadexService) Search(title string) ([]models.MangadexManga, error) {
+	searchURL := fmt.Sprintf("%s/manga?title=%s&limit=20&includes[]=author&includes[]=cover_art",
+		s.baseURL, url.QueryEscape(title))
 
 	resp, err := s.client.Get(searchURL)
 	if err != nil {
@@ -49,17 +34,53 @@ func (s *MangadexService) Search(title string) ([]models.Manga, error) {
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("mangadex API error: %s", string(body))
+		return nil, fmt.Errorf("mangadex API error (status %d): %s", resp.StatusCode, string(body))
 	}
 
-	var mdResp MangadexResponse
-	if err := json.NewDecoder(resp.Body).Decode(&mdResp); err != nil {
+	var apiResp models.MangadexAPIResponse
+	if err := json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
 
-	var mangas []models.Manga
-	for _, item := range mdResp.Data {
-		manga := models.Manga{
+	return s.convertAPIResponseToMangas(apiResp.Data), nil
+}
+
+// GetMangaByID retrieves a specific manga by its MangaDex ID
+func (s *MangadexService) GetMangaByID(mangadexID string) (*models.MangadexManga, error) {
+	apiURL := fmt.Sprintf("%s/manga/%s?includes[]=author&includes[]=cover_art", s.baseURL, mangadexID)
+
+	resp, err := s.client.Get(apiURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get manga: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("mangadex API error (status %d): %s", resp.StatusCode, string(body))
+	}
+
+	var apiResp struct {
+		Data models.MangadexAPIData `json:"data"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&apiResp); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	mangas := s.convertAPIResponseToMangas([]models.MangadexAPIData{apiResp.Data})
+	if len(mangas) == 0 {
+		return nil, fmt.Errorf("no manga found")
+	}
+
+	return &mangas[0], nil
+}
+
+// convertAPIResponseToMangas converts raw API data to MangadexManga models
+func (s *MangadexService) convertAPIResponseToMangas(apiData []models.MangadexAPIData) []models.MangadexManga {
+	var mangas []models.MangadexManga
+
+	for _, item := range apiData {
+		manga := models.MangadexManga{
 			MangadexID: item.ID,
 			Status:     item.Attributes.Status,
 		}
@@ -84,17 +105,33 @@ func (s *MangadexService) Search(title string) ([]models.Manga, error) {
 			}
 		}
 
-		// Get author
+		// Get author name from relationships
 		for _, rel := range item.Relationships {
-			if rel.Type == "author" {
+			if rel.Type == "author" && rel.Attributes != nil {
 				manga.Author = rel.Attributes.Name
 				break
 			}
 		}
 
-		manga.CoverURL = fmt.Sprintf("https://mangadex.org/title/%s", item.ID)
+		// Get cover art URL from relationships
+		var coverFileName string
+		for _, rel := range item.Relationships {
+			if rel.Type == "cover_art" && rel.Attributes != nil {
+				coverFileName = rel.Attributes.FileName
+				break
+			}
+		}
+
+		// Construct cover URL if we have the filename
+		if coverFileName != "" {
+			manga.CoverURL = fmt.Sprintf("https://uploads.mangadex.org/covers/%s/%s.256.jpg", item.ID, coverFileName)
+		} else {
+			// Fallback to manga page URL
+			manga.CoverURL = fmt.Sprintf("https://mangadex.org/title/%s", item.ID)
+		}
+
 		mangas = append(mangas, manga)
 	}
 
-	return mangas, nil
+	return mangas
 }
