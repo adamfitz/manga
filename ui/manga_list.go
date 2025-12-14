@@ -11,9 +11,11 @@ import (
 )
 
 func (a *App) createMangaListView() *container.Split {
-	// Left side - manga list
 	list := widget.NewList(
 		func() int {
+			if a.mangaService == nil {
+				return 0
+			}
 			mangas, _ := a.mangaService.GetAll()
 			return len(mangas)
 		},
@@ -21,6 +23,9 @@ func (a *App) createMangaListView() *container.Split {
 			return widget.NewLabel("Template")
 		},
 		func(id widget.ListItemID, obj fyne.CanvasObject) {
+			if a.mangaService == nil {
+				return
+			}
 			mangas, _ := a.mangaService.GetAll()
 			if id < len(mangas) {
 				obj.(*widget.Label).SetText(mangas[id].Title)
@@ -28,12 +33,14 @@ func (a *App) createMangaListView() *container.Split {
 		},
 	)
 
-	// Right side - manga details
 	detailContainer := container.NewVBox(
 		widget.NewLabel("Select a manga to view details"),
 	)
 
 	list.OnSelected = func(id widget.ListItemID) {
+		if a.mangaService == nil {
+			return
+		}
 		mangas, _ := a.mangaService.GetAll()
 		if id < len(mangas) {
 			detailContainer.Objects = a.createMangaDetail(&mangas[id], list)
@@ -41,13 +48,11 @@ func (a *App) createMangaListView() *container.Split {
 		}
 	}
 
-	// Add manga button
 	addButton := widget.NewButton("Add Manga", func() {
 		a.showAddMangaDialog(list)
 	})
 
 	leftSide := container.NewBorder(nil, addButton, nil, nil, list)
-
 	return container.NewHSplit(leftSide, detailContainer)
 }
 

@@ -16,8 +16,11 @@ func NewContentService(db *sql.DB) *ContentService {
 
 // GetAll retrieves all entries for the given content type
 func (s *ContentService) GetAll(contentType models.ContentType) ([]models.Content, error) {
-	var query string
+	if s.db == nil {
+		return []models.Content{}, nil
+	}
 
+	var query string
 	switch contentType {
 	case models.TypeManga:
 		query = `SELECT id, title as name, COALESCE(alt_title,'') as alt_name, 
@@ -53,6 +56,10 @@ func (s *ContentService) GetAll(contentType models.ContentType) ([]models.Conten
 
 // Search performs substring search on name and alt_name
 func (s *ContentService) Search(contentType models.ContentType, searchTerm string) ([]models.Content, error) {
+	if s.db == nil {
+		return []models.Content{}, nil
+	}
+
 	term := "%" + searchTerm + "%"
 	var query string
 
@@ -93,6 +100,10 @@ func (s *ContentService) Search(contentType models.ContentType, searchTerm strin
 
 // Lookup performs exact match on name, alt_name, or ID
 func (s *ContentService) Lookup(contentType models.ContentType, lookupValue string) (*models.Content, error) {
+	if s.db == nil {
+		return nil, nil
+	}
+
 	var id int
 	var query string
 	var c models.Content
@@ -137,7 +148,7 @@ func (s *ContentService) Lookup(contentType models.ContentType, lookupValue stri
 	}
 
 	if err == sql.ErrNoRows {
-		return nil, fmt.Errorf("%s not found", contentType)
+		return nil, nil
 	}
 	if err != nil {
 		return nil, err
@@ -148,6 +159,10 @@ func (s *ContentService) Lookup(contentType models.ContentType, lookupValue stri
 
 // Delete removes an entry
 func (s *ContentService) Delete(contentType models.ContentType, id int) error {
+	if s.db == nil {
+		return fmt.Errorf("database not connected")
+	}
+
 	query := fmt.Sprintf(`DELETE FROM %s WHERE id=$1`, contentType)
 	result, err := s.db.Exec(query, id)
 	if err != nil {

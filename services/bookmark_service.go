@@ -15,6 +15,11 @@ func NewBookmarkService(db *sql.DB) *BookmarkService {
 }
 
 func (s *BookmarkService) GetAll() ([]models.Bookmark, error) {
+	// Nil DB check
+	if s.db == nil {
+		return []models.Bookmark{}, nil
+	}
+
 	query := `SELECT b.id, b.manga_id, b.chapter_id, b.note, b.created_at,
 			  m.id, m.title, m.author, m.description, m.cover_url, m.mangadex_id, m.status, m.created_at, m.updated_at
 			  FROM bookmarks b
@@ -54,6 +59,11 @@ func (s *BookmarkService) GetAll() ([]models.Bookmark, error) {
 }
 
 func (s *BookmarkService) Create(b *models.Bookmark) error {
+	// Nil DB check
+	if s.db == nil {
+		return fmt.Errorf("database not connected")
+	}
+
 	query := `INSERT INTO bookmarks (manga_id, chapter_id, note) 
 			  VALUES ($1, $2, $3) RETURNING id, created_at`
 
@@ -73,6 +83,11 @@ func (s *BookmarkService) Create(b *models.Bookmark) error {
 }
 
 func (s *BookmarkService) Delete(id int) error {
+	// Nil DB check
+	if s.db == nil {
+		return fmt.Errorf("database not connected")
+	}
+
 	query := `DELETE FROM bookmarks WHERE id = $1`
 
 	result, err := s.db.Exec(query, id)
@@ -93,6 +108,11 @@ func (s *BookmarkService) Delete(id int) error {
 }
 
 func (s *BookmarkService) GetByMangaID(mangaID int) (*models.Bookmark, error) {
+	// Nil DB check
+	if s.db == nil {
+		return nil, nil
+	}
+
 	query := `SELECT id, manga_id, chapter_id, note, created_at 
 			  FROM bookmarks WHERE manga_id = $1`
 

@@ -45,9 +45,10 @@ func NewApp(db *sql.DB, cfg *config.Config) *App {
 
 func (a *App) SetDatabase(db *sql.DB) {
 	a.db = db
+	a.mangaService = services.NewMangaService(db) // <-- initialize mangaService now
 	a.contentService = services.NewContentService(db)
 
-	// Refresh the UI
+	// Refresh main window now that DB exists
 	a.setupMainWindow()
 }
 
