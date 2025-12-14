@@ -5,6 +5,9 @@ import (
 	"manga/config"
 	"manga/database"
 	"manga/ui"
+	"manga/utils"
+
+	"fyne.io/fyne/v2"
 )
 
 func main() {
@@ -44,6 +47,22 @@ func main() {
 			}
 		}
 	}
+
+	// IMPORTANT: Use STATIC font files, NOT variable fonts (-VF)
+	// Download from: https://github.com/notofonts/noto-cjk/releases
+	// Use NotoSansCJKjp-Regular.otf (NOT NotoSansCJKjp-VF.otf)
+
+	// Load fonts as resources
+	// These fonts include Latin characters, so English will work!
+	jpFont := fyne.NewStaticResource("NotoSansCJKjp-Regular.otf",
+		utils.MustReadFileBytes("assets/fonts/NotoSansCJKjp-Regular.otf"))
+	krFont := fyne.NewStaticResource("NotoSansCJKkr-Regular.otf",
+		utils.MustReadFileBytes("assets/fonts/NotoSansCJKkr-Regular.otf"))
+	scFont := fyne.NewStaticResource("NotoSansCJKsc-Regular.otf",
+		utils.MustReadFileBytes("assets/fonts/NotoSansCJKsc-Regular.otf"))
+
+	// Apply CJK theme globally
+	ui.InitCJKTheme(app.FyneApp, jpFont, krFont, scFont)
 
 	app.Run()
 }

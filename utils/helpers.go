@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"os"
 	"strings"
 )
 
@@ -26,4 +27,13 @@ func IsValidStatus(status string) bool {
 		"cancelled": true,
 	}
 	return validStatuses[status]
+}
+
+// MustReadFileBytes reads a file into a byte slice or panics
+func MustReadFileBytes(path string) []byte {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	return data
 }

@@ -16,7 +16,7 @@ func (a *App) setupMainWindow() {
 		}),
 		fyne.NewMenuItemSeparator(),
 		fyne.NewMenuItem("Quit", func() {
-			a.fyneApp.Quit()
+			a.FyneApp.Quit()
 		}),
 	)
 

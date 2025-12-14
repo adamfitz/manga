@@ -10,7 +10,7 @@ import (
 )
 
 type App struct {
-	fyneApp         fyne.App
+	FyneApp         fyne.App // exported to use in the font wrapper code in main.go
 	mainWindow      fyne.Window
 	db              *sql.DB
 	config          *config.Config
@@ -22,7 +22,7 @@ type App struct {
 
 func NewApp(db *sql.DB, cfg *config.Config) *App {
 	a := &App{
-		fyneApp:         app.New(),
+		FyneApp:         app.New(),
 		db:              db,
 		config:          cfg,
 		contentService:  services.NewContentService(db),
@@ -35,7 +35,7 @@ func NewApp(db *sql.DB, cfg *config.Config) *App {
 		a.contentService = services.NewContentService(db)
 	}
 
-	a.mainWindow = a.fyneApp.NewWindow("Content Database Manager")
+	a.mainWindow = a.FyneApp.NewWindow("Content Database Manager")
 	a.mainWindow.Resize(fyne.NewSize(1400, 900))
 
 	a.setupMainWindow()
