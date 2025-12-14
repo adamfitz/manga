@@ -3,6 +3,8 @@ package ui
 import (
 	"fmt"
 	"manga/models"
+	"sort"
+	"strings"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -21,9 +23,10 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 	lookupEntry.SetPlaceHolder("Exact match: ID, name, or alt_name...")
 
 	var searchResults []models.Content
+	var previousResults []models.Content // Track what was loaded before search
 
 	// ----------------------
-	// Results list (UNCHANGED)
+	// Results list - ONLY SHOW NAME/TITLE
 	// ----------------------
 	resultsList := widget.NewList(
 		func() int {
@@ -32,31 +35,27 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 		func() fyne.CanvasObject {
 			nameLabel := widget.NewLabel("Template Name")
 			nameLabel.Wrapping = fyne.TextWrapWord
-
-			altLabel := widget.NewLabel("Template Alt Name")
-			altLabel.Wrapping = fyne.TextWrapWord
-
-			return container.NewVBox(nameLabel, altLabel)
+			// Add just a small spacer after the label
+			spacer := widget.NewLabel(" ")
+			return container.NewVBox(nameLabel, spacer)
 		},
 		func(id widget.ListItemID, obj fyne.CanvasObject) {
 			if id < len(searchResults) {
-				box := obj.(*fyne.Container)
-				nameLabel := box.Objects[0].(*widget.Label)
-				altLabel := box.Objects[1].(*widget.Label)
+				vbox := obj.(*fyne.Container)
+				nameLabel := vbox.Objects[0].(*widget.Label)
 
-				nameLabel.SetText(searchResults[id].Name)
-
-				altName := searchResults[id].AltName
-				if altName == "" {
-					altName = "(no alt name)"
+				// Use name, fallback to alt_name if name is empty
+				displayName := searchResults[id].Name
+				if displayName == "" {
+					displayName = searchResults[id].AltName
 				}
-				altLabel.SetText(fmt.Sprintf("Alt: %s", altName))
+				nameLabel.SetText(displayName)
 			}
 		},
 	)
 
 	// ----------------------
-	// Detail Container (UNCHANGED)
+	// Detail Container
 	// ----------------------
 	detailContainer := container.NewVBox(
 		widget.NewLabel("Select an entry to view details"),
@@ -76,7 +75,7 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 	}
 
 	// ----------------------
-	// Pane headers (NEW)
+	// Pane headers
 	// ----------------------
 	leftHeader := widget.NewLabelWithStyle(
 		"Title",
@@ -91,7 +90,7 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 	)
 
 	// ----------------------
-	// Wrap panes with headers (NEW)
+	// Wrap panes with headers
 	// ----------------------
 	resultsScroll := container.NewScroll(resultsList)
 
@@ -112,7 +111,7 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 	)
 
 	// ----------------------
-	// Left / Right split (UNCHANGED STRUCTURE)
+	// Left / Right split
 	// ----------------------
 	resultsContainer := container.NewHSplit(leftPane, rightPane)
 	resultsContainer.SetOffset(0.5)
@@ -120,16 +119,32 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 	// ----------------------
 	// Buttons and Actions
 	// ----------------------
-	searchButton := widget.NewButton("Search", func() {
+	performSearch := func() {
 		if searchEntry.Text == "" {
 			dialog.ShowInformation("Info", "Please enter a search term", a.mainWindow)
 			return
+		}
+		// Save current results before searching
+		if len(searchResults) > 0 && len(previousResults) == 0 {
+			previousResults = searchResults
 		}
 		results, err := a.contentService.Search(contentType, searchEntry.Text)
 		if err != nil {
 			dialog.ShowError(err, a.mainWindow)
 			return
 		}
+		// Sort alphabetically by name (or alt_name if name is empty)
+		sort.Slice(results, func(i, j int) bool {
+			nameI := results[i].Name
+			if nameI == "" {
+				nameI = results[i].AltName
+			}
+			nameJ := results[j].Name
+			if nameJ == "" {
+				nameJ = results[j].AltName
+			}
+			return strings.ToLower(nameI) < strings.ToLower(nameJ)
+		})
 		searchResults = results
 		resultsList.Refresh()
 		dialog.ShowInformation(
@@ -137,12 +152,16 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 			fmt.Sprintf("Found %d entries", len(results)),
 			a.mainWindow,
 		)
-	})
+	}
 
-	lookupButton := widget.NewButton("Lookup", func() {
+	performLookup := func() {
 		if lookupEntry.Text == "" {
 			dialog.ShowInformation("Info", "Please enter a lookup value", a.mainWindow)
 			return
+		}
+		// Save current results before lookup
+		if len(searchResults) > 0 && len(previousResults) == 0 {
+			previousResults = searchResults
 		}
 		result, err := a.contentService.Lookup(contentType, lookupEntry.Text)
 		if err != nil {
@@ -155,7 +174,23 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 			searchResults = []models.Content{}
 		}
 		resultsList.Refresh()
-	})
+	}
+
+	// Add Enter key binding to search entry
+	searchEntry.OnSubmitted = func(s string) {
+		performSearch()
+	}
+
+	// Add Enter key binding to lookup entry
+	lookupEntry.OnSubmitted = func(s string) {
+		performLookup()
+	}
+
+	searchButton := widget.NewButton("Search", performSearch)
+	searchButton.Alignment = widget.ButtonAlignCenter
+
+	lookupButton := widget.NewButton("Lookup", performLookup)
+	lookupButton.Alignment = widget.ButtonAlignCenter
 
 	loadAllButton := widget.NewButton("Load All", func() {
 		results, err := a.contentService.GetAll(contentType)
@@ -163,7 +198,20 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 			dialog.ShowError(err, a.mainWindow)
 			return
 		}
+		// Sort alphabetically by name (or alt_name if name is empty)
+		sort.Slice(results, func(i, j int) bool {
+			nameI := results[i].Name
+			if nameI == "" {
+				nameI = results[i].AltName
+			}
+			nameJ := results[j].Name
+			if nameJ == "" {
+				nameJ = results[j].AltName
+			}
+			return strings.ToLower(nameI) < strings.ToLower(nameJ)
+		})
 		searchResults = results
+		previousResults = nil // Clear previous since we loaded all
 		resultsList.Refresh()
 		dialog.ShowInformation(
 			"Success",
@@ -171,19 +219,55 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 			a.mainWindow,
 		)
 	})
+	loadAllButton.Alignment = widget.ButtonAlignCenter
+
+	clearButton := widget.NewButton("Clear", func() {
+		// Clear the search/lookup fields
+		searchEntry.SetText("")
+		lookupEntry.SetText("")
+
+		// Restore previous results or clear completely
+		if len(previousResults) > 0 {
+			searchResults = previousResults
+			previousResults = nil
+		} else {
+			searchResults = []models.Content{}
+		}
+		resultsList.Refresh()
+
+		// Clear the details pane
+		detailContainer.Objects = []fyne.CanvasObject{
+			widget.NewLabel("Select an entry to view details"),
+		}
+		detailContainer.Refresh()
+	})
+	clearButton.Alignment = widget.ButtonAlignCenter
 
 	// ----------------------
-	// Controls (top)
+	// Controls (top) - Properly aligned layout with fixed button widths
 	// ----------------------
-	searchBox := container.NewBorder(nil, nil, nil, searchButton, searchEntry)
-	lookupBox := container.NewBorder(nil, nil, nil, lookupButton, lookupEntry)
+	// Set button minimum widths to ensure consistent sizing
+	searchButton.Importance = widget.MediumImportance
+	lookupButton.Importance = widget.MediumImportance
+
+	// Create properly aligned rows using GridWithColumns for buttons
+	searchBox := container.NewBorder(nil, nil, nil,
+		container.NewGridWithColumns(1, searchButton),
+		searchEntry)
+
+	lookupBox := container.NewBorder(nil, nil, nil,
+		container.NewGridWithColumns(1, lookupButton),
+		lookupEntry)
+
+	// Create button row with Load All and Clear side by side
+	buttonRow := container.NewGridWithColumns(2, loadAllButton, clearButton)
 
 	controlsBox := container.NewVBox(
 		widget.NewLabel(fmt.Sprintf("%s Database", contentType)),
 		widget.NewSeparator(),
 		searchBox,
 		lookupBox,
-		loadAllButton,
+		buttonRow,
 		widget.NewSeparator(),
 	)
 

@@ -5,11 +5,12 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/widget"
 )
 
 func (a *App) setupMainWindow() {
-	// Create menu (unchanged)
+	// Create menu
 	fileMenu := fyne.NewMenu("File",
 		fyne.NewMenuItem("Database Settings", func() {
 			a.showConfigDialog(false)
@@ -28,6 +29,15 @@ func (a *App) setupMainWindow() {
 
 	mainMenu := fyne.NewMainMenu(fileMenu, helpMenu)
 	a.mainWindow.SetMainMenu(mainMenu)
+
+	// Add Ctrl+Q keyboard shortcut to quit
+	ctrlQ := &desktop.CustomShortcut{
+		KeyName:  fyne.KeyQ,
+		Modifier: fyne.KeyModifierControl,
+	}
+	a.mainWindow.Canvas().AddShortcut(ctrlQ, func(shortcut fyne.Shortcut) {
+		a.FyneApp.Quit()
+	})
 
 	if a.db == nil {
 		// Placeholder when no DB
