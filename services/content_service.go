@@ -20,24 +20,16 @@ func (s *ContentService) GetAll(contentType models.ContentType) ([]models.Conten
 		return []models.Content{}, nil
 	}
 
-	var query string
-	switch contentType {
-	case models.TypeManga:
-		query = `SELECT id, title as name, COALESCE(alt_title,'') as alt_name, 
-			 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, 
-			 COALESCE(author,'') as author, COALESCE(description,'') as description,
-			 COALESCE(cover_url,'') as cover_url, status
-			 FROM manga ORDER BY id DESC`
-
-	case models.TypeAnime:
-		query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
-				 FROM anime ORDER BY id DESC`
-	case models.TypeLightNovel:
-		query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
-				 FROM lightnovel ORDER BY id DESC`
-	default:
-		return nil, fmt.Errorf("unsupported content type: %v", contentType)
+	selectCols, m, err := normalizedSelect(contentType)
+	if err != nil {
+		return nil, err
 	}
+
+	query := fmt.Sprintf(
+		`SELECT %s FROM %s ORDER BY id DESC`,
+		selectCols,
+		m.table,
+	)
 
 	rows, err := s.db.Query(query)
 	if err != nil {
@@ -48,8 +40,17 @@ func (s *ContentService) GetAll(contentType models.ContentType) ([]models.Conten
 	var list []models.Content
 	for rows.Next() {
 		var c models.Content
-		if err := rows.Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID,
-			&c.Author, &c.Description, &c.CoverURL, &c.Status); err != nil {
+		if err := rows.Scan(
+			&c.ID,
+			&c.Name,
+			&c.AltName,
+			&c.URL,
+			&c.MangadexID,
+			&c.Author,
+			&c.Description,
+			&c.CoverURL,
+			&c.Status,
+		); err != nil {
 			return nil, fmt.Errorf("failed to scan %s: %w", contentType, err)
 		}
 		list = append(list, c)
@@ -64,28 +65,23 @@ func (s *ContentService) Search(contentType models.ContentType, searchTerm strin
 		return []models.Content{}, nil
 	}
 
-	term := "%" + searchTerm + "%"
-	var query string
-
-	switch contentType {
-	case models.TypeManga:
-		query = `SELECT id, title as name, COALESCE(alt_title,'') as alt_name, 
-			 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, 
-			 COALESCE(author,'') as author, COALESCE(description,'') as description,
-			 COALESCE(cover_url,'') as cover_url, status
-			 FROM manga 
-			 WHERE title ILIKE $1 OR alt_title ILIKE $1 OR author ILIKE $1
-			 ORDER BY title`
-
-	case models.TypeAnime:
-		query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
-				 FROM anime WHERE name ILIKE $1 OR alt_name ILIKE $1 ORDER BY name`
-	case models.TypeLightNovel:
-		query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
-				 FROM lightnovel WHERE name ILIKE $1 OR alt_name ILIKE $1 ORDER BY name`
-	default:
-		return nil, fmt.Errorf("unsupported content type: %v", contentType)
+	selectCols, m, err := normalizedSelect(contentType)
+	if err != nil {
+		return nil, err
 	}
+
+	term := "%" + searchTerm + "%"
+
+	query := fmt.Sprintf(
+		`SELECT %s FROM %s
+		 WHERE %s ILIKE $1 OR %s ILIKE $1
+		 ORDER BY %s`,
+		selectCols,
+		m.table,
+		m.name,
+		m.altName,
+		m.name,
+	)
 
 	rows, err := s.db.Query(query, term)
 	if err != nil {
@@ -96,11 +92,19 @@ func (s *ContentService) Search(contentType models.ContentType, searchTerm strin
 	var list []models.Content
 	for rows.Next() {
 		var c models.Content
-		if err := rows.Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID,
-			&c.Author, &c.Description, &c.CoverURL, &c.Status); err != nil {
+		if err := rows.Scan(
+			&c.ID,
+			&c.Name,
+			&c.AltName,
+			&c.URL,
+			&c.MangadexID,
+			&c.Author,
+			&c.Description,
+			&c.CoverURL,
+			&c.Status,
+		); err != nil {
 			return nil, err
 		}
-
 		list = append(list, c)
 	}
 
@@ -113,55 +117,59 @@ func (s *ContentService) Lookup(contentType models.ContentType, lookupValue stri
 		return nil, nil
 	}
 
-	var id int
-	var query string
+	selectCols, m, err := normalizedSelect(contentType)
+	if err != nil {
+		return nil, err
+	}
+
 	var c models.Content
+	var id int
 
-	_, err := fmt.Sscanf(lookupValue, "%d", &id)
-	if err == nil {
+	_, scanErr := fmt.Sscanf(lookupValue, "%d", &id)
+
+	if scanErr == nil {
 		// Lookup by ID
-		switch contentType {
-		case models.TypeManga:
-			query = `SELECT id, title as name, COALESCE(alt_title,'') as alt_name, 
-			 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, 
-			 COALESCE(author,'') as author, COALESCE(description,'') as description,
-			 COALESCE(cover_url,'') as cover_url, status
-			 FROM manga WHERE id=$1`
+		query := fmt.Sprintf(
+			`SELECT %s FROM %s WHERE id=$1`,
+			selectCols,
+			m.table,
+		)
 
-		case models.TypeAnime:
-			query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
-					 FROM anime WHERE id=$1`
-		case models.TypeLightNovel:
-			query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
-					 FROM lightnovel WHERE id=$1`
-		default:
-			return nil, fmt.Errorf("unsupported content type: %v", contentType)
-		}
-
-		err = s.db.QueryRow(query, id).Scan(&c.ID, &c.Name, &c.AltName, &c.URL,
-			&c.MangadexID, &c.Author, &c.Description, &c.CoverURL, &c.Status)
+		err = s.db.QueryRow(query, id).Scan(
+			&c.ID,
+			&c.Name,
+			&c.AltName,
+			&c.URL,
+			&c.MangadexID,
+			&c.Author,
+			&c.Description,
+			&c.CoverURL,
+			&c.Status,
+		)
 
 	} else {
-		// Lookup by name/alt_name
-		switch contentType {
-		case models.TypeManga:
-			query = `SELECT id, title as name, COALESCE(alt_title,'') as alt_name, 
-			 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, 
-			 COALESCE(author,'') as author, COALESCE(description,'') as description,
-			 COALESCE(cover_url,'') as cover_url, status
-			 FROM manga WHERE title=$1 OR alt_title=$1 LIMIT 1`
-		case models.TypeAnime:
-			query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
-					 FROM anime WHERE name=$1 OR alt_name=$1 LIMIT 1`
-		case models.TypeLightNovel:
-			query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
-					 FROM lightnovel WHERE name=$1 OR alt_name=$1 LIMIT 1`
-		default:
-			return nil, fmt.Errorf("unsupported content type: %v", contentType)
-		}
+		// Lookup by name / alt_name
+		query := fmt.Sprintf(
+			`SELECT %s FROM %s
+			 WHERE %s=$1 OR %s=$1
+			 LIMIT 1`,
+			selectCols,
+			m.table,
+			m.name,
+			m.altName,
+		)
 
-		err = s.db.QueryRow(query, lookupValue).Scan(&c.ID, &c.Name, &c.AltName, &c.URL,
-			&c.MangadexID, &c.Author, &c.Description, &c.CoverURL, &c.Status)
+		err = s.db.QueryRow(query, lookupValue).Scan(
+			&c.ID,
+			&c.Name,
+			&c.AltName,
+			&c.URL,
+			&c.MangadexID,
+			&c.Author,
+			&c.Description,
+			&c.CoverURL,
+			&c.Status,
+		)
 	}
 
 	if err == sql.ErrNoRows {
@@ -180,11 +188,17 @@ func (s *ContentService) Delete(contentType models.ContentType, id int) error {
 		return fmt.Errorf("database not connected")
 	}
 
-	query := fmt.Sprintf(`DELETE FROM %s WHERE id=$1`, contentType)
+	m, ok := contentColumnMaps[contentType]
+	if !ok {
+		return fmt.Errorf("unsupported content type: %v", contentType)
+	}
+
+	query := fmt.Sprintf(`DELETE FROM %s WHERE id=$1`, m.table)
 	result, err := s.db.Exec(query, id)
 	if err != nil {
 		return fmt.Errorf("failed to delete %s: %w", contentType, err)
 	}
+
 	affected, err := result.RowsAffected()
 	if err != nil {
 		return err
@@ -192,5 +206,6 @@ func (s *ContentService) Delete(contentType models.ContentType, id int) error {
 	if affected == 0 {
 		return fmt.Errorf("%s with id %d not found", contentType, id)
 	}
+
 	return nil
 }
