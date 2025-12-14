@@ -41,7 +41,8 @@ func (a *App) setupMainWindow() {
 		a.mainWindow.SetContent(content)
 	} else {
 		tabs := container.NewAppTabs(
-			container.NewTabItem("Manga", a.createMangaListView()),
+			// Use content_view style for Manga
+			container.NewTabItem("Manga", a.createContentView(models.TypeManga)),
 			container.NewTabItem("Bookmarks", a.createBookmarkView()),
 			container.NewTabItem("MangaDex Search", a.createMangadexSearchView()),
 			container.NewTabItem("Anime", a.createContentView(models.TypeAnime)),
