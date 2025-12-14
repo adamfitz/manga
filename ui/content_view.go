@@ -21,9 +21,10 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 	lookupEntry.SetPlaceHolder("Exact match: ID, name, or alt_name...")
 
 	var searchResults []models.Content
-	//var resultsList *widget.List
 
-	// Results list creation
+	// ----------------------
+	// Results list (UNCHANGED)
+	// ----------------------
 	resultsList := widget.NewList(
 		func() int {
 			return len(searchResults)
@@ -31,10 +32,10 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 		func() fyne.CanvasObject {
 			nameLabel := widget.NewLabel("Template Name")
 			nameLabel.Wrapping = fyne.TextWrapWord
+
 			altLabel := widget.NewLabel("Template Alt Name")
 			altLabel.Wrapping = fyne.TextWrapWord
 
-			// Just VBox, no nested scroll
 			return container.NewVBox(nameLabel, altLabel)
 		},
 		func(id widget.ListItemID, obj fyne.CanvasObject) {
@@ -44,6 +45,7 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 				altLabel := box.Objects[1].(*widget.Label)
 
 				nameLabel.SetText(searchResults[id].Name)
+
 				altName := searchResults[id].AltName
 				if altName == "" {
 					altName = "(no alt name)"
@@ -54,26 +56,66 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 	)
 
 	// ----------------------
-	// Detail Container
+	// Detail Container (UNCHANGED)
 	// ----------------------
 	detailContainer := container.NewVBox(
 		widget.NewLabel("Select an entry to view details"),
 	)
-	detailScroll := container.NewScroll(detailContainer) // scrollable
-
-	// ----------------------
-	// Left/Right split
-	// ----------------------
-	resultsScroll := container.NewScroll(resultsList) // make the list scrollable
-	resultsContainer := container.NewHSplit(resultsScroll, detailScroll)
-	resultsContainer.SetOffset(0.5)
+	detailScroll := container.NewScroll(detailContainer)
 
 	resultsList.OnSelected = func(id widget.ListItemID) {
 		if id < len(searchResults) {
-			detailContainer.Objects = a.createContentDetail(&searchResults[id], contentType, resultsList, &searchResults)
+			detailContainer.Objects = a.createContentDetail(
+				&searchResults[id],
+				contentType,
+				resultsList,
+				&searchResults,
+			)
 			detailContainer.Refresh()
 		}
 	}
+
+	// ----------------------
+	// Pane headers (NEW)
+	// ----------------------
+	leftHeader := widget.NewLabelWithStyle(
+		"Title",
+		fyne.TextAlignLeading,
+		fyne.TextStyle{Bold: true},
+	)
+
+	rightHeader := widget.NewLabelWithStyle(
+		"Details",
+		fyne.TextAlignLeading,
+		fyne.TextStyle{Bold: true},
+	)
+
+	// ----------------------
+	// Wrap panes with headers (NEW)
+	// ----------------------
+	resultsScroll := container.NewScroll(resultsList)
+
+	leftPane := container.NewBorder(
+		leftHeader,
+		nil,
+		nil,
+		nil,
+		resultsScroll,
+	)
+
+	rightPane := container.NewBorder(
+		rightHeader,
+		nil,
+		nil,
+		nil,
+		detailScroll,
+	)
+
+	// ----------------------
+	// Left / Right split (UNCHANGED STRUCTURE)
+	// ----------------------
+	resultsContainer := container.NewHSplit(leftPane, rightPane)
+	resultsContainer.SetOffset(0.5)
 
 	// ----------------------
 	// Buttons and Actions
@@ -90,7 +132,11 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 		}
 		searchResults = results
 		resultsList.Refresh()
-		dialog.ShowInformation("Results", fmt.Sprintf("Found %d entries", len(results)), a.mainWindow)
+		dialog.ShowInformation(
+			"Results",
+			fmt.Sprintf("Found %d entries", len(results)),
+			a.mainWindow,
+		)
 	})
 
 	lookupButton := widget.NewButton("Lookup", func() {
@@ -119,11 +165,15 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 		}
 		searchResults = results
 		resultsList.Refresh()
-		dialog.ShowInformation("Success", fmt.Sprintf("Loaded %d entries", len(results)), a.mainWindow)
+		dialog.ShowInformation(
+			"Success",
+			fmt.Sprintf("Loaded %d entries", len(results)),
+			a.mainWindow,
+		)
 	})
 
 	// ----------------------
-	// Layout: Controls on top, split below
+	// Controls (top)
 	// ----------------------
 	searchBox := container.NewBorder(nil, nil, nil, searchButton, searchEntry)
 	lookupBox := container.NewBorder(nil, nil, nil, lookupButton, lookupEntry)
@@ -137,12 +187,27 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 		widget.NewSeparator(),
 	)
 
-	content := container.NewBorder(controlsBox, nil, nil, nil, resultsContainer)
+	// ----------------------
+	// Final layout
+	// ----------------------
+	content := container.NewBorder(
+		controlsBox,
+		nil,
+		nil,
+		nil,
+		resultsContainer,
+	)
+
 	return content
 }
 
-func (a *App) createContentDetail(content *models.Content, contentType models.ContentType, list *widget.List, searchResults *[]models.Content) []fyne.CanvasObject {
-	// Helper to create wrapped label
+func (a *App) createContentDetail(
+	content *models.Content,
+	contentType models.ContentType,
+	list *widget.List,
+	searchResults *[]models.Content,
+) []fyne.CanvasObject {
+
 	newWrappedLabel := func(text string) *widget.Label {
 		l := widget.NewLabel(text)
 		l.Wrapping = fyne.TextWrapWord
@@ -156,7 +221,6 @@ func (a *App) createContentDetail(content *models.Content, contentType models.Co
 		newWrappedLabel(fmt.Sprintf("URL: %s", content.URL)),
 	}
 
-	// Manga-specific fields
 	if contentType == models.TypeManga {
 		objects = append(objects,
 			newWrappedLabel(fmt.Sprintf("Author: %s", content.Author)),
@@ -165,16 +229,20 @@ func (a *App) createContentDetail(content *models.Content, contentType models.Co
 		)
 	}
 
-	// Mangadex ID if applicable
 	if contentType.HasMangadexID() && content.MangadexID != "" {
-		objects = append(objects, newWrappedLabel(fmt.Sprintf("MangaDex ID: %s", content.MangadexID)))
+		objects = append(objects,
+			newWrappedLabel(fmt.Sprintf("MangaDex ID: %s", content.MangadexID)),
+		)
 	}
 
-	// Status
-	objects = append(objects, newWrappedLabel(fmt.Sprintf("Status: %s", content.Status)), widget.NewSeparator())
+	objects = append(objects,
+		newWrappedLabel(fmt.Sprintf("Status: %s", content.Status)),
+		widget.NewSeparator(),
+	)
 
-	// Delete button (unchanged)
-	deleteBtn := widget.NewButton("Delete Entry", func() { /* ... */ })
+	deleteBtn := widget.NewButton("Delete Entry", func() {
+		// unchanged
+	})
 	objects = append(objects, deleteBtn)
 
 	return objects
