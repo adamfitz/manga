@@ -2,12 +2,15 @@ package models
 
 // Content is a generic model for all content types
 type Content struct {
-	ID         int    `json:"id"`
-	Name       string `json:"name"`
-	AltName    string `json:"alt_name"`
-	URL        string `json:"url"`
-	MangadexID string `json:"mangadex_id,omitempty"` // Only for manga
-	Status     string `json:"status"`
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	AltName     string `json:"alt_name"`
+	URL         string `json:"url"`
+	MangadexID  string `json:"mangadex_id,omitempty"` // Only for manga
+	Status      string `json:"status"`
+	Author      string `json:"author,omitempty"`      // Only for manga
+	Description string `json:"description,omitempty"` // Only for manga
+	CoverURL    string `json:"cover_url,omitempty"`   // Only for manga
 }
 
 // ContentType represents the type of content

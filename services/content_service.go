@@ -24,8 +24,11 @@ func (s *ContentService) GetAll(contentType models.ContentType) ([]models.Conten
 	switch contentType {
 	case models.TypeManga:
 		query = `SELECT id, title as name, COALESCE(alt_title,'') as alt_name, 
-				 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, status
-				 FROM manga ORDER BY id DESC`
+			 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, 
+			 COALESCE(author,'') as author, COALESCE(description,'') as description,
+			 COALESCE(cover_url,'') as cover_url, status
+			 FROM manga ORDER BY id DESC`
+
 	case models.TypeAnime:
 		query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
 				 FROM anime ORDER BY id DESC`
@@ -45,7 +48,8 @@ func (s *ContentService) GetAll(contentType models.ContentType) ([]models.Conten
 	var list []models.Content
 	for rows.Next() {
 		var c models.Content
-		if err := rows.Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID, &c.Status); err != nil {
+		if err := rows.Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID,
+			&c.Author, &c.Description, &c.CoverURL, &c.Status); err != nil {
 			return nil, fmt.Errorf("failed to scan %s: %w", contentType, err)
 		}
 		list = append(list, c)
@@ -66,10 +70,13 @@ func (s *ContentService) Search(contentType models.ContentType, searchTerm strin
 	switch contentType {
 	case models.TypeManga:
 		query = `SELECT id, title as name, COALESCE(alt_title,'') as alt_name, 
-				 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, status
-				 FROM manga 
-				 WHERE title ILIKE $1 OR alt_title ILIKE $1 OR author ILIKE $1
-				 ORDER BY title`
+			 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, 
+			 COALESCE(author,'') as author, COALESCE(description,'') as description,
+			 COALESCE(cover_url,'') as cover_url, status
+			 FROM manga 
+			 WHERE title ILIKE $1 OR alt_title ILIKE $1 OR author ILIKE $1
+			 ORDER BY title`
+
 	case models.TypeAnime:
 		query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
 				 FROM anime WHERE name ILIKE $1 OR alt_name ILIKE $1 ORDER BY name`
@@ -89,9 +96,11 @@ func (s *ContentService) Search(contentType models.ContentType, searchTerm strin
 	var list []models.Content
 	for rows.Next() {
 		var c models.Content
-		if err := rows.Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID, &c.Status); err != nil {
+		if err := rows.Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID,
+			&c.Author, &c.Description, &c.CoverURL, &c.Status); err != nil {
 			return nil, err
 		}
+
 		list = append(list, c)
 	}
 
@@ -114,8 +123,11 @@ func (s *ContentService) Lookup(contentType models.ContentType, lookupValue stri
 		switch contentType {
 		case models.TypeManga:
 			query = `SELECT id, title as name, COALESCE(alt_title,'') as alt_name, 
-					 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, status
-					 FROM manga WHERE id=$1`
+			 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, 
+			 COALESCE(author,'') as author, COALESCE(description,'') as description,
+			 COALESCE(cover_url,'') as cover_url, status
+			 FROM manga WHERE id=$1`
+
 		case models.TypeAnime:
 			query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
 					 FROM anime WHERE id=$1`
@@ -126,14 +138,18 @@ func (s *ContentService) Lookup(contentType models.ContentType, lookupValue stri
 			return nil, fmt.Errorf("unsupported content type: %v", contentType)
 		}
 
-		err = s.db.QueryRow(query, id).Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID, &c.Status)
+		err = s.db.QueryRow(query, id).Scan(&c.ID, &c.Name, &c.AltName, &c.URL,
+			&c.MangadexID, &c.Author, &c.Description, &c.CoverURL, &c.Status)
+
 	} else {
 		// Lookup by name/alt_name
 		switch contentType {
 		case models.TypeManga:
 			query = `SELECT id, title as name, COALESCE(alt_title,'') as alt_name, 
-					 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, status
-					 FROM manga WHERE title=$1 OR alt_title=$1 LIMIT 1`
+			 COALESCE(url,'') as url, COALESCE(mangadex_id,'') as mangadex_id, 
+			 COALESCE(author,'') as author, COALESCE(description,'') as description,
+			 COALESCE(cover_url,'') as cover_url, status
+			 FROM manga WHERE title=$1 OR alt_title=$1 LIMIT 1`
 		case models.TypeAnime:
 			query = `SELECT id, name, COALESCE(alt_name,''), url, '' as mangadex_id, status
 					 FROM anime WHERE name=$1 OR alt_name=$1 LIMIT 1`
@@ -144,7 +160,8 @@ func (s *ContentService) Lookup(contentType models.ContentType, lookupValue stri
 			return nil, fmt.Errorf("unsupported content type: %v", contentType)
 		}
 
-		err = s.db.QueryRow(query, lookupValue).Scan(&c.ID, &c.Name, &c.AltName, &c.URL, &c.MangadexID, &c.Status)
+		err = s.db.QueryRow(query, lookupValue).Scan(&c.ID, &c.Name, &c.AltName, &c.URL,
+			&c.MangadexID, &c.Author, &c.Description, &c.CoverURL, &c.Status)
 	}
 
 	if err == sql.ErrNoRows {

@@ -9,7 +9,7 @@ import (
 )
 
 func (a *App) setupMainWindow() {
-	// Create menu
+	// Create menu (unchanged)
 	fileMenu := fyne.NewMenu("File",
 		fyne.NewMenuItem("Database Settings", func() {
 			a.showConfigDialog(false)
@@ -29,9 +29,8 @@ func (a *App) setupMainWindow() {
 	mainMenu := fyne.NewMainMenu(fileMenu, helpMenu)
 	a.mainWindow.SetMainMenu(mainMenu)
 
-	// Create tabs
 	if a.db == nil {
-		// Show placeholder when no database connection
+		// Placeholder when no DB
 		content := container.NewCenter(
 			container.NewVBox(
 				widget.NewLabel("No Database Connection"),
@@ -41,7 +40,7 @@ func (a *App) setupMainWindow() {
 		a.mainWindow.SetContent(content)
 	} else {
 		tabs := container.NewAppTabs(
-			// Use content_view style for Manga
+			// Manga tab now uses createContentView with TypeManga
 			container.NewTabItem("Manga", a.createContentView(models.TypeManga)),
 			container.NewTabItem("Bookmarks", a.createBookmarkView()),
 			container.NewTabItem("MangaDex Search", a.createMangadexSearchView()),

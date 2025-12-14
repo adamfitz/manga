@@ -122,38 +122,42 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 }
 
 func (a *App) createContentDetail(content *models.Content, contentType models.ContentType, list *widget.List, searchResults *[]models.Content) []fyne.CanvasObject {
-	idLabel := widget.NewLabel(fmt.Sprintf("ID: %d", content.ID))
-
-	name := widget.NewLabel(fmt.Sprintf("Name: %s", content.Name))
-	name.Wrapping = fyne.TextWrapWord
-
-	altName := content.AltName
-	if altName == "" {
-		altName = "(none)"
-	}
-	altNameLabel := widget.NewLabel(fmt.Sprintf("Alt Name: %s", altName))
-	altNameLabel.Wrapping = fyne.TextWrapWord
-
-	url := widget.NewLabel(fmt.Sprintf("URL: %s", content.URL))
-	url.Wrapping = fyne.TextWrapWord
-
-	status := widget.NewLabel(fmt.Sprintf("Status: %s", content.Status))
-
 	objects := []fyne.CanvasObject{
-		idLabel,
-		name,
-		altNameLabel,
-		url,
+		widget.NewLabel(fmt.Sprintf("ID: %d", content.ID)),
+		widget.NewLabel(fmt.Sprintf("Name: %s", content.Name)),
+		widget.NewLabel(fmt.Sprintf("Alt Name: %s", func() string {
+			if content.AltName == "" {
+				return "(none)"
+			}
+			return content.AltName
+		}())),
+		widget.NewLabel(fmt.Sprintf("URL: %s", content.URL)),
 	}
 
-	// Add mangadex_id if applicable
+	// Add MangaDex ID if applicable
 	if contentType.HasMangadexID() && content.MangadexID != "" {
-		mangadexID := widget.NewLabel(fmt.Sprintf("MangaDex ID: %s", content.MangadexID))
-		objects = append(objects, mangadexID)
+		objects = append(objects, widget.NewLabel(fmt.Sprintf("MangaDex ID: %s", content.MangadexID)))
 	}
 
-	objects = append(objects, status, widget.NewSeparator())
+	// Add manga-specific fields
+	if contentType == models.TypeManga {
+		if content.Author != "" {
+			objects = append(objects, widget.NewLabel(fmt.Sprintf("Author: %s", content.Author)))
+		}
+		if content.Description != "" {
+			desc := widget.NewLabel(fmt.Sprintf("Description: %s", content.Description))
+			desc.Wrapping = fyne.TextWrapWord
+			objects = append(objects, desc)
+		}
+		if content.CoverURL != "" {
+			objects = append(objects, widget.NewLabel(fmt.Sprintf("Cover URL: %s", content.CoverURL)))
+		}
+	}
 
+	objects = append(objects, widget.NewLabel(fmt.Sprintf("Status: %s", content.Status)))
+	objects = append(objects, widget.NewSeparator())
+
+	// Delete button
 	deleteBtn := widget.NewButton("Delete Entry", func() {
 		dialog.ShowConfirm("Delete Entry",
 			fmt.Sprintf("Are you sure you want to delete '%s'?", content.Name),
@@ -161,6 +165,7 @@ func (a *App) createContentDetail(content *models.Content, contentType models.Co
 				if !ok {
 					return
 				}
+
 				if err := a.contentService.Delete(contentType, content.ID); err != nil {
 					dialog.ShowError(err, a.mainWindow)
 					return
