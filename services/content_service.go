@@ -288,6 +288,24 @@ func (s *ContentService) Create(contentType models.ContentType, content *models.
 		return fmt.Errorf("database not connected")
 	}
 
+	// -------------------------
+	// UNIVERSAL VALIDATION RULES
+	// -------------------------
+
+	// Rule 1: Must have Name OR AltName
+	if content.Name == "" && content.AltName == "" {
+		return fmt.Errorf("either name or alt_name must be provided")
+	}
+
+	// Rule 2: Must have URL
+	if content.URL == "" {
+		return fmt.Errorf("url must be provided")
+	}
+
+	// -------------------------
+	// SQL INSERT LOGIC
+	// -------------------------
+
 	m, ok := contentColumnMaps[contentType]
 	if !ok {
 		return fmt.Errorf("unsupported content type: %v", contentType)
@@ -362,6 +380,24 @@ func (s *ContentService) Update(contentType models.ContentType, content *models.
 		return fmt.Errorf("database not connected")
 	}
 
+	// -------------------------
+	// UNIVERSAL VALIDATION RULES
+	// -------------------------
+
+	// Rule 1: Must have Name OR AltName
+	if content.Name == "" && content.AltName == "" {
+		return fmt.Errorf("either name or alt_name must be provided")
+	}
+
+	// Rule 2: Must have URL
+	if content.URL == "" {
+		return fmt.Errorf("url must be provided")
+	}
+
+	// -------------------------
+	// SQL UPDATE LOGIC
+	// -------------------------
+
 	m, ok := contentColumnMaps[contentType]
 	if !ok {
 		return fmt.Errorf("unsupported content type: %v", contentType)
@@ -410,7 +446,7 @@ func (s *ContentService) Update(contentType models.ContentType, content *models.
 			content.ID,
 		)
 
-	default:
+	default: // Anime, WebNovel, Webtoons
 		query = fmt.Sprintf(`
             UPDATE %s
             SET name=$1, alt_name=$2, url=$3, status=$4
