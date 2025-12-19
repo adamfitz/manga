@@ -87,7 +87,7 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 	}
 
 	// ----------------------
-	// Pane headers
+	// Pane headers - BOLD and styled
 	// ----------------------
 	leftHeader := widget.NewLabelWithStyle(
 		"Title",
@@ -102,12 +102,12 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 	)
 
 	// ----------------------
-	// Wrap panes with headers
+	// Wrap panes with headers in bordered containers
 	// ----------------------
 	resultsScroll := container.NewScroll(resultsList)
 
 	leftPane := container.NewBorder(
-		leftHeader,
+		container.NewVBox(leftHeader, widget.NewSeparator()),
 		nil,
 		nil,
 		nil,
@@ -115,7 +115,7 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 	)
 
 	rightPane := container.NewBorder(
-		rightHeader,
+		container.NewVBox(rightHeader, widget.NewSeparator()),
 		nil,
 		nil,
 		nil,
@@ -123,14 +123,9 @@ func (a *App) createContentView(contentType models.ContentType) *fyne.Container 
 	)
 
 	// ----------------------
-	// Left / Right split - 50/50 fixed, no resizing
+	// Left / Right split - Use GridWithColumns for truly fixed 50/50
 	// ----------------------
-	resultsContainer := container.NewHSplit(leftPane, rightPane)
-	resultsContainer.SetOffset(0.5) // Lock at 50/50
-
-	// Disable dragging to prevent resizing - users can't change the split
-	// Note: Fyne doesn't have a direct "disable drag" method, but we can
-	// recreate the split on resize to maintain 50/50
+	resultsContainer := container.NewGridWithColumns(2, leftPane, rightPane)
 
 	// ----------------------
 	// Buttons and Actions
@@ -300,11 +295,19 @@ func (a *App) createContentDetail(
 	searchResults *[]models.Content,
 ) []fyne.CanvasObject {
 
-	// Helper to create selectable text using RichText
-	newSelectableText := func(text string) *widget.RichText {
-		rt := widget.NewRichTextFromMarkdown(text)
-		rt.Wrapping = fyne.TextWrapWord
-		return rt
+	// Helper to create selectable, copyable text that looks like a label
+	newSelectableText := func(text string) *widget.Entry {
+		entry := widget.NewEntry()
+		entry.SetText(text)
+		entry.Wrapping = fyne.TextWrapWord
+		// Make it look like a label but still selectable
+		entry.OnChanged = func(s string) {
+			// Prevent editing by resetting to original text
+			if s != text {
+				entry.SetText(text)
+			}
+		}
+		return entry
 	}
 
 	// Helper to create clickable hyperlink with wrapping
@@ -319,11 +322,11 @@ func (a *App) createContentDetail(
 			return newSelectableText(label + " " + urlStr)
 		}
 
-		// Create hyperlink with just the label, not the full URL in text
+		// Create hyperlink without the label prefix
 		link := widget.NewHyperlink(urlStr, parsedURL)
 		link.Wrapping = fyne.TextWrapWord
 
-		// Combine label and link in a container
+		// Show label and link separately
 		labelWidget := widget.NewLabel(label)
 		return container.NewVBox(labelWidget, link)
 	}
