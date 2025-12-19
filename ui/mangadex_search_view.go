@@ -2,7 +2,7 @@ package ui
 
 import (
 	"fmt"
-	"manga/models"
+	"mangadb/models"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"

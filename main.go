@@ -2,10 +2,10 @@ package main
 
 import (
 	"log"
-	"manga/assets/fonts" // imports follow folder structure
-	"manga/config"
-	"manga/database"
-	"manga/ui"
+	"mangadb/assets/fonts" // imports follow folder structure
+	"mangadb/config"
+	"mangadb/database"
+	"mangadb/ui"
 
 	"fyne.io/fyne/v2"
 )

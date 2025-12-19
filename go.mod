@@ -1,4 +1,4 @@
-module manga
+module mangadb
 
 go 1.21
 

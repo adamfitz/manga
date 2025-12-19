@@ -2,8 +2,8 @@ package ui
 
 import (
 	"database/sql"
-	"manga/config"
-	"manga/services"
+	"mangadb/config"
+	"mangadb/services"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"

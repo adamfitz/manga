@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"manga/models"
+	"mangadb/models"
 	"net/http"
 	"net/url"
 )

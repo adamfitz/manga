@@ -1,8 +1,8 @@
 package ui
 
 import (
-	"manga/config"
-	"manga/database"
+	"mangadb/config"
+	"mangadb/database"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"

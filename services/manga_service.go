@@ -3,7 +3,7 @@ package services
 import (
 	"database/sql"
 	"fmt"
-	"manga/models"
+	"mangadb/models"
 )
 
 type MangaService struct {

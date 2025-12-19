@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"manga/config"
+	"mangadb/config"
 
 	_ "github.com/lib/pq"
 )

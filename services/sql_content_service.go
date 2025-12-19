@@ -2,7 +2,7 @@ package services
 
 import (
 	"fmt"
-	"manga/models"
+	"mangadb/models"
 )
 
 /*

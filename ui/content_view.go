@@ -2,7 +2,7 @@ package ui
 
 import (
 	"fmt"
-	"manga/models"
+	"mangadb/models"
 	"net/url"
 	"sort"
 	"strings"
