@@ -64,6 +64,26 @@ func RunMigrations(db *sql.DB) error {
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 		)`,
 
+		`CREATE TABLE IF NOT EXISTS webtoon (
+		id SERIAL PRIMARY KEY,
+		name VARCHAR(500) NOT NULL,
+		alt_name VARCHAR(500),
+		url TEXT,
+		status VARCHAR(50) DEFAULT 'unknown',
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+
+		`CREATE TABLE IF NOT EXISTS webnovel (
+		id SERIAL PRIMARY KEY,
+		name VARCHAR(500) NOT NULL,
+		alt_name VARCHAR(500),
+		url TEXT,
+		status VARCHAR(50) DEFAULT 'unknown',
+		created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+		)`,
+
 		// -------------------- INDEXES --------------------
 		`CREATE INDEX IF NOT EXISTS idx_manga_title ON manga(title)`,
 		`CREATE INDEX IF NOT EXISTS idx_manga_alt_title ON manga(alt_title)`,
@@ -72,6 +92,10 @@ func RunMigrations(db *sql.DB) error {
 		`CREATE INDEX IF NOT EXISTS idx_lightnovel_name ON lightnovel(name)`,
 		`CREATE INDEX IF NOT EXISTS idx_webnovel_name ON webnovel(name)`,
 		`CREATE INDEX IF NOT EXISTS idx_webtoons_name ON webtoons(name)`,
+		`CREATE INDEX IF NOT EXISTS idx_webtoon_name ON webtoon(name)`,
+		`CREATE INDEX IF NOT EXISTS idx_webtoon_alt_name ON webtoon(alt_name)`,
+		`CREATE INDEX IF NOT EXISTS idx_webnovel_name ON webnovel(name)`,
+		`CREATE INDEX IF NOT EXISTS idx_webnovel_alt_name ON webnovel(alt_name)`,
 	}
 
 	for i, migration := range migrations {

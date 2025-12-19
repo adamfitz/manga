@@ -182,6 +182,133 @@ func (s *ContentService) Lookup(contentType models.ContentType, lookupValue stri
 	return &c, nil
 }
 
+// Create adds a new entry
+func (s *ContentService) Create(contentType models.ContentType, content *models.Content) error {
+	if s.db == nil {
+		return fmt.Errorf("database not connected")
+	}
+
+	m, ok := contentColumnMaps[contentType]
+	if !ok {
+		return fmt.Errorf("unsupported content type: %v", contentType)
+	}
+
+	var query string
+	var err error
+
+	switch contentType {
+	case models.TypeManga:
+		query = fmt.Sprintf(`
+			INSERT INTO %s (%s, %s, url, %s, %s, %s, %s, status)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+			RETURNING id`,
+			m.table, m.name, m.altName, "mangadex_id", "author", "description", "cover_url",
+		)
+		err = s.db.QueryRow(
+			query,
+			content.Name,
+			content.AltName,
+			content.URL,
+			content.MangadexID,
+			content.Author,
+			content.Description,
+			content.CoverURL,
+			content.Status,
+		).Scan(&content.ID)
+
+	default:
+		// For Anime, Light Novel, Webtoon, Web Novel
+		query = fmt.Sprintf(`
+			INSERT INTO %s (%s, %s, url, status)
+			VALUES ($1, $2, $3, $4)
+			RETURNING id`,
+			m.table, m.name, m.altName,
+		)
+		err = s.db.QueryRow(
+			query,
+			content.Name,
+			content.AltName,
+			content.URL,
+			content.Status,
+		).Scan(&content.ID)
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed to create %s: %w", contentType, err)
+	}
+
+	return nil
+}
+
+// Update modifies an existing entry
+func (s *ContentService) Update(contentType models.ContentType, content *models.Content) error {
+	if s.db == nil {
+		return fmt.Errorf("database not connected")
+	}
+
+	m, ok := contentColumnMaps[contentType]
+	if !ok {
+		return fmt.Errorf("unsupported content type: %v", contentType)
+	}
+
+	var query string
+	var result sql.Result
+	var err error
+
+	switch contentType {
+	case models.TypeManga:
+		query = fmt.Sprintf(`
+			UPDATE %s 
+			SET %s=$1, %s=$2, url=$3, mangadex_id=$4, author=$5, description=$6, cover_url=$7, status=$8
+			WHERE id=$9`,
+			m.table, m.name, m.altName,
+		)
+		result, err = s.db.Exec(
+			query,
+			content.Name,
+			content.AltName,
+			content.URL,
+			content.MangadexID,
+			content.Author,
+			content.Description,
+			content.CoverURL,
+			content.Status,
+			content.ID,
+		)
+
+	default:
+		// For Anime, Light Novel, Webtoon, Web Novel
+		query = fmt.Sprintf(`
+			UPDATE %s 
+			SET %s=$1, %s=$2, url=$3, status=$4
+			WHERE id=$5`,
+			m.table, m.name, m.altName,
+		)
+		result, err = s.db.Exec(
+			query,
+			content.Name,
+			content.AltName,
+			content.URL,
+			content.Status,
+			content.ID,
+		)
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed to update %s: %w", contentType, err)
+	}
+
+	affected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if affected == 0 {
+		return fmt.Errorf("%s with id %d not found", contentType, content.ID)
+	}
+
+	return nil
+}
+
 // Delete removes an entry
 func (s *ContentService) Delete(contentType models.ContentType, id int) error {
 	if s.db == nil {

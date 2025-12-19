@@ -62,6 +62,24 @@ var contentColumnMaps = map[models.ContentType]contentColumnMap{
 		description: "''",
 		coverURL:    "''",
 	},
+	models.TypeWebtoons: {
+		table:       "webtoon",
+		name:        "name",
+		altName:     "alt_name",
+		mangadexID:  "''",
+		author:      "''",
+		description: "''",
+		coverURL:    "''",
+	},
+	models.TypeWebNovel: {
+		table:       "webnovel",
+		name:        "name",
+		altName:     "alt_name",
+		mangadexID:  "''",
+		author:      "''",
+		description: "''",
+		coverURL:    "''",
+	},
 }
 
 // normalizedSelect builds the SELECT clause and returns table + column info
