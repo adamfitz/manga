@@ -43,4 +43,5 @@ type Content struct {
 	Author      string `json:"author,omitempty"`      // Only for manga
 	Description string `json:"description,omitempty"` // Only for manga
 	CoverURL    string `json:"cover_url,omitempty"`   // Only for manga
+	Volumes     int    `json:"volumes,omitempty"`
 }

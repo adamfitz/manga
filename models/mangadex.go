@@ -1,5 +1,7 @@
 package models
 
+// NOTE this model is for the MangaDex API seach functionality NOT a mangadex table in the database
+
 // MangadexManga represents a manga from the MangaDex API (no database fields)
 type MangadexManga struct {
 	MangadexID  string `json:"mangadex_id"`

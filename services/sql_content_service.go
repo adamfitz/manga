@@ -25,60 +25,78 @@ const normalizedContentSelect = `
 `
 
 type contentColumnMap struct {
-	table       string
-	name        string
-	altName     string
-	mangadexID  string
-	author      string
-	description string
-	coverURL    string
+	table   string
+	columns string
+	name    string
+	altName string
 }
 
 var contentColumnMaps = map[models.ContentType]contentColumnMap{
 	models.TypeManga: {
-		table:       "manga",
-		name:        "title",
-		altName:     "alt_title",
-		mangadexID:  "COALESCE(mangadex_id, '')",
-		author:      "COALESCE(author, '')",
-		description: "COALESCE(description, '')",
-		coverURL:    "COALESCE(cover_url, '')",
+		table: "manga",
+		columns: `
+            id,
+            COALESCE(title, '')       AS title,
+            COALESCE(alt_title, '')   AS alt_title,
+            COALESCE(author, '')      AS author,
+            COALESCE(description, '') AS description,
+            COALESCE(cover_url, '')   AS cover_url,
+            COALESCE(url, '')         AS url,
+            COALESCE(mangadex_id, '') AS mangadex_id,
+            COALESCE(status, '')      AS status,
+            created_at,
+            updated_at`,
+		name:    "title",
+		altName: "alt_title",
 	},
-	models.TypeAnime: {
-		table:       "anime",
-		name:        "name",
-		altName:     "alt_name",
-		mangadexID:  "''",
-		author:      "''",
-		description: "''",
-		coverURL:    "''",
-	},
+
 	models.TypeLightNovel: {
-		table:       "lightnovel",
-		name:        "name",
-		altName:     "alt_name",
-		mangadexID:  "''",
-		author:      "''",
-		description: "''",
-		coverURL:    "''",
+		table: "lightnovel",
+		columns: `
+            id,
+            COALESCE(name, '')      AS name,
+            COALESCE(alt_name, '')  AS alt_name,
+            COALESCE(url, '')       AS url,
+            volumes,
+            COALESCE(status, '')    AS status`,
+		name:    "name",
+		altName: "alt_name",
 	},
-	models.TypeWebtoons: {
-		table:       "webtoon",
-		name:        "name",
-		altName:     "alt_name",
-		mangadexID:  "''",
-		author:      "''",
-		description: "''",
-		coverURL:    "''",
+
+	models.TypeAnime: {
+		table: "anime",
+		columns: `
+            id,
+            COALESCE(name, '')      AS name,
+            COALESCE(alt_name, '')  AS alt_name,
+            COALESCE(url, '')       AS url,
+            COALESCE(status, '')    AS status`,
+		name:    "name",
+		altName: "alt_name",
 	},
+
 	models.TypeWebNovel: {
-		table:       "webnovel",
-		name:        "name",
-		altName:     "alt_name",
-		mangadexID:  "''",
-		author:      "''",
-		description: "''",
-		coverURL:    "''",
+		table: "webnovel",
+		columns: `
+            id,
+            COALESCE(name, '')      AS name,
+            COALESCE(alt_name, '')  AS alt_name,
+            COALESCE(url, '')       AS url,
+            COALESCE(status, '')    AS status`,
+		name:    "name",
+		altName: "alt_name",
+	},
+
+	models.TypeWebtoons: {
+		table: "webtoons",
+		columns: `
+            id,
+            COALESCE(name, '')      AS name,
+            COALESCE(alt_name, '')  AS alt_name,
+            COALESCE(url, '')       AS url,
+            COALESCE(status, '')    AS status`,
+		name:    "name",
+		altName: "alt_name",
 	},
 }
 
@@ -89,15 +107,5 @@ func normalizedSelect(contentType models.ContentType) (string, contentColumnMap,
 		return "", contentColumnMap{}, fmt.Errorf("unsupported content type: %v", contentType)
 	}
 
-	selectClause := fmt.Sprintf(
-		normalizedContentSelect,
-		m.name,
-		m.altName,
-		m.mangadexID,
-		m.author,
-		m.description,
-		m.coverURL,
-	)
-
-	return selectClause, m, nil
+	return m.columns, m, nil
 }
