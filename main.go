@@ -2,10 +2,10 @@ package main
 
 import (
 	"log"
+	"manga/assets/fonts" // imports follow folder structure
 	"manga/config"
 	"manga/database"
 	"manga/ui"
-	"manga/utils"
 
 	"fyne.io/fyne/v2"
 )
@@ -54,14 +54,10 @@ func main() {
 
 	// Load fonts as resources
 	// These fonts include Latin characters, so English will work!
-	jpFont := fyne.NewStaticResource("NotoSansCJKjp-Regular.otf",
-		utils.MustReadFileBytes("assets/fonts/NotoSansCJKjp-Regular.otf"))
-	krFont := fyne.NewStaticResource("NotoSansCJKkr-Regular.otf",
-		utils.MustReadFileBytes("assets/fonts/NotoSansCJKkr-Regular.otf"))
-	scFont := fyne.NewStaticResource("NotoSansCJKsc-Regular.otf",
-		utils.MustReadFileBytes("assets/fonts/NotoSansCJKsc-Regular.otf"))
+	jpFont := fyne.NewStaticResource("NotoSansCJKjp-Regular.otf", fonts.JP)
+	krFont := fyne.NewStaticResource("NotoSansCJKkr-Regular.otf", fonts.KR)
+	scFont := fyne.NewStaticResource("NotoSansCJKsc-Regular.otf", fonts.SC)
 
-	// Apply CJK theme globally
 	ui.InitCJKTheme(app.FyneApp, jpFont, krFont, scFont)
 
 	app.Run()
