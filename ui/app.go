@@ -1,0 +1,62 @@
+package ui
+
+import (
+	"database/sql"
+	"mangadb/config"
+	"mangadb/services"
+
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
+)
+
+type App struct {
+	FyneApp         fyne.App // exported to use in the font wrapper code in main.go
+	mainWindow      fyne.Window
+	db              *sql.DB
+	config          *config.Config
+	contentService  *services.ContentService
+	mangadexService *services.MangadexService
+	mangaService    *services.MangaService    // added
+	bookmarkService *services.BookmarkService // added
+}
+
+func NewApp(db *sql.DB, cfg *config.Config) *App {
+	a := &App{
+		FyneApp:         app.NewWithID("mangadb"), // for the linux desktop file/icon association
+		db:              db,
+		config:          cfg,
+		contentService:  services.NewContentService(db),
+		mangadexService: services.NewMangadexService(), // adjust constructor if needed
+		mangaService:    services.NewMangaService(db),
+		bookmarkService: services.NewBookmarkService(db),
+	}
+
+	if db != nil {
+		a.contentService = services.NewContentService(db)
+	}
+
+	a.mainWindow = a.FyneApp.NewWindow("MangaDB")
+	a.mainWindow.Resize(fyne.NewSize(1400, 900))
+
+	a.setupMainWindow()
+
+	return a
+}
+
+func (a *App) SetDatabase(db *sql.DB) {
+	a.db = db
+	a.mangaService = services.NewMangaService(db) // <-- initialize mangaService now
+	a.contentService = services.NewContentService(db)
+
+	// Refresh main window now that DB exists
+	a.setupMainWindow()
+}
+
+func (a *App) Run() {
+	// Check if database is connected, if not show config dialog
+	if a.db == nil {
+		a.showConfigDialog(true)
+	}
+
+	a.mainWindow.ShowAndRun()
+}
