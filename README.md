@@ -1,6 +1,13 @@
 
 # MangaDB — Desktop frontend (Fyne)
 
+![Version](https://img.shields.io/github/v/tag/adamfitz/mangadb?label=version)
+![Go Reference](https://img.shields.io/badge/Go-Module-blue)
+![Go Version](https://img.shields.io/github/go-mod/go-version/adamfitz/mangadb)
+
+
+
+
 A compact desktop frontend written in Go using the Fyne GUI toolkit. MangaDB is a client application that reads and writes a PostgreSQL database you must provide and maintain. It is a hobby/experimental project — do not use this with production or critical databases.
 
 Summary

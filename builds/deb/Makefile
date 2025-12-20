@@ -1,5 +1,5 @@
 APP_NAME := mangadb
-VERSION  := 0.1.0
+VERSION := $(shell git describe --tags --abbrev=0)
 
 GOOS     := linux
 GOARCH   := amd64
@@ -22,7 +22,7 @@ prepare:
 	cp ../../assets/icons/$(APP_NAME).png $(ICON_DIR)/$(APP_NAME).png
 
 build:
-	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $(BIN_DIR)/$(BINARY) ../../main.go
+	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -ldflags "-X mangadb/utils.Version=$(VERSION)" -o $(BIN_DIR)/$(BINARY) ../../main.go
 
 install_files:
 	chmod 755 $(BIN_DIR)/$(BINARY)
@@ -34,3 +34,5 @@ package:
 
 clean:
 	rm -rf $(ROOTFS)
+	rm -f ../../builds/*.deb
+	rm -rf mangadb_*/

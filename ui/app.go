@@ -35,7 +35,7 @@ func NewApp(db *sql.DB, cfg *config.Config) *App {
 		a.contentService = services.NewContentService(db)
 	}
 
-	a.mainWindow = a.FyneApp.NewWindow("Content Database Manager")
+	a.mainWindow = a.FyneApp.NewWindow("MangaDB")
 	a.mainWindow.Resize(fyne.NewSize(1400, 900))
 
 	a.setupMainWindow()

@@ -3,6 +3,7 @@ package ui
 import (
 	"mangadb/config"
 	"mangadb/database"
+	"mangadb/utils"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
@@ -127,24 +128,62 @@ func (a *App) showConfigDialog(required bool) {
 }
 
 func (a *App) showAboutDialog() {
-	title := widget.NewLabel("Manga Tracker")
+	title := widget.NewLabel("MangaDb")
 	title.TextStyle = fyne.TextStyle{Bold: true}
 
-	version := widget.NewLabel("Version 1.0.0")
-	description := widget.NewLabel("A cross-platform manga tracking application")
+	version := widget.NewLabel("Version: " + utils.Version)
+
+	description := widget.NewLabel(
+		"A cross-platform anime, manga, lightnovel, webnovel and webtoon database front end tracking application",
+	)
 	description.Wrapping = fyne.TextWrapWord
 
-	features := widget.NewLabel("Features:\n• Manage your manga library\n• Bookmark your favorite series\n• Search and import from MangaDex\n• Cross-platform support")
+	features := widget.NewLabel(
+		"Features:\n" +
+			"• Manage your libraries\n" +
+			"• Bookmark your favorite series\n" +
+			"• Search and import from MangaDex\n" +
+			"• Cross-platform support",
+	)
 	features.Wrapping = fyne.TextWrapWord
 
-	content := container.NewVBox(
-		title,
-		version,
+	// Centered bold title
+	centeredTitle := container.NewCenter(title)
+
+	// centered version
+	centeredVersion := container.NewCenter(version)
+
+	// Declare window first so the close button can reference it
+	var aboutWin fyne.Window
+	closeBtn := widget.NewButton("Close", func() {
+		aboutWin.Close()
+	})
+
+	// Main content (scrollable)
+	mainContent := container.NewVBox(
+		centeredTitle,
+		centeredVersion,
 		widget.NewSeparator(),
 		description,
 		widget.NewSeparator(),
 		features,
 	)
 
-	dialog.ShowCustom("About", "Close", content, a.mainWindow)
+	scroll := container.NewScroll(mainContent)
+
+	// Bottom area: separator + centered Close button
+	bottom := container.NewVBox(
+		widget.NewSeparator(),
+		container.NewCenter(closeBtn),
+	)
+
+	// Border layout: scroll in center, close button at bottom
+	content := container.NewBorder(nil, bottom, nil, nil, scroll)
+
+	// Create and show window
+	aboutWin = a.FyneApp.NewWindow("About MangaDb")
+	aboutWin.SetContent(content)
+	aboutWin.Resize(fyne.NewSize(400, 350))
+	aboutWin.SetFixedSize(true)
+	aboutWin.Show()
 }
