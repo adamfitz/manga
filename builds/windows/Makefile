@@ -9,7 +9,7 @@ exe:
 	# Build the Windows binary with version injection
 	GOOS=windows GOARCH=amd64 go build -ldflags "-X mangadb/utils.Version=$(VERSION)" -o $(APP_NAME).exe ../../main.go
 
-	# Package using the prebuilt executable (no ldflags here)
+	# Package using the prebuilt executable
 	fyne package \
 		-os windows \
 		-name $(APP_NAME) \
@@ -17,7 +17,8 @@ exe:
 		-release \
 		-executable $(APP_NAME).exe \
 		-appVersion $(CLEAN_VERSION) \
-		-appID com.app.mangadb
+		-appID com.app.mangadb \
+		-sourceDir ../../
 
 	mv *.exe ./$(APP_NAME).exe || true
 
