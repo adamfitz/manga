@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=MangaDB
+Comment=Manga database manager
+Exec=mangadb
+Icon=mangadb
+Terminal=false
+Categories=Utility;Database;
+StartupNotify=true
+StartupWMClass=mangadb

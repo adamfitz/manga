@@ -1,0 +1,8 @@
+Package: mangadb
+Version: 0.1.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Maintainer: Adam adam@networknoob.net
+Description: MangaDB desktop application
+ Manga database manager built with Go and Fyne.

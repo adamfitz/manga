@@ -22,7 +22,7 @@ type App struct {
 
 func NewApp(db *sql.DB, cfg *config.Config) *App {
 	a := &App{
-		FyneApp:         app.New(),
+		FyneApp:         app.NewWithID("mangadb"), // for the linux desktop file/icon association
 		db:              db,
 		config:          cfg,
 		contentService:  services.NewContentService(db),
