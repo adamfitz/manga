@@ -16,7 +16,7 @@ exe:
 		-icon $(ICON) \
 		-release \
 		-executable $(APP_NAME).exe \
-		-appVersion $(VERSION) \
+		-appVersion $(CLEAN_VERSION) \
 		-appID com.app.mangadb
 
 	mv *.exe ./$(APP_NAME).exe || true
