@@ -1,6 +1,7 @@
 APP_NAME := mangadb
 ICON     := ../../assets/icons/mangadb.ico
 VERSION  := $(shell git describe --tags --abbrev=0)
+CLEAN_VERSION := $(shell echo $(VERSION) | sed 's/^v//')
 
 all: exe
 
