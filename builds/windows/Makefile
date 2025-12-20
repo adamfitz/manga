@@ -15,9 +15,9 @@ exe:
 		-icon $(ICON) \
 		-release \
 		-executable $(APP_NAME).exe \
-		-appVersion $(VERSION)
+		-appVersion $(VERSION) \
+		-appID com.app.mangadb
 
-	# Move packaged exe to expected name/location
 	mv *.exe ./$(APP_NAME).exe || true
 
 clean:
