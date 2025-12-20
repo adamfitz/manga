@@ -22,21 +22,28 @@ jobs:
           latest=$(git describe --tags --abbrev=0)
           echo "latest=$latest" >> $GITHUB_OUTPUT
 
-      - name: Build Linux packages
+      - name: Install Linux GUI build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y rpm dpkg-dev
-          cd builds/deb && make VERSION=${{ steps.tag.outputs.latest }}
-          cd ../rpm && make VERSION=${{ steps.tag.outputs.latest }}
+          sudo apt-get install -y \
+            dpkg-dev \
+            libgl1-mesa-dev \
+            xorg-dev \
+            libxcursor-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxi-dev
 
+      - name: Build Linux packages
+        run: |
+          cd builds/deb
+          make VERSION=${{ steps.tag.outputs.latest }}
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
         with:
           name: linux-packages
-          path: |
-            builds/*.deb
-            builds/*.rpm
+          path: builds/*.deb
 
   windows:
     runs-on: windows-latest
@@ -58,7 +65,6 @@ jobs:
         run: |
           cd builds/windows
           make VERSION=${{ needs.release.outputs.latest_tag }}
-
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
