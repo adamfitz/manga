@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       latest_tag: ${{ steps.tag.outputs.latest }}
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
 
     steps:
       - name: Checkout
@@ -21,6 +22,17 @@ jobs:
           git fetch --tags
           latest=$(git describe --tags --abbrev=0)
           echo "latest=$latest" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.latest }}
+          release_name: ${{ steps.tag.outputs.latest }}
+          draft: false
+          prerelease: false
 
       - name: Install Linux GUI build dependencies
         run: |
@@ -39,11 +51,15 @@ jobs:
           cd builds/deb
           make VERSION=${{ steps.tag.outputs.latest }}
 
-      - name: Upload Linux artifacts
-        uses: actions/upload-artifact@v4
+      - name: Upload Linux .deb to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: linux-packages
-          path: builds/*.deb
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: builds/deb/*.deb
+          asset_name: mangadb-linux.deb
+          asset_content_type: application/vnd.debian.binary-package
 
   windows:
     runs-on: windows-latest
@@ -66,8 +82,12 @@ jobs:
           cd builds/windows
           make VERSION=${{ needs.release.outputs.latest_tag }}
 
-      - name: Upload Windows artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Windows exe to Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: windows-exe
-          path: builds/windows/mangadb.exe
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: builds/windows/mangadb.exe
+          asset_name: mangadb-windows.exe
+          asset_content_type: application/octet-stream
