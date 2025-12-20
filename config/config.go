@@ -26,7 +26,7 @@ func GetConfigPath() (string, error) {
 		return "", fmt.Errorf("failed to create config directory: %w", err)
 	}
 
-	return filepath.Join(configDir, "manga.config"), nil
+	return filepath.Join(configDir, "mangadb.config"), nil
 }
 
 func LoadConfig() (*Config, error) {

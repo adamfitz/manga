@@ -18,19 +18,8 @@ Summary
 
 Quick start
 
-- Prerequisites: Go 1.21+, PostgreSQL, Git
-- Build:
-
-```bash
-go build ./...
-```
-
-- Run:
-
-```bash
-./mangadb      # Linux/macOS
-mangadb.exe    # Windows
-```
+- Prerequisites: Go 1.21+, PostgreSQL
+- Latest release: download the prebuilt binaries from the releases page: https://github.com/adamfitz/mangadb/releases
 
 Database (minimal requirement)
 
@@ -82,15 +71,10 @@ Required tables and columns
   - `url` (text, not null)
   - `status` (varchar(50), expected values: 'ongoing','completed','hiatus','cancelled')
 
-Notes
-
-- The code will run its migrations from `database/migrations.go` if connected; migrations are kept in code only.
-- This README intentionally avoids database server setup instructions — you are responsible for provisioning and securing your own PostgreSQL instance.
-
 Configuration
 
 - Open File → Database Settings in the app and enter host, port (default 5432), username, password and database name.
-- Configuration is saved to `~/.config/manga.config` (JSON).
+- Configuration is saved to `~/.config/mangadb.config` (JSON).
 
 Fonts
 
@@ -98,11 +82,6 @@ Fonts
 
 
 Support and disclaimers
-
-- This is an experimental/hobby project. Do not use this on production or critical databases.
-- Review migrations before running them. Back up your data regularly.
-
-License: MIT
 
 - This is an experimental/hobby project. Do not use this on production or critical databases.
 - Review migrations before running them. Back up your data regularly.
